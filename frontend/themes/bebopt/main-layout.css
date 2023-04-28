@@ -1,7 +1,7 @@
 header nav a:any-link {
   text-decoration: none;
   padding: 0 var(--lumo-space-s);
-  border-radius: var(--lumo-border-radius-m);
+  border-radius: var(--lumo-border-radius-s);
   outline: 0;
 }
 

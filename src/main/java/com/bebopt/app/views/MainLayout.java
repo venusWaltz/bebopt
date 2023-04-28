@@ -130,7 +130,7 @@ public class MainLayout extends AppLayout {
 
             layout.add(userMenu);
         } else {
-            Anchor loginLink = new Anchor("login", "Sign in");
+            Anchor loginLink = new Anchor("login", "Sign in");  // replace href "login" w/ spotify login url
             layout.add(loginLink);
         }
 
@@ -157,9 +157,9 @@ public class MainLayout extends AppLayout {
         return new MenuItemInfo[]{ //
                 new MenuItemInfo("Home", LineAwesomeIcon.HOME_SOLID.create(), HomeView.class), //
 
-                new MenuItemInfo("Stats", LineAwesomeIcon.FILTER_SOLID.create(), StatsView.class), //
+                new MenuItemInfo("Stats", LineAwesomeIcon.CHART_BAR_SOLID.create(), StatsView.class), //
 
-                new MenuItemInfo("Playlists", LineAwesomeIcon.TH_LIST_SOLID.create(), PlaylistsView.class), //
+                new MenuItemInfo("Playlists", LineAwesomeIcon.LIST_OL_SOLID.create(), PlaylistsView.class), //
 
                 new MenuItemInfo("Recommendations", LineAwesomeIcon.MUSIC_SOLID.create(), RecommendationsView.class), //
 

@@ -1,4 +1,6 @@
-package com.bebopt.app.views.playlists;
+package com.bebopt.app.views.stats;
+
+import com.bebopt.app.data.entity.Artist;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
@@ -17,32 +19,27 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Overflow;
 import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
 import com.vaadin.flow.theme.lumo.LumoUtility.Width;
 
-public class PlaylistsViewCard extends ListItem {
+public class ArtistCard extends ListItem {
 
-    public PlaylistsViewCard(String text, String url) {
+    public ArtistCard(Artist artist) {
         addClassNames(Background.CONTRAST_5, Display.FLEX, FlexDirection.COLUMN, AlignItems.START, Padding.SMALL,
-                BorderRadius.SMALL);
+                BorderRadius.SMALL, Margin.Bottom.MEDIUM);
 
         Div div = new Div();
         div.addClassNames(Background.CONTRAST, Display.FLEX, AlignItems.CENTER, JustifyContent.CENTER,
-                Margin.Bottom.SMALL, Overflow.HIDDEN, BorderRadius.SMALL, Width.FULL);
-        div.setHeight("132px");
-        div.setWidth("132px");
+                Margin.Bottom.XSMALL, Overflow.HIDDEN, BorderRadius.SMALL, Width.AUTO);
+        div.setHeight("160px");
+        div.setWidth("160px");
 
         Image image = new Image();
-        image.setWidth("200%");
-        image.setSrc(url);
-        image.setAlt(text);
+        image.setHeight("100%");
+        image.setSrc(artist.getImage());
 
         div.add(image);
 
         Span header = new Span();
         header.addClassNames(FontSize.MEDIUM, FontWeight.SEMIBOLD);
-        header.setText("Playlist Title");
-
-        this.addClickListener(e -> {
-            PlaylistsView.dialog.open();
-        });
+        header.setText(artist.getName());
 
         add(div, header);
     }

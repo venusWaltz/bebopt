@@ -1,5 +1,5 @@
 .playlists-view ol {
-  grid-template-columns: repeat(auto-fill, minmax(256px, 1fr));
+  grid-template-columns: repeat(auto-fill, 157px);
 }
 
 .playlists-view li {

@@ -1,250 +1,181 @@
 package com.bebopt.app.views.stats;
 
-import com.bebopt.app.data.entity.SamplePerson;
-import com.bebopt.app.data.service.SamplePersonService;
+import java.util.List;
+
+import com.bebopt.app.data.entity.Track;
+
+import com.bebopt.app.data.entity.Artist;
 import com.bebopt.app.views.MainLayout;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.CheckboxGroup;
-import com.vaadin.flow.component.combobox.MultiSelectComboBox;
-import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.dependency.Uses;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.OrderedList;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.tabs.TabSheet;
+import com.vaadin.flow.component.tabs.TabSheetVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
-import com.vaadin.flow.theme.lumo.LumoUtility;
+import com.vaadin.flow.theme.lumo.LumoUtility.AlignItems;
+import com.vaadin.flow.theme.lumo.LumoUtility.Display;
+import com.vaadin.flow.theme.lumo.LumoUtility.FontSize;
+import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
+import com.vaadin.flow.theme.lumo.LumoUtility.JustifyContent;
+import com.vaadin.flow.theme.lumo.LumoUtility.ListStyleType;
+import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
+import com.vaadin.flow.theme.lumo.LumoUtility.MaxWidth;
+import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
+import com.vaadin.flow.theme.lumo.LumoUtility.Grid.Column;
+
 import jakarta.annotation.security.PermitAll;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.List;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 
 @PageTitle("Stats")
 @Route(value = "stats", layout = MainLayout.class)
 @PermitAll
-@Uses(Icon.class)
 public class StatsView extends Div {
 
-    private Grid<SamplePerson> grid;
+    private Div trackTab;
+    private Div artistTab;
+    private Div genreTab;
+    private TabSheet tabsheet;
 
-    private Filters filters;
-    private final SamplePersonService samplePersonService;
+    private OrderedList artistContainer;
+    private OrderedList trackContainer;
+    private OrderedList genreContainer;
+    List<Track> tracks;
+    Select<String> sortBy;
+    
+    public StatsView() {
+        tabsheet = new TabSheet();
 
-    public StatsView(SamplePersonService SamplePersonService) {
-        this.samplePersonService = SamplePersonService;
-        setSizeFull();
-        addClassNames("stats-view");
+        // create tab page layouts
+        trackTab = createTopTracks();
+        artistTab = createTopArtists();
+        genreTab = createTopGenres();
+ 
+        // add tabs to tabsheet
+        tabsheet.add("Top Tracks", trackTab);
+        tabsheet.add("Top Artists", artistTab);
+        tabsheet.add("Top Genres", genreTab);
+        add(tabsheet);
+        
+        // distribute tabs evenly
+        tabsheet.addThemeVariants(TabSheetVariant.LUMO_TABS_EQUAL_WIDTH_TABS);
 
-        filters = new Filters(() -> refreshGrid());
-        VerticalLayout layout = new VerticalLayout(createMobileFilters(), filters, createGrid());
-        layout.setSizeFull();
-        layout.setPadding(false);
-        layout.setSpacing(false);
-        add(layout);
+        int i = 0;
+        trackContainer.add(new TrackCard(new Track("(Sittin' On) the Dock of the Bay", "Otis Redding", "https://i.scdn.co/image/ab67616d0000b273b050a4bba4ad96ea639d75b3"),i++));
+        trackContainer.add(new TrackCard(new Track("Soul Love", "David Bowie", "https://i.scdn.co/image/ab67616d0000b273c41f4e1133b0e6c5fcf58680"), i++));
+        trackContainer.add(new TrackCard(new Track("Heat of the Moment", "Asia", "https://i.scdn.co/image/ab67616d0000b2732323f86e757c3436b3cc38af"),i++));
+        trackContainer.add(new TrackCard(new Track("Mr. Blue Sky", "Electric Light Orchestra", "https://i.scdn.co/image/ab67616d0000b2738c4e95986c803791125e8991"),i++));
+        trackContainer.add(new TrackCard(new Track("Time in a Bottle", "Jim Croce", "https://i.scdn.co/image/ab67616d0000b27397e92e26bae020503bdff4fb"),i++));
+        trackContainer.add(new TrackCard(new Track("(Sittin' On) the Dock of the Bay", "Otis Redding", "https://i.scdn.co/image/ab67616d0000b273b050a4bba4ad96ea639d75b3"),i++));
+        trackContainer.add(new TrackCard(new Track("Soul Love", "David Bowie", "https://i.scdn.co/image/ab67616d0000b273c41f4e1133b0e6c5fcf58680"), i++));
+        trackContainer.add(new TrackCard(new Track("Heat of the Moment", "Asia", "https://i.scdn.co/image/ab67616d0000b2732323f86e757c3436b3cc38af"),i++));
+        trackContainer.add(new TrackCard(new Track("Mr. Blue Sky", "Electric Light Orchestra", "https://i.scdn.co/image/ab67616d0000b2738c4e95986c803791125e8991"),i++));
+        trackContainer.add(new TrackCard(new Track("Time in a Bottle", "Jim Croce", "https://i.scdn.co/image/ab67616d0000b27397e92e26bae020503bdff4fb"),i++));
+        trackContainer.add(new TrackCard(new Track("(Sittin' On) the Dock of the Bay", "Otis Redding", "https://i.scdn.co/image/ab67616d0000b273b050a4bba4ad96ea639d75b3"),i++));
+        trackContainer.add(new TrackCard(new Track("Soul Love", "David Bowie", "https://i.scdn.co/image/ab67616d0000b273c41f4e1133b0e6c5fcf58680"), i++));
+        trackContainer.add(new TrackCard(new Track("Heat of the Moment", "Asia", "https://i.scdn.co/image/ab67616d0000b2732323f86e757c3436b3cc38af"),i++));
+        trackContainer.add(new TrackCard(new Track("Mr. Blue Sky", "Electric Light Orchestra", "https://i.scdn.co/image/ab67616d0000b2738c4e95986c803791125e8991"),i++));
+        trackContainer.add(new TrackCard(new Track("Time in a Bottle", "Jim Croce", "https://i.scdn.co/image/ab67616d0000b27397e92e26bae020503bdff4fb"),i++));
+
+        artistContainer.add(new ArtistCard(new Artist("Queen", "https://i.scdn.co/image/af2b8e57f6d7b5d43a616bd1e27ba552cd8bfd42")));
+        artistContainer.add(new ArtistCard(new Artist("The Jam", "https://i.scdn.co/image/443c4fb3b00e2205618c74b243612e36fd21d378")));
+        artistContainer.add(new ArtistCard(new Artist("Pink Floyd", "https://i.scdn.co/image/d011c95081cd9a329e506abd7ded47535d524a07")));
+        artistContainer.add(new ArtistCard(new Artist("Jimi Hendrix", "https://i.scdn.co/image/ab6761610000e5eb31f6ab67e6025de876475814")));
+        artistContainer.add(new ArtistCard(new Artist("The Beatles", "https://i.scdn.co/image/ab6761610000e5ebe9348cc01ff5d55971b22433")));
+        artistContainer.add(new ArtistCard(new Artist("David Bowie", "https://i.scdn.co/image/ab6761610000e5ebb78f77c5583ae99472dd4a49")));
+        artistContainer.add(new ArtistCard(new Artist("Otis Redding", "https://i.scdn.co/image/a5897eff01844c42d894a586e618ebc4aa0b9d2f")));
+        artistContainer.add(new ArtistCard(new Artist("Diana Ross", "https://i.scdn.co/image/ab67616d00001e029a2b94aa80fdbdf671f14f9e")));
+        artistContainer.add(new ArtistCard(new Artist("Billie Holiday", "https://i.scdn.co/image/11f685f3011fd163c386ce1afe7ce543ad814817")));
+        artistContainer.add(new ArtistCard(new Artist("Queen", "https://i.scdn.co/image/af2b8e57f6d7b5d43a616bd1e27ba552cd8bfd42")));
+        artistContainer.add(new ArtistCard(new Artist("The Jam", "https://i.scdn.co/image/443c4fb3b00e2205618c74b243612e36fd21d378")));
+        artistContainer.add(new ArtistCard(new Artist("Pink Floyd", "https://i.scdn.co/image/d011c95081cd9a329e506abd7ded47535d524a07")));
+        artistContainer.add(new ArtistCard(new Artist("Jimi Hendrix", "https://i.scdn.co/image/ab6761610000e5eb31f6ab67e6025de876475814")));
+        artistContainer.add(new ArtistCard(new Artist("The Beatles", "https://i.scdn.co/image/ab6761610000e5ebe9348cc01ff5d55971b22433")));
+        artistContainer.add(new ArtistCard(new Artist("David Bowie", "https://i.scdn.co/image/ab6761610000e5ebb78f77c5583ae99472dd4a49")));
+        artistContainer.add(new ArtistCard(new Artist("Otis Redding", "https://i.scdn.co/image/a5897eff01844c42d894a586e618ebc4aa0b9d2f")));
+        artistContainer.add(new ArtistCard(new Artist("Diana Ross", "https://i.scdn.co/image/ab67616d00001e029a2b94aa80fdbdf671f14f9e")));
+        artistContainer.add(new ArtistCard(new Artist("Billie Holiday", "https://i.scdn.co/image/11f685f3011fd163c386ce1afe7ce543ad814817")));
+        artistContainer.add(new ArtistCard(new Artist("Queen", "https://i.scdn.co/image/af2b8e57f6d7b5d43a616bd1e27ba552cd8bfd42")));
+        artistContainer.add(new ArtistCard(new Artist("The Jam", "https://i.scdn.co/image/443c4fb3b00e2205618c74b243612e36fd21d378")));
+        artistContainer.add(new ArtistCard(new Artist("Pink Floyd", "https://i.scdn.co/image/d011c95081cd9a329e506abd7ded47535d524a07")));
+        artistContainer.add(new ArtistCard(new Artist("Jimi Hendrix", "https://i.scdn.co/image/ab6761610000e5eb31f6ab67e6025de876475814")));
+        artistContainer.add(new ArtistCard(new Artist("The Beatles", "https://i.scdn.co/image/ab6761610000e5ebe9348cc01ff5d55971b22433")));
+        artistContainer.add(new ArtistCard(new Artist("David Bowie", "https://i.scdn.co/image/ab6761610000e5ebb78f77c5583ae99472dd4a49")));
+        artistContainer.add(new ArtistCard(new Artist("Otis Redding", "https://i.scdn.co/image/a5897eff01844c42d894a586e618ebc4aa0b9d2f")));
+        artistContainer.add(new ArtistCard(new Artist("Diana Ross", "https://i.scdn.co/image/ab67616d00001e029a2b94aa80fdbdf671f14f9e")));
+        artistContainer.add(new ArtistCard(new Artist("Billie Holiday", "https://i.scdn.co/image/11f685f3011fd163c386ce1afe7ce543ad814817")));
+
+        int j = 0;
+        genreContainer.add(new GenreCard("Rock", 50, j++));
+        genreContainer.add(new GenreCard("Pop", 35, j++));
+        genreContainer.add(new GenreCard("Blues", 15, j++));
     }
 
-    private HorizontalLayout createMobileFilters() {
-        // Mobile version
-        HorizontalLayout mobileFilters = new HorizontalLayout();
-        mobileFilters.setWidthFull();
-        mobileFilters.addClassNames(LumoUtility.Padding.MEDIUM, LumoUtility.BoxSizing.BORDER,
-                LumoUtility.AlignItems.CENTER);
-        mobileFilters.addClassName("mobile-filters");
+    private Div createTopTracks() {
+        Div div = new Div();
+        addClassNames("track-view");
+        addClassNames(MaxWidth.SCREEN_LARGE, Margin.Horizontal.AUTO, Padding.Bottom.LARGE, Padding.Horizontal.LARGE);
 
-        Icon mobileIcon = new Icon("lumo", "plus");
-        Span filtersHeading = new Span("Filters");
-        mobileFilters.add(mobileIcon, filtersHeading);
-        mobileFilters.setFlexGrow(1, filtersHeading);
-        mobileFilters.addClickListener(e -> {
-            if (filters.getClassNames().contains("visible")) {
-                filters.removeClassName("visible");
-                mobileIcon.getElement().setAttribute("icon", "lumo:plus");
-            } else {
-                filters.addClassName("visible");
-                mobileIcon.getElement().setAttribute("icon", "lumo:minus");
-            }
-        });
-        return mobileFilters;
+        HorizontalLayout container = new HorizontalLayout();
+        container.addClassNames(AlignItems.CENTER, JustifyContent.BETWEEN);
+
+        VerticalLayout headerContainer = new VerticalLayout();
+        H2 header = new H2("Your Top Tracks");
+        header.addClassNames(Margin.Bottom.NONE, Margin.Top.XLARGE, FontSize.XXXLARGE);
+        headerContainer.add(header);
+
+        Select<String> sortBy = new Select<>();
+        sortBy.setItems("Recent", "Last four weeks", "Last six months", "All data");
+        sortBy.setValue("Recent");
+
+        trackContainer = new OrderedList();
+
+        container.add(headerContainer, sortBy);
+        div.add(container, trackContainer);
+
+        return div;
     }
 
-    public static class Filters extends Div implements Specification<SamplePerson> {
+    private Div createTopArtists() {
+        addClassNames("artist-view");
+        addClassNames(MaxWidth.SCREEN_LARGE, Margin.Horizontal.AUTO, Padding.Bottom.LARGE, Padding.Horizontal.LARGE);
 
-        private final TextField name = new TextField("Name");
-        private final TextField phone = new TextField("Phone");
-        private final DatePicker startDate = new DatePicker("Date of Birth");
-        private final DatePicker endDate = new DatePicker();
-        private final MultiSelectComboBox<String> occupations = new MultiSelectComboBox<>("Occupation");
-        private final CheckboxGroup<String> roles = new CheckboxGroup<>("Role");
+        Div div = new Div();
+        
+        HorizontalLayout container = new HorizontalLayout();
+        container.addClassNames(AlignItems.CENTER, JustifyContent.BETWEEN);
 
-        public Filters(Runnable onSearch) {
+        VerticalLayout headerContainer = new VerticalLayout();
+        H2 header = new H2("Your Top Artists");
+        header.addClassNames(Margin.Bottom.NONE, Margin.Top.XLARGE, FontSize.XXXLARGE);
+        headerContainer.add(header);
 
-            setWidthFull();
-            addClassName("filter-layout");
-            addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM,
-                    LumoUtility.BoxSizing.BORDER);
-            name.setPlaceholder("First or last name");
+        Select<String> sortBy = new Select<>();
+        sortBy.setItems("Recent", "Last four weeks", "Last six months", "All data");
+        sortBy.setValue("Recent");
 
-            occupations.setItems("Insurance Clerk", "Mortarman", "Beer Coil Cleaner", "Scale Attendant");
+        artistContainer = new OrderedList();
+        artistContainer.addClassNames(Gap.MEDIUM, Display.GRID, ListStyleType.NONE, Margin.NONE, Padding.NONE, JustifyContent.BETWEEN, Column.COLUMNS_5);
 
-            roles.setItems("Worker", "Supervisor", "Manager", "External");
-            roles.addClassName("double-width");
-
-            // Action buttons
-            Button resetBtn = new Button("Reset");
-            resetBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            resetBtn.addClickListener(e -> {
-                name.clear();
-                phone.clear();
-                startDate.clear();
-                endDate.clear();
-                occupations.clear();
-                roles.clear();
-                onSearch.run();
-            });
-            Button searchBtn = new Button("Search");
-            searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            searchBtn.addClickListener(e -> onSearch.run());
-
-            Div actions = new Div(resetBtn, searchBtn);
-            actions.addClassName(LumoUtility.Gap.SMALL);
-            actions.addClassName("actions");
-
-            add(name, phone, createDateRangeFilter(), occupations, roles, actions);
-        }
-
-        private Component createDateRangeFilter() {
-            startDate.setPlaceholder("From");
-
-            endDate.setPlaceholder("To");
-
-            // For screen readers
-            setAriaLabel(startDate, "From date");
-            setAriaLabel(endDate, "To date");
-
-            FlexLayout dateRangeComponent = new FlexLayout(startDate, new Text(" – "), endDate);
-            dateRangeComponent.setAlignItems(FlexComponent.Alignment.BASELINE);
-            dateRangeComponent.addClassName(LumoUtility.Gap.XSMALL);
-
-            return dateRangeComponent;
-        }
-
-        private void setAriaLabel(DatePicker datePicker, String label) {
-            datePicker.getElement().executeJs("const input = this.inputElement;" //
-                    + "input.setAttribute('aria-label', $0);" //
-                    + "input.removeAttribute('aria-labelledby');", label);
-        }
-
-        @Override
-        public Predicate toPredicate(Root<SamplePerson> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-            List<Predicate> predicates = new ArrayList<>();
-
-            if (!name.isEmpty()) {
-                String lowerCaseFilter = name.getValue().toLowerCase();
-                Predicate firstNameMatch = criteriaBuilder.like(criteriaBuilder.lower(root.get("firstName")),
-                        lowerCaseFilter + "%");
-                Predicate lastNameMatch = criteriaBuilder.like(criteriaBuilder.lower(root.get("lastName")),
-                        lowerCaseFilter + "%");
-                predicates.add(criteriaBuilder.or(firstNameMatch, lastNameMatch));
-            }
-            if (!phone.isEmpty()) {
-                String databaseColumn = "phone";
-                String ignore = "- ()";
-
-                String lowerCaseFilter = ignoreCharacters(ignore, phone.getValue().toLowerCase());
-                Predicate phoneMatch = criteriaBuilder.like(
-                        ignoreCharacters(ignore, criteriaBuilder, criteriaBuilder.lower(root.get(databaseColumn))),
-                        "%" + lowerCaseFilter + "%");
-                predicates.add(phoneMatch);
-
-            }
-            if (startDate.getValue() != null) {
-                String databaseColumn = "dateOfBirth";
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get(databaseColumn),
-                        criteriaBuilder.literal(startDate.getValue())));
-            }
-            if (endDate.getValue() != null) {
-                String databaseColumn = "dateOfBirth";
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(criteriaBuilder.literal(endDate.getValue()),
-                        root.get(databaseColumn)));
-            }
-            if (!occupations.isEmpty()) {
-                String databaseColumn = "occupation";
-                List<Predicate> occupationPredicates = new ArrayList<>();
-                for (String occupation : occupations.getValue()) {
-                    occupationPredicates
-                            .add(criteriaBuilder.equal(criteriaBuilder.literal(occupation), root.get(databaseColumn)));
-                }
-                predicates.add(criteriaBuilder.or(occupationPredicates.toArray(Predicate[]::new)));
-            }
-            if (!roles.isEmpty()) {
-                String databaseColumn = "role";
-                List<Predicate> rolePredicates = new ArrayList<>();
-                for (String role : roles.getValue()) {
-                    rolePredicates.add(criteriaBuilder.equal(criteriaBuilder.literal(role), root.get(databaseColumn)));
-                }
-                predicates.add(criteriaBuilder.or(rolePredicates.toArray(Predicate[]::new)));
-            }
-            return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
-        }
-
-        private String ignoreCharacters(String characters, String in) {
-            String result = in;
-            for (int i = 0; i < characters.length(); i++) {
-                result = result.replace("" + characters.charAt(i), "");
-            }
-            return result;
-        }
-
-        private Expression<String> ignoreCharacters(String characters, CriteriaBuilder criteriaBuilder,
-                Expression<String> inExpression) {
-            Expression<String> expression = inExpression;
-            for (int i = 0; i < characters.length(); i++) {
-                expression = criteriaBuilder.function("replace", String.class, expression,
-                        criteriaBuilder.literal(characters.charAt(i)), criteriaBuilder.literal(""));
-            }
-            return expression;
-        }
-
+        container.add(headerContainer, sortBy);
+        div.add(container, artistContainer);
+        return div;
     }
-
-    private Component createGrid() {
-        grid = new Grid<>(SamplePerson.class, false);
-        grid.addColumn("firstName").setAutoWidth(true);
-        grid.addColumn("lastName").setAutoWidth(true);
-        grid.addColumn("email").setAutoWidth(true);
-        grid.addColumn("phone").setAutoWidth(true);
-        grid.addColumn("dateOfBirth").setAutoWidth(true);
-        grid.addColumn("occupation").setAutoWidth(true);
-        grid.addColumn("role").setAutoWidth(true);
-
-        grid.setItems(query -> samplePersonService.list(
-                PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)),
-                filters).stream());
-        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
-        grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
-
-        return grid;
+    private Div createTopGenres() {
+        addClassNames("genre-view");
+        addClassNames(MaxWidth.SCREEN_LARGE, Margin.Horizontal.AUTO, Padding.Bottom.LARGE, Padding.Horizontal.LARGE);
+        
+        Div div = new Div();
+        
+        VerticalLayout headerContainer = new VerticalLayout();
+        H2 header = new H2("Your Top Genres");
+        header.addClassNames(Margin.Bottom.NONE, Margin.Top.XLARGE, FontSize.XXXLARGE);
+        headerContainer.add(header);
+        
+        genreContainer = new OrderedList();
+        div.add(headerContainer, genreContainer);
+        return div;
     }
-
-    private void refreshGrid() {
-        grid.getDataProvider().refreshAll();
-    }
-
 }

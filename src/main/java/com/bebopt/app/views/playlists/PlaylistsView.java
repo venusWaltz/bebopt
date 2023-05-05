@@ -20,7 +20,6 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.listbox.ListBox;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -108,13 +107,15 @@ public class PlaylistsView extends Main {
         imageContainer = new OrderedList();
         imageContainer.addClassNames(Gap.SMALL, Display.GRID, ListStyleType.NONE, Margin.NONE, Padding.NONE, JustifyContent.BETWEEN, Column.COLUMNS_6);
         
+        // playlist action dialog; appears when user selects a playlist
         Dialog dialog = createDialog();
         container.add(headerContainer);
         add(container, imageContainer, dialog);
     }
 
+    // create the dialog window for playlist operations
     public static Dialog createDialog() {
-        // create dialog window for playlist options
+        // create dialog
         dialog = new Dialog();
         dialog.setHeaderTitle("Playlist Options");
         dialog.setHeight("800px");
@@ -167,7 +168,7 @@ public class PlaylistsView extends Main {
 
     // create tabsheet for dialog window
     private static TabSheet createTabsheet() {
-        tabsheet = new TabSheet();
+        tabsheet = new TabSheet();      // create tabsheet container
 
         sortTab = sortTab();            // create sort tab
         filterTab = filterTab();        // create filter tab
@@ -178,6 +179,7 @@ public class PlaylistsView extends Main {
         tabsheet.add("Filter", filterTab);
         tabsheet.add("Merge", mergeTab);
 
+        // space tabs equally
         tabsheet.addThemeVariants(TabSheetVariant.LUMO_TABS_EQUAL_WIDTH_TABS);
 
         return tabsheet;
@@ -246,6 +248,7 @@ public class PlaylistsView extends Main {
                 HorizontalLayout row = new HorizontalLayout();
                 row.addClassNames(AlignItems.CENTER);
                 
+                // add playlist cover image
                 Avatar a = new Avatar();
                 a.setName("Image");
                 a.setImage("https://images.unsplash.com/photo-1519681393784-d120267933ba?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80");
@@ -257,7 +260,6 @@ public class PlaylistsView extends Main {
                 return row;
         }));
         merge = "New Playlist";
-        listBox.addValueChangeListener(e -> { merge = e.getValue(); Notification.show(merge.toString()); });
         mergeLayout.add(label, listBox);
 
         return mergeLayout;
@@ -265,20 +267,27 @@ public class PlaylistsView extends Main {
 
     // create confirmation dialog
     private static Boolean confirmDialog(String action, String selectedAction) {
+        // create dialog
         ConfirmDialog confirmDialog = new ConfirmDialog();
         confirmDialog.setWidth("550px");
         confirmDialog.setHeader("Confirm");
+        // confirmation message
         Div div = new Div(new Text("Are you sure you want to " + action.toLowerCase() + 
                 (action == "Merge" ? " these playlists" : " this playlist by " + selectedAction.toLowerCase()) + "?"));
         confirmDialog.add(div);
-        Boolean con = false;
+        
         confirmDialog.setCancelable(true);
         confirmDialog.setConfirmText(action);
+
+        // check if user has confirmed action
+        Boolean con = false;
         confirmDialog.addConfirmListener(e -> setConfirm(con, true));
-        confirmDialog.open();
+
+        confirmDialog.open();   // open dialog
         return con;
     }
 
+    // update marker value after user either confirms or cancels a playlist action
     private static void setConfirm(Boolean a, Boolean b) {
         a = b;
     }

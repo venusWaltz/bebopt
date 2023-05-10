@@ -36,7 +36,7 @@ import se.michaelthelin.spotify.requests.data.users_profile.GetCurrentUsersProfi
 public class AuthController {
     private static String clientID = Client.getClientID();
     private static String clientSecret = Client.getClientSecret();
-    private static String scopes = "user-read-email,user-read-private,playlist-read-private";
+    private static String scopes = "user-read-email,user-read-private,playlist-read-private,user-top-read";
     private static final URI redirectUri = SpotifyHttpManager.makeUri("http://localhost:8080/callback");
     private String code = "";
 
@@ -80,16 +80,16 @@ public class AuthController {
             System.out.println("Error" + e.getMessage());
         }
 
-        // response.sendRedirect("http://localhost:8080/home");    // redirect to home page after retrieving access token
+        response.sendRedirect("http://localhost:8080/home");    // redirect to home page after retrieving access token
         return spotifyApi.getAccessToken();
     }   // handle errors
 
     public static String getAccessToken() {
-        return spotifyApi.getAccessToken().toString();
+        return spotifyApi.getAccessToken();
     }
 
         // get current user's profile
-    // @GetMapping("user-profile")
+    @GetMapping("user-profile")
     public static User getProfile() {
         
         final GetCurrentUsersProfileRequest getCurrentUsersProfileRequest = spotifyApi.getCurrentUsersProfile()

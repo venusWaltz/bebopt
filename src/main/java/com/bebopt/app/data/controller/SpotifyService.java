@@ -21,5 +21,23 @@ public class SpotifyService {
         RedirectController.redirect("page-redirect");
     }
 
+        // public static void setCurrentUser() {
+    //     new CurrentUser(SpotifyService.getCurrentUser());        // get current user info
+    // }
+
+    public static Track[] getTracks(String timeRange) {
+        Track[] tracks = AuthController.getTopTracks(timeRange);
+        return tracks;
+    }
+
+    public static Artist[] getArtists(String timeRange) {
+        Artist[] artists = AuthController.getTopArtists(timeRange);
+        return artists;
+    }
+
+    public static User getCurrentUser() {
+        User user = AuthController.getProfile();
+        return user;
+    }
 }
 

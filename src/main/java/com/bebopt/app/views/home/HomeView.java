@@ -1,5 +1,6 @@
 package com.bebopt.app.views.home;
 
+import com.bebopt.app.data.controller.AuthController;
 import com.bebopt.app.data.controller.SpotifyService;
 import com.bebopt.app.views.MainLayout;
 import com.vaadin.flow.component.UI;
@@ -13,6 +14,9 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
+
+import se.michaelthelin.spotify.model_objects.specification.Track;
+import se.michaelthelin.spotify.model_objects.specification.User;
 
 @PageTitle("Home")
 @Route(value = "home", layout = MainLayout.class)
@@ -44,9 +48,33 @@ public class HomeView extends VerticalLayout {
             }
         );
 
-        Button b = new Button("Logout test");
-        b.addClickListener(null);
-        add(a);
+        Paragraph p = new Paragraph();
+        add(p);
+        Button b = new Button("Display access token");
+        b.addClickListener(e -> {
+            p.setText(AuthController.getAccessToken());  
+        });
+
+        Button c = new Button("Get top tracks - short term");
+        c.addClickListener(e -> {
+            Track[] tracks = SpotifyService.getTracks("short_term"); 
+            for (Track track : tracks) {
+                String title = track.getName();
+                Paragraph newTitle = new Paragraph(title);
+                add(newTitle);
+            }
+        });
+
+        Button d = new Button("Get user profile");
+        d.addClickListener(e -> {
+            User user = SpotifyService.getCurrentUser(); 
+            String name = user.getDisplayName();
+            Paragraph newP = new Paragraph(name);
+            add(newP);
+        });
+
+        add(a, b, c, d);
+        
         setMargin(true);
     }
     

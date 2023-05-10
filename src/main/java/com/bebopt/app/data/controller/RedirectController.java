@@ -8,10 +8,10 @@ import com.vaadin.flow.component.UI;
 
 @Controller
 public class RedirectController {
-    public static String url;
+    public static String redirect_url;
 
     public static void setUrl(String url) {
-        RedirectController.url = url;
+        RedirectController.redirect_url = url;
     }
 
     // reroute for get mapping
@@ -23,7 +23,7 @@ public class RedirectController {
     @RequestMapping("page-redirect")
     public RedirectView redirectToUrl() {
         RedirectView redirectView = new RedirectView();
-        redirectView.setUrl(url);
+        redirectView.setUrl(redirect_url);
         return redirectView;
     }
 

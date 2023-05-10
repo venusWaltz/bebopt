@@ -1,6 +1,6 @@
 package com.bebopt.app.views.home;
 
-import com.bebopt.app.data.controller.AuthService;
+import com.bebopt.app.data.controller.SpotifyService;
 import com.bebopt.app.views.MainLayout;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -38,9 +38,9 @@ public class HomeView extends VerticalLayout {
         Button a = new Button("Login test");
         a.addClickListener(e -> {
             // create spotify login redirect url
-            AuthService.Auth();
+            SpotifyService.handleUserLogin();
             // redirect to url w/request mapping in RedirectController to "/spotifyRedirect"
-            a.getUI().ifPresent(ui -> UI.getCurrent().getPage().setLocation("spotifyRedirect"));
+            a.getUI().ifPresent(ui -> UI.getCurrent().getPage().setLocation("page-redirect"));
             }
         );
 

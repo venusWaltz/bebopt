@@ -1,14 +1,10 @@
 package com.bebopt.app.views.stats;
 
-import java.util.List;
-
 import com.bebopt.app.data.controller.SpotifyService;
 import com.bebopt.app.views.MainLayout;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.OrderedList;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;

@@ -21,6 +21,7 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.listbox.ListBox;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -54,7 +55,6 @@ public class PlaylistsView extends Main {
     private OrderedList imageContainer;
     public static Dialog dialog;
     private static TabSheet tabsheet;
-    private Tab t;
     private static VerticalLayout sortTab;
     private static VerticalLayout filterTab;
     private static VerticalLayout mergeTab;
@@ -97,7 +97,7 @@ public class PlaylistsView extends Main {
         add(container, imageContainer, dialog);
     }
 
-    // create the dialog window for playlist operations
+    // create dialog window
     public static Dialog createDialog() {
         // create dialog
         dialog = new Dialog();
@@ -144,10 +144,12 @@ public class PlaylistsView extends Main {
         newPlaylist.addThemeVariants(ButtonVariant.LUMO_PRIMARY);       // button style
         dialog.getFooter().add(newPlaylist);                            // add button to footer
         
-        // temp
-        // Button button = new Button("button", e -> dialog.open());
-        
         return dialog;
+    }
+
+    public static void openDialog(String string) {
+        Notification.show(string);
+        dialog.open();
     }
 
     // create tabsheet for dialog window
@@ -266,16 +268,15 @@ public class PlaylistsView extends Main {
         confirmDialog.setConfirmText(action);
 
         // check if user has confirmed action
-        Boolean con = false;
-        confirmDialog.addConfirmListener(e -> setConfirm(con, true));
+        Boolean confirm = false;
+        confirmDialog.addConfirmListener(e -> setConfirm(confirm, true));
 
         confirmDialog.open();   // open dialog
-        return con;
+        return confirm;
     }
 
-    // update marker value after user either confirms or cancels a playlist action
+    // update marker value after user confirms or cancels playlist action
     private static void setConfirm(Boolean a, Boolean b) {
         a = b;
     }
-
 }

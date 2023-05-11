@@ -43,7 +43,7 @@ public class PlaylistsViewCard extends ListItem {
         header.setText(playlist.getName());
 
         this.addClickListener(e -> {
-            PlaylistsView.dialog.open();
+            PlaylistsView.openDialog(playlist.getId());
         });
 
         add(div, header);

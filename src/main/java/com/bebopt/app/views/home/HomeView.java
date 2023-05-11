@@ -1,6 +1,7 @@
 package com.bebopt.app.views.home;
 
 import com.bebopt.app.data.controller.AuthController;
+import com.bebopt.app.data.controller.RedirectController;
 import com.bebopt.app.data.controller.SpotifyService;
 import com.bebopt.app.views.MainLayout;
 import com.vaadin.flow.component.UI;
@@ -26,7 +27,6 @@ public class HomeView extends VerticalLayout {
 
     public static Paragraph paragraph = new Paragraph();
 
-
     public HomeView() {
                 
         Image image = new Image();
@@ -39,41 +39,19 @@ public class HomeView extends VerticalLayout {
         add(image);
 
         // test button for Spotify login
-        Button a = new Button("Login test");
+        Button a = new Button("Login");
         a.addClickListener(e -> {
-            // create spotify login redirect url
             SpotifyService.handleUserLogin();
-            // redirect to url w/request mapping in RedirectController to "/spotifyRedirect"
-            a.getUI().ifPresent(ui -> UI.getCurrent().getPage().setLocation("page-redirect"));
             }
         );
 
         Paragraph p = new Paragraph();
-        add(p);
         Button b = new Button("Display access token");
         b.addClickListener(e -> {
             p.setText(AuthController.getAccessToken());  
         });
 
-        Button c = new Button("Get top tracks - short term");
-        c.addClickListener(e -> {
-            Track[] tracks = SpotifyService.getTracks("short_term"); 
-            for (Track track : tracks) {
-                String title = track.getName();
-                Paragraph newTitle = new Paragraph(title);
-                add(newTitle);
-            }
-        });
-
-        Button d = new Button("Get user profile");
-        d.addClickListener(e -> {
-            User user = SpotifyService.getCurrentUser(); 
-            String name = user.getDisplayName();
-            Paragraph newP = new Paragraph(name);
-            add(newP);
-        });
-
-        add(a, b, c, d);
+        add(a, b, p);
         
         setMargin(true);
     }

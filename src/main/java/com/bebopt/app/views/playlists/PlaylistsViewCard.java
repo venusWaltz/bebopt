@@ -17,9 +17,11 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Overflow;
 import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
 import com.vaadin.flow.theme.lumo.LumoUtility.Width;
 
+import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified;
+
 public class PlaylistsViewCard extends ListItem {
 
-    public PlaylistsViewCard(String text, String url) {
+    public PlaylistsViewCard(PlaylistSimplified playlist) {
         addClassNames(Background.CONTRAST_5, Display.FLEX, FlexDirection.COLUMN, AlignItems.START, Padding.SMALL,
                 BorderRadius.SMALL);
 
@@ -30,15 +32,15 @@ public class PlaylistsViewCard extends ListItem {
         div.setWidth("132px");
 
         Image image = new Image();
-        image.setWidth("200%");
-        image.setSrc(url);
-        image.setAlt(text);
+        image.setWidth("100%");
+        image.setSrc(playlist.getImages()[0].getUrl());
+        image.setAlt("image for playlist titled: " + playlist.getName());
 
         div.add(image);
 
         Span header = new Span();
         header.addClassNames(FontSize.MEDIUM, FontWeight.SEMIBOLD);
-        header.setText("Playlist Title");
+        header.setText(playlist.getName());
 
         this.addClickListener(e -> {
             PlaylistsView.dialog.open();

@@ -2,9 +2,8 @@ package com.bebopt.app.data.controller;
 
 import org.springframework.stereotype.Service;
 
-// import com.bebopt.app.data.entity.CurrentUser;
-
 import se.michaelthelin.spotify.model_objects.specification.Artist;
+import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified;
 import se.michaelthelin.spotify.model_objects.specification.Track;
 import se.michaelthelin.spotify.model_objects.specification.User;
 
@@ -21,9 +20,10 @@ public class SpotifyService {
         RedirectController.redirect("page-redirect");
     }
 
-        // public static void setCurrentUser() {
-    //     new CurrentUser(SpotifyService.getCurrentUser());        // get current user info
-    // }
+    public static User getCurrentUser() {
+        User user = AuthController.getProfile();
+        return user;
+    }
 
     public static Track[] getTracks(String timeRange) {
         Track[] tracks = AuthController.getTopTracks(timeRange);
@@ -35,9 +35,14 @@ public class SpotifyService {
         return artists;
     }
 
-    public static User getCurrentUser() {
-        User user = AuthController.getProfile();
-        return user;
+    public static PlaylistSimplified[] getPlaylists() {
+        PlaylistSimplified[] playlists = AuthController.getPlaylists();
+        return playlists;
     }
+
+           // public static void setCurrentUser() {
+    //     new CurrentUser(SpotifyService.getCurrentUser());        // get current user info
+    // }
+
 }
 

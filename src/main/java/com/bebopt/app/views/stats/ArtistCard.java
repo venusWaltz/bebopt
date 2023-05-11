@@ -1,7 +1,5 @@
 package com.bebopt.app.views.stats;
 
-import com.bebopt.app.data.entity.Artist;
-
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.ListItem;
@@ -19,6 +17,8 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Overflow;
 import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
 import com.vaadin.flow.theme.lumo.LumoUtility.Width;
 
+import se.michaelthelin.spotify.model_objects.specification.Artist;
+
 public class ArtistCard extends ListItem {
 
     public ArtistCard(Artist artist) {
@@ -32,8 +32,11 @@ public class ArtistCard extends ListItem {
         div.setWidth("160px");
 
         Image image = new Image();
-        image.setHeight("100%");
-        image.setSrc(artist.getImage());
+        if (artist.getImages()[0].getHeight() < artist.getImages()[0].getWidth())
+            image.setHeight("100%");
+        else
+            image.setWidth("100%");
+        image.setSrc(artist.getImages()[0].getUrl());
 
         div.add(image);
 

@@ -1,6 +1,5 @@
 package com.bebopt.app.views.stats;
 
-import com.bebopt.app.data.entity.Track;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
@@ -18,6 +17,8 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 import com.vaadin.flow.theme.lumo.LumoUtility.Overflow;
 import com.vaadin.flow.theme.lumo.LumoUtility.TextColor;
 import com.vaadin.flow.theme.lumo.LumoUtility.Width;
+
+import se.michaelthelin.spotify.model_objects.specification.Track;
 
 public class TrackCard extends HorizontalLayout {
     
@@ -47,12 +48,12 @@ public class TrackCard extends HorizontalLayout {
         Image image = new Image();
         image.setWidth(height);
         image.setHeight(height);
-        image.setSrc(track.getImage());
+        image.setSrc(track.getAlbum().getImages()[0].getUrl());
 
-        Span title = new Span(track.getTrack());
+        Span title = new Span(track.getName());
         title.addClassNames(FontSize.SMALL, FontWeight.SEMIBOLD);
         title.addClassName("title");
-        Span artist = new Span(track.getArtist());
+        Span artist = new Span(track.getArtists()[0].getName());
         artist.addClassNames(FontSize.XSMALL, TextColor.SECONDARY);
         artist.addClassName("artist");
         

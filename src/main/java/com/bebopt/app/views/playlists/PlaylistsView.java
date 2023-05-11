@@ -3,6 +3,7 @@ package com.bebopt.app.views.playlists;
 import java.util.Arrays;
 import java.util.List;
 
+import com.bebopt.app.data.controller.SpotifyService;
 import com.bebopt.app.views.MainLayout;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -43,6 +44,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility.TextColor;
 import com.vaadin.flow.theme.lumo.LumoUtility.Grid.Column;
 
 import jakarta.annotation.security.PermitAll;
+import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified;
 
 @PageTitle("Playlists")
 @Route(value = "playlists", layout = MainLayout.class)
@@ -63,31 +65,13 @@ public class PlaylistsView extends Main {
     public PlaylistsView() {
         constructUI();
 
-        imageContainer.add(new PlaylistsViewCard("Snow mountains under stars",
-                "https://images.unsplash.com/photo-1519681393784-d120267933ba?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80"));
-        imageContainer.add(new PlaylistsViewCard("Snow covered mountain",
-                "https://images.unsplash.com/photo-1512273222628-4daea6e55abb?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80"));
-        imageContainer.add(new PlaylistsViewCard("River between mountains",
-                "https://images.unsplash.com/photo-1536048810607-3dc7f86981cb?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=375&q=80"));
-        imageContainer.add(new PlaylistsViewCard("Milky way on mountains",
-                "https://images.unsplash.com/photo-1515705576963-95cad62945b6?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=750&q=80"));
-        imageContainer.add(new PlaylistsViewCard("Mountain with fog",
-                "https://images.unsplash.com/photo-1513147122760-ad1d5bf68cdb?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80"));
-        imageContainer.add(new PlaylistsViewCard("Mountain at night",
-                "https://images.unsplash.com/photo-1562832135-14a35d25edef?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=815&q=80"));
-        imageContainer.add(new PlaylistsViewCard("Snow mountains under stars",
-                "https://images.unsplash.com/photo-1519681393784-d120267933ba?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80"));
-        imageContainer.add(new PlaylistsViewCard("Snow covered mountain",
-                "https://images.unsplash.com/photo-1512273222628-4daea6e55abb?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80"));
-        imageContainer.add(new PlaylistsViewCard("River between mountains",
-                "https://images.unsplash.com/photo-1536048810607-3dc7f86981cb?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=375&q=80"));
-        imageContainer.add(new PlaylistsViewCard("Milky way on mountains",
-                "https://images.unsplash.com/photo-1515705576963-95cad62945b6?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=750&q=80"));
-        imageContainer.add(new PlaylistsViewCard("Mountain with fog",
-                "https://images.unsplash.com/photo-1513147122760-ad1d5bf68cdb?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80"));
-        imageContainer.add(new PlaylistsViewCard("Mountain at night",
-                "https://images.unsplash.com/photo-1562832135-14a35d25edef?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=815&q=80"));
+        // load playlist data from spotify
+        PlaylistSimplified[] playlists = SpotifyService.getPlaylists();
 
+        // save playlists into image container
+        for(PlaylistSimplified playlist : playlists) {
+                imageContainer.add(new PlaylistsViewCard(playlist));
+        }
     }
 
     private void constructUI() {
@@ -235,10 +219,12 @@ public class PlaylistsView extends Main {
         VerticalLayout mergeLayout = new VerticalLayout();
 
         // list of other playlists to merge current playlist with
-        List<String> items = Arrays.asList("Playlist A", "Playlist B", "Playlist C");   
-        
+        PlaylistSimplified[] playlists = SpotifyService.getPlaylists();
+
+        List<PlaylistSimplified> items = Arrays.asList(playlists);
+
         // create list of playlists
-        ListBox<String> listBox = new ListBox<>();
+        ListBox<PlaylistSimplified> listBox = new ListBox<>();
         listBox.setItems(items);
         Label label = new Label("Select a second playlist: ");
         label.addClassNames(FontSize.SMALL, Margin.Top.MEDIUM);
@@ -248,17 +234,17 @@ public class PlaylistsView extends Main {
                 HorizontalLayout row = new HorizontalLayout();
                 row.addClassNames(AlignItems.CENTER);
                 
-                // add playlist cover image
+                // add playlist cover image and name
                 Avatar a = new Avatar();
                 a.setName("Image");
-                a.setImage("https://images.unsplash.com/photo-1519681393784-d120267933ba?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80");
-                
-                Span name = new Span(item);
+                a.setImage(item.getImages()[0].getUrl());
+                Span name = new Span(item.getName());
                 
                 row.add(a, name);
                 row.getStyle().set("line-height", "var(--lumo-line-height-m)");
                 return row;
         }));
+
         merge = "New Playlist";
         mergeLayout.add(label, listBox);
 

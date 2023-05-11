@@ -36,12 +36,9 @@ import se.michaelthelin.spotify.requests.data.users_profile.GetCurrentUsersProfi
 public class AuthController {
     private static String clientID = Client.getClientID();
     private static String clientSecret = Client.getClientSecret();
-    private static String scopes = "user-read-email,user-read-private,playlist-read-private,user-top-read";
+    private static String scopes = "user-read-email,user-read-private,playlist-read-private,user-top-read,playlist-read-private";
     private static final URI redirectUri = SpotifyHttpManager.makeUri("http://localhost:8080/callback");
     private String code = "";
-
-    // @Autowired
-    // private RestTemplate restTemplate; 
 
     // create SpotifyApi object to use when sending requests to Spotify API
     private static SpotifyApi spotifyApi = new SpotifyApi.Builder()
@@ -63,7 +60,7 @@ public class AuthController {
     }
 
     // following authentication, the app is redirected to our callback URI (http://localhost:8080/callback);
-    // from here, get the code Spotify has added to our URI and use it to get a temporary access token
+    // from here, we get the code Spotify has added to our URI and use it to get a temporary access token
     @GetMapping("callback")
     public String getUserCode(@RequestParam("code") String userCode, HttpServletResponse response) throws IOException{
         code = userCode;    // set program var code to userCode from URI
@@ -83,6 +80,8 @@ public class AuthController {
         response.sendRedirect("http://localhost:8080/home");    // redirect to home page after retrieving access token
         return spotifyApi.getAccessToken();
     }   // handle errors
+
+    // handle refresh here -->
 
     public static String getAccessToken() {
         return spotifyApi.getAccessToken();
@@ -105,14 +104,13 @@ public class AuthController {
         return null;
     }
 
-
     // get user's top tracks
-    // @GetMapping("user-top-tracks/{timeRange}")
+    @GetMapping("user-top-tracks/{timeRange}")
     public static Track[] getTopTracks(String timeRange) {
         
         final GetUsersTopTracksRequest getUsersTopTracksRequest = spotifyApi.getUsersTopTracks()
             .time_range(timeRange)
-            .limit(1)
+            // .limit(10)
             .build();
 
         try {
@@ -134,7 +132,7 @@ public class AuthController {
 
         final GetUsersTopArtistsRequest getUsersTopArtistsRequest = spotifyApi.getUsersTopArtists()
             .time_range(timeRange)
-            .limit(10)
+            // .limit(10)
             .build();
 
         try {
@@ -152,12 +150,12 @@ public class AuthController {
 
     // get user's playlist information
     @GetMapping("user-playlists")
-    public PlaylistSimplified[] getPlaylists() {
+    public static PlaylistSimplified[] getPlaylists() {
 
         final GetListOfCurrentUsersPlaylistsRequest getListOfCurrentUsersPlaylistsRequest 
             = spotifyApi
                 .getListOfCurrentUsersPlaylists()
-                .limit(10)
+                // .limit(10)
                 .build();
 
         try {

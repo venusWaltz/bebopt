@@ -2,13 +2,13 @@ package com.bebopt.app.views.stats;
 
 import java.util.List;
 
-import com.bebopt.app.data.entity.Track;
-
-import com.bebopt.app.data.entity.Artist;
+import com.bebopt.app.data.controller.SpotifyService;
 import com.bebopt.app.views.MainLayout;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.OrderedList;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -28,6 +28,8 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
 import com.vaadin.flow.theme.lumo.LumoUtility.Grid.Column;
 
 import jakarta.annotation.security.PermitAll;
+import se.michaelthelin.spotify.model_objects.specification.Artist;
+import se.michaelthelin.spotify.model_objects.specification.Track;
 
 @PageTitle("Stats")
 @Route(value = "stats", layout = MainLayout.class)
@@ -39,12 +41,22 @@ public class StatsView extends Div {
     private Div genreTab;
     private TabSheet tabsheet;
 
-    private OrderedList artistContainer;
-    private OrderedList trackContainer;
     private OrderedList genreContainer;
-    List<Track> tracks;
     Select<String> sortBy;
+
+    private String shortTerm = "short_term";
+    private String mediumTerm = "medium_term";
+    private String longTerm = "long_term";
+
+    // load user data from spotify into ordered lists
+    OrderedList trackContainerShortTerm = getTopTracks(shortTerm);
+    OrderedList trackContainerMediumTerm = getTopTracks(mediumTerm);
+    OrderedList trackContainerLongTerm = getTopTracks(longTerm);
     
+    OrderedList artistContainerShortTerm = getTopArtists(shortTerm);
+    OrderedList artistContainerMediumTerm = getTopArtists(mediumTerm);
+    OrderedList artistContainerLongTerm = getTopArtists(longTerm);
+
     public StatsView() {
         tabsheet = new TabSheet();
 
@@ -62,57 +74,38 @@ public class StatsView extends Div {
         // distribute tabs evenly
         tabsheet.addThemeVariants(TabSheetVariant.LUMO_TABS_EQUAL_WIDTH_TABS);
 
-        int i = 0;
-        trackContainer.add(new TrackCard(new Track("(Sittin' On) the Dock of the Bay", "Otis Redding", "https://i.scdn.co/image/ab67616d0000b273b050a4bba4ad96ea639d75b3"),i++));
-        trackContainer.add(new TrackCard(new Track("Soul Love", "David Bowie", "https://i.scdn.co/image/ab67616d0000b273c41f4e1133b0e6c5fcf58680"), i++));
-        trackContainer.add(new TrackCard(new Track("Heat of the Moment", "Asia", "https://i.scdn.co/image/ab67616d0000b2732323f86e757c3436b3cc38af"),i++));
-        trackContainer.add(new TrackCard(new Track("Mr. Blue Sky", "Electric Light Orchestra", "https://i.scdn.co/image/ab67616d0000b2738c4e95986c803791125e8991"),i++));
-        trackContainer.add(new TrackCard(new Track("Time in a Bottle", "Jim Croce", "https://i.scdn.co/image/ab67616d0000b27397e92e26bae020503bdff4fb"),i++));
-        trackContainer.add(new TrackCard(new Track("(Sittin' On) the Dock of the Bay", "Otis Redding", "https://i.scdn.co/image/ab67616d0000b273b050a4bba4ad96ea639d75b3"),i++));
-        trackContainer.add(new TrackCard(new Track("Soul Love", "David Bowie", "https://i.scdn.co/image/ab67616d0000b273c41f4e1133b0e6c5fcf58680"), i++));
-        trackContainer.add(new TrackCard(new Track("Heat of the Moment", "Asia", "https://i.scdn.co/image/ab67616d0000b2732323f86e757c3436b3cc38af"),i++));
-        trackContainer.add(new TrackCard(new Track("Mr. Blue Sky", "Electric Light Orchestra", "https://i.scdn.co/image/ab67616d0000b2738c4e95986c803791125e8991"),i++));
-        trackContainer.add(new TrackCard(new Track("Time in a Bottle", "Jim Croce", "https://i.scdn.co/image/ab67616d0000b27397e92e26bae020503bdff4fb"),i++));
-        trackContainer.add(new TrackCard(new Track("(Sittin' On) the Dock of the Bay", "Otis Redding", "https://i.scdn.co/image/ab67616d0000b273b050a4bba4ad96ea639d75b3"),i++));
-        trackContainer.add(new TrackCard(new Track("Soul Love", "David Bowie", "https://i.scdn.co/image/ab67616d0000b273c41f4e1133b0e6c5fcf58680"), i++));
-        trackContainer.add(new TrackCard(new Track("Heat of the Moment", "Asia", "https://i.scdn.co/image/ab67616d0000b2732323f86e757c3436b3cc38af"),i++));
-        trackContainer.add(new TrackCard(new Track("Mr. Blue Sky", "Electric Light Orchestra", "https://i.scdn.co/image/ab67616d0000b2738c4e95986c803791125e8991"),i++));
-        trackContainer.add(new TrackCard(new Track("Time in a Bottle", "Jim Croce", "https://i.scdn.co/image/ab67616d0000b27397e92e26bae020503bdff4fb"),i++));
-
-        artistContainer.add(new ArtistCard(new Artist("Queen", "https://i.scdn.co/image/af2b8e57f6d7b5d43a616bd1e27ba552cd8bfd42")));
-        artistContainer.add(new ArtistCard(new Artist("The Jam", "https://i.scdn.co/image/443c4fb3b00e2205618c74b243612e36fd21d378")));
-        artistContainer.add(new ArtistCard(new Artist("Pink Floyd", "https://i.scdn.co/image/d011c95081cd9a329e506abd7ded47535d524a07")));
-        artistContainer.add(new ArtistCard(new Artist("Jimi Hendrix", "https://i.scdn.co/image/ab6761610000e5eb31f6ab67e6025de876475814")));
-        artistContainer.add(new ArtistCard(new Artist("The Beatles", "https://i.scdn.co/image/ab6761610000e5ebe9348cc01ff5d55971b22433")));
-        artistContainer.add(new ArtistCard(new Artist("David Bowie", "https://i.scdn.co/image/ab6761610000e5ebb78f77c5583ae99472dd4a49")));
-        artistContainer.add(new ArtistCard(new Artist("Otis Redding", "https://i.scdn.co/image/a5897eff01844c42d894a586e618ebc4aa0b9d2f")));
-        artistContainer.add(new ArtistCard(new Artist("Diana Ross", "https://i.scdn.co/image/ab67616d00001e029a2b94aa80fdbdf671f14f9e")));
-        artistContainer.add(new ArtistCard(new Artist("Billie Holiday", "https://i.scdn.co/image/11f685f3011fd163c386ce1afe7ce543ad814817")));
-        artistContainer.add(new ArtistCard(new Artist("Queen", "https://i.scdn.co/image/af2b8e57f6d7b5d43a616bd1e27ba552cd8bfd42")));
-        artistContainer.add(new ArtistCard(new Artist("The Jam", "https://i.scdn.co/image/443c4fb3b00e2205618c74b243612e36fd21d378")));
-        artistContainer.add(new ArtistCard(new Artist("Pink Floyd", "https://i.scdn.co/image/d011c95081cd9a329e506abd7ded47535d524a07")));
-        artistContainer.add(new ArtistCard(new Artist("Jimi Hendrix", "https://i.scdn.co/image/ab6761610000e5eb31f6ab67e6025de876475814")));
-        artistContainer.add(new ArtistCard(new Artist("The Beatles", "https://i.scdn.co/image/ab6761610000e5ebe9348cc01ff5d55971b22433")));
-        artistContainer.add(new ArtistCard(new Artist("David Bowie", "https://i.scdn.co/image/ab6761610000e5ebb78f77c5583ae99472dd4a49")));
-        artistContainer.add(new ArtistCard(new Artist("Otis Redding", "https://i.scdn.co/image/a5897eff01844c42d894a586e618ebc4aa0b9d2f")));
-        artistContainer.add(new ArtistCard(new Artist("Diana Ross", "https://i.scdn.co/image/ab67616d00001e029a2b94aa80fdbdf671f14f9e")));
-        artistContainer.add(new ArtistCard(new Artist("Billie Holiday", "https://i.scdn.co/image/11f685f3011fd163c386ce1afe7ce543ad814817")));
-        artistContainer.add(new ArtistCard(new Artist("Queen", "https://i.scdn.co/image/af2b8e57f6d7b5d43a616bd1e27ba552cd8bfd42")));
-        artistContainer.add(new ArtistCard(new Artist("The Jam", "https://i.scdn.co/image/443c4fb3b00e2205618c74b243612e36fd21d378")));
-        artistContainer.add(new ArtistCard(new Artist("Pink Floyd", "https://i.scdn.co/image/d011c95081cd9a329e506abd7ded47535d524a07")));
-        artistContainer.add(new ArtistCard(new Artist("Jimi Hendrix", "https://i.scdn.co/image/ab6761610000e5eb31f6ab67e6025de876475814")));
-        artistContainer.add(new ArtistCard(new Artist("The Beatles", "https://i.scdn.co/image/ab6761610000e5ebe9348cc01ff5d55971b22433")));
-        artistContainer.add(new ArtistCard(new Artist("David Bowie", "https://i.scdn.co/image/ab6761610000e5ebb78f77c5583ae99472dd4a49")));
-        artistContainer.add(new ArtistCard(new Artist("Otis Redding", "https://i.scdn.co/image/a5897eff01844c42d894a586e618ebc4aa0b9d2f")));
-        artistContainer.add(new ArtistCard(new Artist("Diana Ross", "https://i.scdn.co/image/ab67616d00001e029a2b94aa80fdbdf671f14f9e")));
-        artistContainer.add(new ArtistCard(new Artist("Billie Holiday", "https://i.scdn.co/image/11f685f3011fd163c386ce1afe7ce543ad814817")));
-
         int j = 0;
         genreContainer.add(new GenreCard("Rock", 50, j++));
         genreContainer.add(new GenreCard("Pop", 35, j++));
         genreContainer.add(new GenreCard("Blues", 15, j++));
     }
 
+    // load top tracks into ordered lists
+    private OrderedList getTopTracks(String term) {
+        // get user's top tracks
+        Track[] userTracks = SpotifyService.getTracks(term);
+        // add tracks to container
+        int i = 0;
+        OrderedList trackContainer = new OrderedList();
+        for(Track track : userTracks) {
+            trackContainer.add(new TrackCard(track, i++));
+        }
+        return trackContainer;
+    }
+
+    // load top artists into ordered lists
+    private OrderedList getTopArtists(String term) {
+        // get user's top artists
+        Artist[] userArtists = SpotifyService.getArtists(term);
+        // add artists to container
+        OrderedList artistContainer = new OrderedList();
+        for(Artist artist : userArtists) {
+            artistContainer.add(new ArtistCard(artist));
+        }
+        return artistContainer;
+    }
+
+    // create top tracks tab
     private Div createTopTracks() {
         Div div = new Div();
         addClassNames("track-view");
@@ -127,17 +120,34 @@ public class StatsView extends Div {
         headerContainer.add(header);
 
         Select<String> sortBy = new Select<>();
-        sortBy.setItems("Recent", "Last four weeks", "Last six months", "All data");
-        sortBy.setValue("Recent");
+        sortBy.setItems("Last four weeks", "Last six months", "All data");
+        sortBy.setValue("Last four weeks");
 
-        trackContainer = new OrderedList();
-
+        Div trackDiv = new Div();
+        trackDiv.add(trackContainerShortTerm);
         container.add(headerContainer, sortBy);
-        div.add(container, trackContainer);
+        div.add(container, trackDiv);
+
+        // update tracks when user selects time frame from select menu
+        sortBy.addValueChangeListener(e -> {
+            if (sortBy.getValue() == "Last four weeks"){
+                trackDiv.removeAll();
+                trackDiv.add(trackContainerShortTerm);            
+            }
+            if (sortBy.getValue() == "Last six months") {
+                trackDiv.removeAll();
+                trackDiv.add(trackContainerMediumTerm);
+            }
+            if (sortBy.getValue() == "All data") {
+                trackDiv.removeAll();
+                trackDiv.add(trackContainerLongTerm);
+            }
+        });
 
         return div;
     }
 
+    // create top artists tab
     private Div createTopArtists() {
         addClassNames("artist-view");
         addClassNames(MaxWidth.SCREEN_LARGE, Margin.Horizontal.AUTO, Padding.Bottom.LARGE, Padding.Horizontal.LARGE);
@@ -153,16 +163,42 @@ public class StatsView extends Div {
         headerContainer.add(header);
 
         Select<String> sortBy = new Select<>();
-        sortBy.setItems("Recent", "Last four weeks", "Last six months", "All data");
-        sortBy.setValue("Recent");
+        sortBy.setItems("Last four weeks", "Last six months", "All data");
+        sortBy.setValue("Last four weeks");
 
-        artistContainer = new OrderedList();
+        OrderedList artistContainer = new OrderedList();
+        artistContainer = getTopArtists(longTerm);
         artistContainer.addClassNames(Gap.MEDIUM, Display.GRID, ListStyleType.NONE, Margin.NONE, Padding.NONE, JustifyContent.BETWEEN, Column.COLUMNS_5);
 
+        artistContainerShortTerm.addClassNames(Gap.MEDIUM, Display.GRID, ListStyleType.NONE, Margin.NONE, Padding.NONE, JustifyContent.BETWEEN, Column.COLUMNS_5);
+        artistContainerMediumTerm.addClassNames(Gap.MEDIUM, Display.GRID, ListStyleType.NONE, Margin.NONE, Padding.NONE, JustifyContent.BETWEEN, Column.COLUMNS_5);
+        artistContainerLongTerm.addClassNames(Gap.MEDIUM, Display.GRID, ListStyleType.NONE, Margin.NONE, Padding.NONE, JustifyContent.BETWEEN, Column.COLUMNS_5);
+
         container.add(headerContainer, sortBy);
-        div.add(container, artistContainer);
+        Div artistDiv = new Div();
+        artistDiv.add(artistContainerShortTerm);
+        div.add(container, artistDiv);
+
+        // update artists when user selects time frame from select menu
+        sortBy.addValueChangeListener(e -> {
+            if (sortBy.getValue() == "Last four weeks"){
+                artistDiv.removeAll();
+                artistDiv.add(artistContainerShortTerm);            
+            }
+            if (sortBy.getValue() == "Last six months") {
+                artistDiv.removeAll();
+                artistDiv.add(artistContainerMediumTerm);
+            }
+            if (sortBy.getValue() == "All data") {
+                artistDiv.removeAll();
+                artistDiv.add(artistContainerLongTerm);
+            }
+        });
+
         return div;
     }
+
+    // create top genres tab
     private Div createTopGenres() {
         addClassNames("genre-view");
         addClassNames(MaxWidth.SCREEN_LARGE, Margin.Horizontal.AUTO, Padding.Bottom.LARGE, Padding.Horizontal.LARGE);

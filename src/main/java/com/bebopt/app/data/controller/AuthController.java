@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.bebopt.app.data.entity.Client;
-import com.bebopt.app.data.entity.SpotifyUser;
-import com.bebopt.app.views.MainLayout;
 
 import jakarta.servlet.http.HttpServletResponse;
 import se.michaelthelin.spotify.SpotifyApi;
@@ -81,17 +79,11 @@ public class AuthController {
 
         response.sendRedirect("http://localhost:8080/home");    // redirect to home page after retrieving access token
 
-        SpotifyUser thisSpotifyUser = new SpotifyUser(SpotifyService.getCurrentUser());
-        MainLayout.spotifyUser = thisSpotifyUser;
-        
         return spotifyApi.getAccessToken();
     }   // handle errors
 
     // handle refresh here -->
-
-    public static String getAccessToken() {
-        return spotifyApi.getAccessToken();
-    }
+    
 
         // get current user's profile
     @GetMapping("user-profile")

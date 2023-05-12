@@ -1,5 +1,6 @@
 package com.bebopt.app.views;
 
+import com.bebopt.app.data.controller.AuthController;
 import com.bebopt.app.data.entity.User;
 import com.bebopt.app.security.AuthenticatedUser;
 import com.bebopt.app.views.about.AboutView;
@@ -131,7 +132,8 @@ public class MainLayout extends AppLayout {
 
             layout.add(userMenu);
         } else {
-            Anchor loginLink = new Anchor("login", "Sign in");  // replace href "login" w/ spotify login url
+            Anchor loginLink = new Anchor(AuthController.spotifyLogin(), "Sign in");
+            loginLink.setId("sign-in");
             layout.add(loginLink);
         }
 

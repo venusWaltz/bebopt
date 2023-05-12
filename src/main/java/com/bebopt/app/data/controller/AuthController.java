@@ -36,12 +36,12 @@ import se.michaelthelin.spotify.requests.data.users_profile.GetCurrentUsersProfi
 public class AuthController {
     private static String clientID = Client.getClientID();
     private static String clientSecret = Client.getClientSecret();
-    private static String scopes = "user-read-email,user-read-private,playlist-read-private,user-top-read,playlist-read-private";
+    private static String scopes = "user-read-private,playlist-read-private,user-top-read,user-read-currently-playing";
     private static final URI redirectUri = SpotifyHttpManager.makeUri("http://localhost:8080/callback");
     private String code = "";
 
     // create SpotifyApi object to use when sending requests to Spotify API
-    private static SpotifyApi spotifyApi = new SpotifyApi.Builder()
+    public static SpotifyApi spotifyApi = new SpotifyApi.Builder()
         .setClientId(clientID)
         .setClientSecret(clientSecret)
         .setRedirectUri(redirectUri)
@@ -50,7 +50,7 @@ public class AuthController {
     // create spotify login URI for user authorization
     @GetMapping("spotify-url")
     @ResponseBody
-    public String spotifyLogin() {
+    public static String spotifyLogin() {
         AuthorizationCodeUriRequest authorizationCodeUriRequest = spotifyApi.authorizationCodeUri()
             .scope(scopes)
             .show_dialog(true)
@@ -170,7 +170,7 @@ public class AuthController {
     }
 
     @GetMapping("currently-playing")
-    public CurrentlyPlaying getCurrentlyPlaying() {
+    public static CurrentlyPlaying getCurrentlyPlaying() {
         final GetUsersCurrentlyPlayingTrackRequest getUsersCurrentlyPlayingTrackRequest
             = spotifyApi
                 .getUsersCurrentlyPlayingTrack()

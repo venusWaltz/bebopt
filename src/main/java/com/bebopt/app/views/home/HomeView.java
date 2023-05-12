@@ -14,6 +14,8 @@ import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 
+import se.michaelthelin.spotify.model_objects.miscellaneous.CurrentlyPlaying;
+
 @PageTitle("Home")
 @Route(value = "home", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
@@ -21,7 +23,6 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 public class HomeView extends VerticalLayout {
 
     public static Paragraph paragraph = new Paragraph();
-
     public HomeView() {
                 
         Image image = new Image();
@@ -33,21 +34,6 @@ public class HomeView extends VerticalLayout {
         add(new Paragraph("View your Spotify statistics and manage your playlists here."));
         add(image);
 
-        // test button for Spotify login
-        Button a = new Button("Login");
-        a.addClickListener(e -> {
-            SpotifyService.handleUserLogin();
-            }
-        );
-
-        Paragraph p = new Paragraph();
-        Button b = new Button("Display access token");
-        b.addClickListener(e -> {
-            p.setText(AuthController.getAccessToken());  
-        });
-
-        add(a, b, p);
-        
         setMargin(true);
     }
     

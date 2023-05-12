@@ -28,7 +28,7 @@ public class LoginView extends LoginOverlay implements BeforeEnterObserver {
         i18n.getHeader().setDescription("Login using user/user or admin/admin");
         i18n.setAdditionalInformation(null);
         setI18n(i18n);
-
+        
         setForgotPasswordButtonVisible(false);
         setOpened(true);
     }

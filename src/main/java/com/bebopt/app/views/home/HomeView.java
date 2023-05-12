@@ -1,9 +1,6 @@
 package com.bebopt.app.views.home;
 
-import com.bebopt.app.data.controller.AuthController;
-import com.bebopt.app.data.controller.SpotifyService;
 import com.bebopt.app.views.MainLayout;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
@@ -13,8 +10,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
-
-import se.michaelthelin.spotify.model_objects.miscellaneous.CurrentlyPlaying;
 
 @PageTitle("Home")
 @Route(value = "home", layout = MainLayout.class)

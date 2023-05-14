@@ -46,8 +46,8 @@ public class SpotifyService {
         return currentlyPlaying;
     }
 
-    public static Recommendations getRecommendations(String seedTrack) {
-        Recommendations recommendations = AuthController.getRecommendations(seedTrack);
+    public static Recommendations getRecommendations() {
+        Recommendations recommendations = AuthController.getRecommendations();
         return recommendations;
     }
 

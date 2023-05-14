@@ -6,223 +6,44 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
+import com.vaadin.flow.component.html.OrderedList;
+import se.michaelthelin.spotify.model_objects.specification.Recommendations;
+import com.bebopt.app.data.controller.SpotifyService;
+//import se.michaelthelin.spotify.model_objects.specification.RecommendationsSeed;
+
+import se.michaelthelin.spotify.model_objects.specification.Track;
+import se.michaelthelin.spotify.model_objects.specification.TrackSimplified;
+import se.michaelthelin.spotify.requests.data.browse.GetRecommendationsRequest;
 
 @PageTitle("Recommendations")
-@Route(value = "recs/:sampleBookID?/:action?(edit)", layout = MainLayout.class)
+@Route(value = "Recommendations", layout = MainLayout.class)
 @PermitAll
 public class RecommendationsView extends VerticalLayout{
+    //Recommendations recommended = SpotifyService.getRec();
+    //Track[] rlist = 
+    OrderedList t = RecommendedTracks();
     
-    public RecommendationsView() {
-        Text text = new Text("Coming Soon!");
-        add(text);
+
+    private OrderedList RecommendedTracks() {
+        // get user's top tracks
+        Recommendations recommended = SpotifyService.getRecommendations();
+        //int i = 0;
+        OrderedList trackContainer = new OrderedList();
+        for(int i = 0; i < recommended.getTracks().length; i++){
+            trackContainer.add(new RecommendationsCard(recommended.getTracks()[i], i));
+        }
+        /*for(TrackSimplified track : recommended.getTracks()) {
+            System.out.println(track.getName());
+            System.out.println(track.getArtists());
+            System.out.println(track.getExternalUrls());
+            //System.out.println(track.getPreviewUrl());//not all have preview
+            System.out.println(track.getUri());
+            System.out.println(track.getUri());
+        }*/
+        //for(TrackSimplified track : recommended.getTracks()) {
+            //trackContainer.add(new RecommendationsCard(track, i++));
+        //}
+        return trackContainer;
     }
+    
 }
-
-// public class RecommendationsView extends Div implements BeforeEnterObserver {
-
-//     private final String SAMPLEBOOK_ID = "sampleBookID";
-//     private final String SAMPLEBOOK_EDIT_ROUTE_TEMPLATE = "recs/%s/edit";
-
-//     private final Grid<SampleBook> grid = new Grid<>(SampleBook.class, false);
-
-//     private Upload image;
-//     private Image imagePreview;
-//     private TextField name;
-//     private TextField author;
-//     private DatePicker publicationDate;
-//     private TextField pages;
-//     private TextField isbn;
-
-//     private final Button cancel = new Button("Cancel");
-//     private final Button save = new Button("Save");
-
-//     private final BeanValidationBinder<SampleBook> binder;
-
-//     private SampleBook sampleBook;
-
-//     private final SampleBookService sampleBookService;
-
-//     public RecommendationsView(SampleBookService sampleBookService) {
-//         this.sampleBookService = sampleBookService;
-//         addClassNames("recommendations-view");
-
-//         // Create UI
-//         SplitLayout splitLayout = new SplitLayout();
-
-//         createGridLayout(splitLayout);
-//         createEditorLayout(splitLayout);
-
-//         add(splitLayout);
-
-//         // Configure Grid
-//         LitRenderer<SampleBook> imageRenderer = LitRenderer
-//                 .<SampleBook>of("<img style='height: 64px' src=${item.image} />").withProperty("image", item -> {
-//                     if (item != null && item.getImage() != null) {
-//                         return "data:image;base64," + Base64.getEncoder().encodeToString(item.getImage());
-//                     } else {
-//                         return "";
-//                     }
-//                 });
-//         grid.addColumn(imageRenderer).setHeader("Image").setWidth("68px").setFlexGrow(0);
-
-//         grid.addColumn("name").setAutoWidth(true);
-//         grid.addColumn("author").setAutoWidth(true);
-//         grid.addColumn("publicationDate").setAutoWidth(true);
-//         grid.addColumn("pages").setAutoWidth(true);
-//         grid.addColumn("isbn").setAutoWidth(true);
-//         grid.setItems(query -> sampleBookService.list(
-//                 PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
-//                 .stream());
-//         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
-
-//         // when a row is selected or deselected, populate form
-//         grid.asSingleSelect().addValueChangeListener(event -> {
-//             if (event.getValue() != null) {
-//                 UI.getCurrent().navigate(String.format(SAMPLEBOOK_EDIT_ROUTE_TEMPLATE, event.getValue().getId()));
-//             } else {
-//                 clearForm();
-//                 UI.getCurrent().navigate(RecommendationsView.class);
-//             }
-//         });
-
-//         // Configure Form
-//         binder = new BeanValidationBinder<>(SampleBook.class);
-
-//         // Bind fields. This is where you'd define e.g. validation rules
-//         binder.forField(pages).withConverter(new StringToIntegerConverter("Only numbers are allowed")).bind("pages");
-
-//         binder.bindInstanceFields(this);
-
-//         attachImageUpload(image, imagePreview);
-
-//         cancel.addClickListener(e -> {
-//             clearForm();
-//             refreshGrid();
-//         });
-
-//         save.addClickListener(e -> {
-//             try {
-//                 if (this.sampleBook == null) {
-//                     this.sampleBook = new SampleBook();
-//                 }
-//                 binder.writeBean(this.sampleBook);
-//                 sampleBookService.update(this.sampleBook);
-//                 clearForm();
-//                 refreshGrid();
-//                 Notification.show("Data updated");
-//                 UI.getCurrent().navigate(RecommendationsView.class);
-//             } catch (ObjectOptimisticLockingFailureException exception) {
-//                 Notification n = Notification.show(
-//                         "Error updating the data. Somebody else has updated the record while you were making changes.");
-//                 n.setPosition(Position.MIDDLE);
-//                 n.addThemeVariants(NotificationVariant.LUMO_ERROR);
-//             } catch (ValidationException validationException) {
-//                 Notification.show("Failed to update the data. Check again that all values are valid");
-//             }
-//         });
-//     }
-
-//     @Override
-//     public void beforeEnter(BeforeEnterEvent event) {
-//         Optional<Long> sampleBookId = event.getRouteParameters().get(SAMPLEBOOK_ID).map(Long::parseLong);
-//         if (sampleBookId.isPresent()) {
-//             Optional<SampleBook> sampleBookFromBackend = sampleBookService.get(sampleBookId.get());
-//             if (sampleBookFromBackend.isPresent()) {
-//                 populateForm(sampleBookFromBackend.get());
-//             } else {
-//                 Notification.show(String.format("The requested sampleBook was not found, ID = %s", sampleBookId.get()),
-//                         3000, Notification.Position.BOTTOM_START);
-//                 // when a row is selected but the data is no longer available,
-//                 // refresh grid
-//                 refreshGrid();
-//                 event.forwardTo(RecommendationsView.class);
-//             }
-//         }
-//     }
-
-//     private void createEditorLayout(SplitLayout splitLayout) {
-//         Div editorLayoutDiv = new Div();
-//         editorLayoutDiv.setClassName("editor-layout");
-
-//         Div editorDiv = new Div();
-//         editorDiv.setClassName("editor");
-//         editorLayoutDiv.add(editorDiv);
-
-//         FormLayout formLayout = new FormLayout();
-//         Label imageLabel = new Label("Image");
-//         imagePreview = new Image();
-//         imagePreview.setWidth("100%");
-//         image = new Upload();
-//         image.getStyle().set("box-sizing", "border-box");
-//         image.getElement().appendChild(imagePreview.getElement());
-//         name = new TextField("Name");
-//         author = new TextField("Author");
-//         publicationDate = new DatePicker("Publication Date");
-//         pages = new TextField("Pages");
-//         isbn = new TextField("Isbn");
-//         formLayout.add(imageLabel, image, name, author, publicationDate, pages, isbn);
-
-//         editorDiv.add(formLayout);
-//         createButtonLayout(editorLayoutDiv);
-
-//         splitLayout.addToSecondary(editorLayoutDiv);
-//     }
-
-//     private void createButtonLayout(Div editorLayoutDiv) {
-//         HorizontalLayout buttonLayout = new HorizontalLayout();
-//         buttonLayout.setClassName("button-layout");
-//         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-//         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-//         buttonLayout.add(save, cancel);
-//         editorLayoutDiv.add(buttonLayout);
-//     }
-
-//     private void createGridLayout(SplitLayout splitLayout) {
-//         Div wrapper = new Div();
-//         wrapper.setClassName("grid-wrapper");
-//         splitLayout.addToPrimary(wrapper);
-//         wrapper.add(grid);
-//     }
-
-//     private void attachImageUpload(Upload upload, Image preview) {
-//         ByteArrayOutputStream uploadBuffer = new ByteArrayOutputStream();
-//         upload.setAcceptedFileTypes("image/*");
-//         upload.setReceiver((fileName, mimeType) -> {
-//             uploadBuffer.reset();
-//             return uploadBuffer;
-//         });
-//         upload.addSucceededListener(e -> {
-//             StreamResource resource = new StreamResource(e.getFileName(),
-//                     () -> new ByteArrayInputStream(uploadBuffer.toByteArray()));
-//             preview.setSrc(resource);
-//             preview.setVisible(true);
-//             if (this.sampleBook == null) {
-//                 this.sampleBook = new SampleBook();
-//             }
-//             this.sampleBook.setImage(uploadBuffer.toByteArray());
-//         });
-//         preview.setVisible(false);
-//     }
-
-//     private void refreshGrid() {
-//         grid.select(null);
-//         grid.getDataProvider().refreshAll();
-//     }
-
-//     private void clearForm() {
-//         populateForm(null);
-//     }
-
-//     private void populateForm(SampleBook value) {
-//         this.sampleBook = value;
-//         binder.readBean(this.sampleBook);
-//         this.imagePreview.setVisible(value != null);
-//         if (value == null || value.getImage() == null) {
-//             this.image.clearFileList();
-//             this.imagePreview.setSrc("");
-//         } else {
-//             this.imagePreview.setSrc("data:image;base64," + Base64.getEncoder().encodeToString(value.getImage()));
-//         }
-
-//     }
-// }

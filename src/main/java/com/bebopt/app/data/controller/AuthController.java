@@ -264,22 +264,33 @@ public class AuthController {
 
     // get recommendations from a track
     @GetMapping("recommendations")
-    public static Recommendations getRecommendations(String seedTrack) {
-        final GetRecommendationsRequest getRecommendationsRequest = spotifyApi
-            .getRecommendations()
+    public static Recommendations getRecommendations() {
+        final GetUsersTopTracksRequest getUsersTopTracksRequest = spotifyApi.getUsersTopTracks()
+            .time_range("short_term")
             .limit(1)
-            .seed_tracks(seedTrack)
             .build();
-        
-        try {
+            try {
+                final Paging<Track> trackPaging = getUsersTopTracksRequest.execute();
+                Track[] tracks = trackPaging.getItems();
+                String seed = tracks[0].getId();
+                // top tracks returned as JSON
+                //return trackPaging.getItems();
+                final GetRecommendationsRequest getRecommendationsRequest = spotifyApi
+            .getRecommendations()
+            .limit(10)
+            .seed_tracks(seed)
+            .build();
             final Recommendations recommendations = getRecommendationsRequest.execute();
             return recommendations;
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-
-        return null;
+    
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+            //trackPaging[0]
+            return null;
     }
+            
+        
 
     // get user's recently played items
     @GetMapping("recently-played")

@@ -4,7 +4,11 @@ import org.springframework.stereotype.Service;
 
 import se.michaelthelin.spotify.model_objects.miscellaneous.CurrentlyPlaying;
 import se.michaelthelin.spotify.model_objects.specification.Artist;
+import se.michaelthelin.spotify.model_objects.specification.PagingCursorbased;
+import se.michaelthelin.spotify.model_objects.specification.PlayHistory;
+import se.michaelthelin.spotify.model_objects.specification.Playlist;
 import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified;
+import se.michaelthelin.spotify.model_objects.specification.Recommendations;
 import se.michaelthelin.spotify.model_objects.specification.Track;
 import se.michaelthelin.spotify.model_objects.specification.User;
 
@@ -32,14 +36,25 @@ public class SpotifyService {
         return playlists;
     }
 
+    public static Playlist getPlaylistById(String id) {
+        Playlist playlist = AuthController.getPlaylistById(id);
+        return playlist;
+    }
+
     public static CurrentlyPlaying getCurrentlyPlayingItem() {
         CurrentlyPlaying currentlyPlaying = AuthController.getCurrentlyPlaying();
         return currentlyPlaying;
     }
 
-           // public static void setCurrentUser() {
-    //     new CurrentUser(SpotifyService.getCurrentUser());        // get current user info
-    // }
+    public static Recommendations getRecommendations(String seedTrack) {
+        Recommendations recommendations = AuthController.getRecommendations(seedTrack);
+        return recommendations;
+    }
+
+    public static PagingCursorbased<PlayHistory> getRecentlyPlayedTracks() {
+        PagingCursorbased<PlayHistory> playHistory = AuthController.getRecentlyPlayedTracks();
+        return playHistory;
+    }
 
 }
 

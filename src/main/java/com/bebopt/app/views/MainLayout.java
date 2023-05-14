@@ -1,7 +1,6 @@
 package com.bebopt.app.views;
 
 import com.bebopt.app.data.controller.AuthController;
-import com.bebopt.app.data.controller.SpotifyService;
 import com.bebopt.app.data.entity.SpotifyUser;
 import com.bebopt.app.data.entity.User;
 import com.bebopt.app.security.AuthenticatedUser;
@@ -25,6 +24,7 @@ import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility.AlignItems;
 import com.vaadin.flow.theme.lumo.LumoUtility.BoxSizing;
@@ -41,6 +41,8 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
 import com.vaadin.flow.theme.lumo.LumoUtility.TextColor;
 import com.vaadin.flow.theme.lumo.LumoUtility.Whitespace;
 import com.vaadin.flow.theme.lumo.LumoUtility.Width;
+
+import java.io.ByteArrayInputStream;
 import java.util.Optional;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
@@ -53,6 +55,7 @@ public class MainLayout extends AppLayout {
      * A simple navigation item component, based on ListItem element.
      */
 
+    public static SpotifyUser spotifyUser;
 
     public static class MenuItemInfo extends ListItem {
 
@@ -108,8 +111,6 @@ public class MainLayout extends AppLayout {
         if (maybeUser.isPresent()) {
             User user = maybeUser.get();
             
-            SpotifyUser spotifyUser = new SpotifyUser(SpotifyService.getCurrentUser());
-
             MenuBar userMenu = new MenuBar();
             userMenu.setThemeName("tertiary-inline contrast");
 
@@ -124,6 +125,28 @@ public class MainLayout extends AppLayout {
                 Div div = new Div();
                 div.add(avatar);
                 div.add(SpotifyUser.getUsername());
+                div.add(new Icon("lumo", "dropdown"));
+                div.getElement().getStyle().set("display", "flex");
+                div.getElement().getStyle().set("align-items", "center");
+                div.getElement().getStyle().set("gap", "var(--lumo-space-s)");
+                userName.add(div);
+                userName.getSubMenu().addItem("Sign out", e -> {
+                    authenticatedUser.logout();
+                });
+            }
+            else {
+                // add user profile info here
+                Avatar avatar = new Avatar(user.getName());
+                StreamResource resource = new StreamResource("profile-pic",
+                () -> new ByteArrayInputStream(user.getProfilePicture()));
+                avatar.setImageResource(resource);
+                avatar.setThemeName("xsmall");
+                avatar.getElement().setAttribute("tabindex", "-1");
+
+                MenuItem userName = userMenu.addItem("");
+                Div div = new Div();
+                div.add(avatar);
+                div.add(user.getName());
                 div.add(new Icon("lumo", "dropdown"));
                 div.getElement().getStyle().set("display", "flex");
                 div.getElement().getStyle().set("align-items", "center");

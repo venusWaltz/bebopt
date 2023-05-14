@@ -21,7 +21,6 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.listbox.ListBox;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -61,12 +60,15 @@ public class PlaylistsView extends Main {
     private static String sort;
     private static String filter;
     private static String merge;
+    private static String currentlySelectedPlaylist;
+    PlaylistSimplified[] playlists;
 
-    public PlaylistsView() {
+    public PlaylistsView() throws Exception {
         constructUI();
 
         // load playlist data from spotify
-        PlaylistSimplified[] playlists = SpotifyService.getPlaylists();
+        playlists = SpotifyService.getPlaylists();
+        System.out.println(playlists[0].getName());
 
         // save playlists into image container
         for(PlaylistSimplified playlist : playlists) {
@@ -114,32 +116,14 @@ public class PlaylistsView extends Main {
 
         // button to make changes directly to current playlist
         Button edit = new Button("Edit Playlist", e -> {
-                Tab t = tabsheet.getSelectedTab();  
-                if (t == tabsheet.getTabAt(0)) {
-                        confirmDialog("Sort", sort);
-                }
-                else if (t == tabsheet.getTabAt(1)) {
-                        confirmDialog("Filter", filter);
-                }
-                else if (t == tabsheet.getTabAt(2)) {
-                        confirmDialog("Merge", merge);
-                }
+            dialogChooseActionEvent();
         });
         edit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);      // button style
         dialog.getFooter().add(edit);                           // add button to footer
 
         // button to add songs to new empty playlist
         Button newPlaylist = new Button("New Playlist", e -> {
-                Tab t = tabsheet.getSelectedTab(); 
-                if (t == tabsheet.getTabAt(0)) {
-                        confirmDialog("Sort", sort);
-                }
-                else if (t == tabsheet.getTabAt(1)) {
-                        confirmDialog( "Filter", filter);
-                }
-                else if (t == tabsheet.getTabAt(2)) {
-                        confirmDialog( "Merge", merge);
-                }
+            dialogChooseActionEvent();
         });
         newPlaylist.addThemeVariants(ButtonVariant.LUMO_PRIMARY);       // button style
         dialog.getFooter().add(newPlaylist);                            // add button to footer
@@ -147,8 +131,21 @@ public class PlaylistsView extends Main {
         return dialog;
     }
 
-    public static void openDialog(String string) {
-        Notification.show(string);
+    public static void dialogChooseActionEvent() {
+        Tab t = tabsheet.getSelectedTab();  
+        if (t == tabsheet.getTabAt(0)) {
+                confirmDialog("Sort", sort);
+        }
+        else if (t == tabsheet.getTabAt(1)) {
+                confirmDialog("Filter", filter);
+        }
+        else if (t == tabsheet.getTabAt(2)) {
+                confirmDialog("Merge", merge);
+        }
+    }
+
+    public static void openDialog(String selected) {
+        currentlySelectedPlaylist = selected;
         dialog.open();
     }
 
@@ -224,7 +221,7 @@ public class PlaylistsView extends Main {
         PlaylistSimplified[] playlists = SpotifyService.getPlaylists();
 
         List<PlaylistSimplified> items = Arrays.asList(playlists);
-
+        
         // create list of playlists
         ListBox<PlaylistSimplified> listBox = new ListBox<>();
         listBox.setItems(items);
@@ -233,20 +230,21 @@ public class PlaylistsView extends Main {
 
         // list box renderer (to display playlist image)
         listBox.setRenderer(new ComponentRenderer<>(item -> {
-                HorizontalLayout row = new HorizontalLayout();
-                row.addClassNames(AlignItems.CENTER);
-                
-                // add playlist cover image and name
-                Avatar a = new Avatar();
-                a.setName("Image");
-                a.setImage(item.getImages()[0].getUrl());
-                Span name = new Span(item.getName());
-                
-                row.add(a, name);
-                row.getStyle().set("line-height", "var(--lumo-line-height-m)");
-                return row;
+            HorizontalLayout row = new HorizontalLayout();
+            row.addClassNames(AlignItems.CENTER);
+            
+            // add playlist cover image and name
+            Avatar a = new Avatar();
+            a.setName("Image");
+            a.setImage(item.getImages()[0].getUrl());
+            Span name = new Span(item.getName());
+            
+            row.add(a, name);
+            row.getStyle().set("line-height", "var(--lumo-line-height-m)");
+            return row;
         }));
 
+        listBox.addValueChangeListener(e -> merge = listBox.getValue().getId().toString());
         merge = "New Playlist";
         mergeLayout.add(label, listBox);
 
@@ -259,9 +257,18 @@ public class PlaylistsView extends Main {
         ConfirmDialog confirmDialog = new ConfirmDialog();
         confirmDialog.setWidth("550px");
         confirmDialog.setHeader("Confirm");
+
         // confirmation message
-        Div div = new Div(new Text("Are you sure you want to " + action.toLowerCase() + 
-                (action == "Merge" ? " these playlists" : " this playlist by " + selectedAction.toLowerCase()) + "?"));
+        Div div = new Div();
+        if (action == "Merge") {
+            div = new Div(new Text("Are you sure you want to merge the following playlists:\n" 
+                + (SpotifyService.getPlaylistById(currentlySelectedPlaylist).getName()) + " and " + SpotifyService.getPlaylistById(merge).getName() + "?"));
+        }
+        else {
+            div = new Div(new Text("Are you sure you want to " + action.toLowerCase() + 
+                " this playlist by " + selectedAction.toLowerCase() + "?"));
+        }
+
         confirmDialog.add(div);
         
         confirmDialog.setCancelable(true);

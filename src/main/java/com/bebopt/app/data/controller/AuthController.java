@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.bebopt.app.data.entity.Client;
+import com.bebopt.app.data.entity.SpotifyUser;
+import com.bebopt.app.views.MainLayout;
 
 import jakarta.servlet.http.HttpServletResponse;
 import se.michaelthelin.spotify.SpotifyApi;
@@ -20,15 +22,24 @@ import se.michaelthelin.spotify.model_objects.credentials.AuthorizationCodeCrede
 import se.michaelthelin.spotify.model_objects.miscellaneous.CurrentlyPlaying;
 import se.michaelthelin.spotify.model_objects.specification.Artist;
 import se.michaelthelin.spotify.model_objects.specification.Paging;
+import se.michaelthelin.spotify.model_objects.specification.PagingCursorbased;
+import se.michaelthelin.spotify.model_objects.specification.PlayHistory;
+import se.michaelthelin.spotify.model_objects.specification.Playlist;
 import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified;
+import se.michaelthelin.spotify.model_objects.specification.Recommendations;
 import se.michaelthelin.spotify.model_objects.specification.Track;
 import se.michaelthelin.spotify.model_objects.specification.User;
+import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeRefreshRequest;
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeRequest;
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeUriRequest;
+import se.michaelthelin.spotify.requests.data.browse.GetRecommendationsRequest;
 import se.michaelthelin.spotify.requests.data.personalization.simplified.GetUsersTopArtistsRequest;
 import se.michaelthelin.spotify.requests.data.personalization.simplified.GetUsersTopTracksRequest;
+import se.michaelthelin.spotify.requests.data.player.GetCurrentUsersRecentlyPlayedTracksRequest;
 import se.michaelthelin.spotify.requests.data.player.GetUsersCurrentlyPlayingTrackRequest;
 import se.michaelthelin.spotify.requests.data.playlists.GetListOfCurrentUsersPlaylistsRequest;
+import se.michaelthelin.spotify.requests.data.playlists.GetPlaylistRequest;
+import se.michaelthelin.spotify.requests.data.tracks.GetTrackRequest;
 import se.michaelthelin.spotify.requests.data.users_profile.GetCurrentUsersProfileRequest;
 
 @RestController
@@ -36,7 +47,7 @@ import se.michaelthelin.spotify.requests.data.users_profile.GetCurrentUsersProfi
 public class AuthController {
     private static String clientID = Client.getClientID();
     private static String clientSecret = Client.getClientSecret();
-    private static String scopes = "user-read-private,playlist-read-private,user-top-read,user-read-currently-playing";
+    private static String scopes = "user-read-private,playlist-read-private,user-top-read,user-read-currently-playing,user-read-recently-played";
     private static final URI redirectUri = SpotifyHttpManager.makeUri("http://localhost:8080/callback");
     private String code = "";
 
@@ -77,15 +88,47 @@ public class AuthController {
             System.out.println("Error" + e.getMessage());
         }
 
+        SpotifyUser spotifyUser = new SpotifyUser(SpotifyService.getCurrentUser());
+        MainLayout.spotifyUser = spotifyUser;
+
         response.sendRedirect("http://localhost:8080/home");    // redirect to home page after retrieving access token
 
         return spotifyApi.getAccessToken();
     }   // handle errors
 
-    // handle refresh here -->
-    
+    // refresh access token when it expires (fix later)
+    public static void refeshAccessToken() {
+        try {
+            AuthorizationCodeRefreshRequest authorizationCodeRefreshRequest = spotifyApi.authorizationCodeRefresh()
+                .refresh_token(spotifyApi.getRefreshToken())
+                .build();
+                AuthorizationCodeCredentials authorizationCodeCredentials = authorizationCodeRefreshRequest.execute();
+                spotifyApi.setAccessToken(authorizationCodeCredentials.getAccessToken());
+                spotifyApi.setRefreshToken(authorizationCodeCredentials.getRefreshToken());
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
 
-        // get current user's profile
+    // logout
+    @GetMapping("logout")
+    public static Boolean logout(HttpServletResponse response) throws IOException {
+        try {
+            spotifyApi.authorizationCodeRefresh(clientID, clientSecret, spotifyApi.getRefreshToken()).build().execute();
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        spotifyApi.setAccessToken(null);
+        spotifyApi.setRefreshToken(null);
+
+        MainLayout.spotifyUser = null;
+
+        response.sendRedirect("/home");
+        return true;
+    }
+
+    // get current user's profile
     @GetMapping("user-profile")
     public static User getProfile() {
         
@@ -146,14 +189,14 @@ public class AuthController {
         return new Artist[0];
     }
 
-    // get user's playlist information
+    // get user's playlists
     @GetMapping("user-playlists")
     public static PlaylistSimplified[] getPlaylists() {
 
         final GetListOfCurrentUsersPlaylistsRequest getListOfCurrentUsersPlaylistsRequest 
             = spotifyApi
                 .getListOfCurrentUsersPlaylists()
-                // .limit(10)
+                .limit(10)
                 .build();
 
         try {
@@ -167,6 +210,41 @@ public class AuthController {
         return null;    
     }
 
+    // get a playlist by its id
+    @GetMapping("get-playlist-by-id/{id}")
+    public static Playlist getPlaylistById(String id) {
+        final GetPlaylistRequest getPlaylistRequest = spotifyApi
+            .getPlaylist(id)
+            .build();
+
+        try {
+            final Playlist playlist = getPlaylistRequest.execute();
+            return playlist;
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    // get track by id
+    @GetMapping("get-track-by-id/{id}")
+    public static Track getTrackById(String id) {
+        final GetTrackRequest getTrackRequest = spotifyApi
+            .getTrack(id)
+            .build();
+
+        try {
+            final Track track = getTrackRequest.execute();
+            return track;
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        
+        return null;
+    }
+
+    // get user's currently playing track
     @GetMapping("currently-playing")
     public static CurrentlyPlaying getCurrentlyPlaying() {
         final GetUsersCurrentlyPlayingTrackRequest getUsersCurrentlyPlayingTrackRequest
@@ -177,6 +255,44 @@ public class AuthController {
         try {
             final CurrentlyPlaying currentlyPlaying = getUsersCurrentlyPlayingTrackRequest.execute();
             return currentlyPlaying;
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    // get recommendations from a track
+    @GetMapping("recommendations")
+    public static Recommendations getRecommendations(String seedTrack) {
+        final GetRecommendationsRequest getRecommendationsRequest = spotifyApi
+            .getRecommendations()
+            .limit(1)
+            .seed_tracks(seedTrack)
+            .build();
+        
+        try {
+            final Recommendations recommendations = getRecommendationsRequest.execute();
+            return recommendations;
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    // get user's recently played items
+    @GetMapping("recently-played")
+    public static PagingCursorbased<PlayHistory> getRecentlyPlayedTracks() {
+        final GetCurrentUsersRecentlyPlayedTracksRequest getCurrentUsersRecentlyPlayedTracksRequest
+            = spotifyApi
+                .getCurrentUsersRecentlyPlayedTracks()
+                .limit(20)
+                .build();
+
+        try {
+            final PagingCursorbased<PlayHistory> recentlyPlayedTracks = getCurrentUsersRecentlyPlayedTracksRequest.execute();
+            return recentlyPlayedTracks;
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
         }

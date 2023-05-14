@@ -68,7 +68,7 @@ public class PlaylistsView extends Main {
 
         // load playlist data from spotify
         playlists = SpotifyService.getPlaylists();
-        System.out.println(playlists[0].getName());
+        //System.out.println(playlists[0].getName());
 
         // save playlists into image container
         for(PlaylistSimplified playlist : playlists) {

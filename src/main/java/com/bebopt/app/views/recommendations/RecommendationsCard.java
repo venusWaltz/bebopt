@@ -25,9 +25,9 @@ public class RecommendationsCard extends HorizontalLayout {
     
     public RecommendationsCard(TrackSimplified track, int index) {
 
-        System.out.println(track.getName());
-        System.out.println(track.getArtists()[0].getName());
-        System.out.println(track.getExternalUrls());
+        //System.out.println(track.getName());
+        //System.out.println(track.getArtists()[0].getName());
+        //System.out.println(track.getExternalUrls());
     
         
         String height = "60px";

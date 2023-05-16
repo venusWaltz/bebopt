@@ -79,7 +79,7 @@ public class StatsView extends Div {
     // load top tracks into ordered lists
     private OrderedList getTopTracks(String term) {
         // get user's top tracks
-        Track[] userTracks = SpotifyService.getTracks(term);
+        Track[] userTracks = SpotifyService.getTopTracks(term);
         // add tracks to container
         int i = 0;
         OrderedList trackContainer = new OrderedList();
@@ -92,7 +92,7 @@ public class StatsView extends Div {
     // load top artists into ordered lists
     private OrderedList getTopArtists(String term) {
         // get user's top artists
-        Artist[] userArtists = SpotifyService.getArtists(term);
+        Artist[] userArtists = SpotifyService.getTopArtists(term);
         // add artists to container
         OrderedList artistContainer = new OrderedList();
         for(Artist artist : userArtists) {

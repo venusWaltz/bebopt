@@ -43,6 +43,7 @@ public class PlaylistsViewCard extends ListItem {
         header.setText(playlist.getName());
 
         this.addClickListener(e -> {
+            PlaylistsView.resetMergePlaylistSelection();
             PlaylistsView.openDialog(playlist.getId());
         });
 

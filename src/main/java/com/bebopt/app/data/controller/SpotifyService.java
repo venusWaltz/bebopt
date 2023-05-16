@@ -3,7 +3,10 @@ package com.bebopt.app.data.controller;
 import org.springframework.stereotype.Service;
 
 import se.michaelthelin.spotify.model_objects.miscellaneous.CurrentlyPlaying;
+import se.michaelthelin.spotify.model_objects.special.SnapshotResult;
+import se.michaelthelin.spotify.model_objects.specification.Album;
 import se.michaelthelin.spotify.model_objects.specification.Artist;
+import se.michaelthelin.spotify.model_objects.specification.AudioFeatures;
 import se.michaelthelin.spotify.model_objects.specification.PagingCursorbased;
 import se.michaelthelin.spotify.model_objects.specification.PlayHistory;
 import se.michaelthelin.spotify.model_objects.specification.Playlist;
@@ -17,44 +20,64 @@ import se.michaelthelin.spotify.model_objects.specification.User;
 public class SpotifyService {
 
     public static User getCurrentUser() {
-        User user = AuthController.getProfile();
-        return user;
+        return AuthController.getProfile();
+    }
+    public static void logout() {
+        RedirectController.redirect("logout");
     }
 
-    public static Track[] getTracks(String timeRange) {
-        Track[] tracks = AuthController.getTopTracks(timeRange);
-        return tracks;
+// ---------------------------------------- Tracks ----------------------------------------
+
+    public static Track[] getTopTracks(String timeRange) {
+        return AuthController.getTopTracks(timeRange);
+    }
+    public static Track getTrackById(String id) {
+        return AuthController.getTrackById(id);
+    }
+    public static CurrentlyPlaying getCurrentlyPlayingItem() {
+        return AuthController.getCurrentlyPlaying();
+    }
+    public static PagingCursorbased<PlayHistory> getRecentlyPlayedTracks() {
+        return AuthController.getRecentlyPlayedTracks();
     }
 
-    public static Artist[] getArtists(String timeRange) {
-        Artist[] artists = AuthController.getTopArtists(timeRange);
-        return artists;
+// ---------------------------------------- Artists ----------------------------------------
+
+    public static Artist[] getTopArtists(String timeRange) {
+        return AuthController.getTopArtists(timeRange);
     }
+
+// ---------------------------------------- Albums ----------------------------------------
+
+    public static Album getAlbumById(String id) {
+        return AuthController.getAlbumById(id);
+    }
+
+// ---------------------------------------- Playlists ----------------------------------------
 
     public static PlaylistSimplified[] getPlaylists() {
-        PlaylistSimplified[] playlists = AuthController.getPlaylists();
-        return playlists;
+        return AuthController.getPlaylists();
     }
-
     public static Playlist getPlaylistById(String id) {
-        Playlist playlist = AuthController.getPlaylistById(id);
-        return playlist;
+        return AuthController.getPlaylistById(id);
+    }
+    public static AudioFeatures[] getAudioFeatures(String tracks) {
+        return AuthController.getAudioFeatures(tracks);
+    }
+    public static Playlist createPlaylist() {
+        return AuthController.createPlaylist();
+    }
+    public static SnapshotResult addToPlaylist(String id, String[] uris) {
+        return AuthController.addToPlaylist(id, uris);
+    }
+    public static SnapshotResult modifyPlaylist(String id) {
+        return AuthController.modifyPlaylist(id);
     }
 
-    public static CurrentlyPlaying getCurrentlyPlayingItem() {
-        CurrentlyPlaying currentlyPlaying = AuthController.getCurrentlyPlaying();
-        return currentlyPlaying;
-    }
 
-    public static Recommendations getRecommendations(String seedTrack) {
-        Recommendations recommendations = AuthController.getRecommendations(seedTrack);
-        return recommendations;
-    }
+// ---------------------------------------- Recommendations ----------------------------------------
 
-    public static PagingCursorbased<PlayHistory> getRecentlyPlayedTracks() {
-        PagingCursorbased<PlayHistory> playHistory = AuthController.getRecentlyPlayedTracks();
-        return playHistory;
+    public static Recommendations getRecommendations(String seed) {
+        return AuthController.getRecommendations(seed);
     }
-
 }
-

@@ -1,11 +1,13 @@
 package com.bebopt.app.views.playlists;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.bebopt.app.data.controller.SpotifyService;
 import com.bebopt.app.views.MainLayout;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -51,30 +53,46 @@ import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified;
 @PermitAll
 public class PlaylistsView extends Main {
 
-    private OrderedList imageContainer;
-    public static Dialog dialog;
+    private static String currentlySelectedPlaylist;
+
+    // container of playlist cards
+    private OrderedList playlistsContainer;
+
+    // tabsheet components
     private static TabSheet tabsheet;
     private static VerticalLayout sortTab;
     private static VerticalLayout filterTab;
     private static VerticalLayout mergeTab;
-    private static String sort;
-    private static String filter;
-    private static String merge;
-    private static String currentlySelectedPlaylist;
-    PlaylistSimplified[] playlists;
+
+    // radio button groups
+    private static RadioButtonGroup<String> radioGroupSort;
+    private static RadioButtonGroup<String> radioGroupFilter;
+    private static RadioButtonGroup<String> radioGroupFilterDecades;
+    private static ListBox<PlaylistSimplified> listBoxMerge;
+
+    // selected options
+    private static String selectedSort;
+    private static String selectedFilter;
+    private static Div decadesContainer;
+    private static List<String> decadeKeysStr;
+    private static Integer selectedDecade;
+    static String selectedPlaylistToMerge;
+
+    public static Dialog dialog;
 
     public PlaylistsView() throws Exception {
         constructUI();
 
         // load playlist data from spotify
-        playlists = SpotifyService.getPlaylists();
-        System.out.println(playlists[0].getName());
+        PlaylistSimplified[] playlists = SpotifyService.getPlaylists();
 
         // save playlists into image container
         for(PlaylistSimplified playlist : playlists) {
-                imageContainer.add(new PlaylistsViewCard(playlist));
+                playlistsContainer.add(new PlaylistsViewCard(playlist));
         }
     }
+
+// ----------------------------------------- Construct UI and tabsheet -----------------------------------------
 
     private void constructUI() {
         addClassNames("playlists-view");
@@ -90,14 +108,153 @@ public class PlaylistsView extends Main {
         description.addClassNames(Margin.Bottom.XLARGE, Margin.Top.NONE, TextColor.SECONDARY);
         headerContainer.add(header, description);
 
-        imageContainer = new OrderedList();
-        imageContainer.addClassNames(Gap.SMALL, Display.GRID, ListStyleType.NONE, Margin.NONE, Padding.NONE, JustifyContent.BETWEEN, Column.COLUMNS_6);
+        playlistsContainer = new OrderedList();
+        playlistsContainer.addClassNames(Gap.SMALL, Display.GRID, ListStyleType.NONE, Margin.NONE, Padding.NONE, JustifyContent.BETWEEN, Column.COLUMNS_6);
         
-        // playlist action dialog; appears when user selects a playlist
+        // playlist action dialog - appears when user selects a playlist
         Dialog dialog = createDialog();
         container.add(headerContainer);
-        add(container, imageContainer, dialog);
+        add(container, playlistsContainer, dialog);
     }
+
+    // create tabsheet for dialog window
+    private static TabSheet createTabsheet() {
+        tabsheet = new TabSheet();      // create tabsheet container
+
+        sortTab = sortTab();            // create sort tab
+        filterTab = filterTab();        // create filter tab
+        mergeTab = mergeTab();          // create merge tab
+
+        // add tabs to tabsheet
+        tabsheet.add("Sort", sortTab);
+        tabsheet.add("Filter", filterTab);
+        tabsheet.add("Merge", mergeTab);
+
+        // space tabs equally
+        tabsheet.addThemeVariants(TabSheetVariant.LUMO_TABS_EQUAL_WIDTH_TABS);
+
+        return tabsheet;
+    }    
+
+    // create sort tab for dialog window tabsheet
+    private static VerticalLayout sortTab() {
+        VerticalLayout sortLayout = new VerticalLayout();
+
+        // list of radio button group items (sort options)
+        List<String> items = Arrays.asList("Release date", "Duration", "Popularity", "Acousticness",
+        "Danceability", "Energy", "Instrumentalness", "Loudness", "Speechiness", "Tempo", "Valence");  
+
+        // create button group of sort options
+        radioGroupSort = new RadioButtonGroup<>();
+        radioGroupSort.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+        radioGroupSort.setLabel("Sort by: ");
+        radioGroupSort.setItems(items);
+        radioGroupSort.setValue("Release date");
+        sortLayout.add(radioGroupSort);
+
+        // save currently selected button
+        radioGroupSort.addValueChangeListener(e -> { selectedSort = e.getValue(); });
+
+        return sortLayout;
+    }
+
+    // create filter tab for dialog window tabsheet
+    private static VerticalLayout filterTab() {
+        VerticalLayout filterLayout = new VerticalLayout();
+        
+        // list of radio group button items (filter options)
+        List<String> items = Arrays.asList("Release decade");      
+
+        // create button group of filter options
+        radioGroupFilter = new RadioButtonGroup<>();
+        radioGroupFilter.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+        radioGroupFilter.setLabel("Filter by: ");
+        radioGroupFilter.setItems(items);
+        createDecadeSelectRadioGroup();
+        decadesContainer = new Div();
+        decadesContainer.setVisible(false);
+        decadesContainer.addClassName("indented-radio-group-container");
+        decadesContainer.add(radioGroupFilterDecades);
+        filterLayout.add(radioGroupFilter, decadesContainer);
+
+        // save currently selected button
+        radioGroupFilter.addValueChangeListener(e -> { 
+            selectedFilter = e.getValue(); 
+
+            if (selectedFilter.equals("Release decade")) {
+                if (radioGroupFilterDecades.isEmpty()) {
+                    // create hash map and get keys
+                    List<String> decadeKeysStr = getDecadeKeys();
+                    Collections.sort(decadeKeysStr);
+                    // add decade options to view
+                    radioGroupFilterDecades.setItems(decadeKeysStr);
+                    decadesContainer.add(radioGroupFilterDecades);
+                    decadesContainer.setVisible(true);
+                }
+                else
+                    decadesContainer.setVisible(true);
+            }
+            else
+                decadesContainer.setVisible(false);
+        });
+
+        return filterLayout;
+    }
+
+    public static List<String> getDecadeKeys() {
+        Set<Integer> decadeMapKeys = PlaylistActions.filterGetKeys(currentlySelectedPlaylist);
+        // display available decades below radio button in new radio group
+        decadeKeysStr = decadeMapKeys.stream().map(key->key+"s").collect(Collectors.toList());
+        return decadeKeysStr;
+    }
+
+    public static void createDecadeSelectRadioGroup() {
+        radioGroupFilterDecades = new RadioButtonGroup<>();
+        radioGroupFilterDecades.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+        radioGroupFilterDecades.addClassName("indented-radio-group");
+        radioGroupFilterDecades.addValueChangeListener(event -> {
+            selectedDecade = Integer.valueOf(event.getValue().substring(0, 4));
+        });
+    }
+
+    // create merge tab for dialog window tabsheet
+    private static VerticalLayout mergeTab() {
+        VerticalLayout mergeLayout = new VerticalLayout();
+
+        // list of other playlists to merge current playlist with
+        PlaylistSimplified[] playlists = SpotifyService.getPlaylists();
+
+        List<PlaylistSimplified> items = Arrays.asList(playlists);
+        
+        // create list of playlists
+        listBoxMerge = new ListBox<>();
+        listBoxMerge.setItems(items);
+        Label label = new Label("Select a second playlist: ");
+        label.addClassNames(FontSize.SMALL, Margin.Top.MEDIUM);
+
+        // list box renderer (to display playlist image)
+        listBoxMerge.setRenderer(new ComponentRenderer<>(item -> {
+            HorizontalLayout row = new HorizontalLayout();
+            row.addClassNames(AlignItems.CENTER);
+            
+            // add playlist cover image and name
+            Avatar a = new Avatar();
+            a.setName("Image");
+            a.setImage(item.getImages()[0].getUrl());
+            Span name = new Span(item.getName());
+            
+            row.add(a, name);
+            row.getStyle().set("line-height", "var(--lumo-line-height-m)");
+            return row;
+        }));
+
+        listBoxMerge.addValueChangeListener(e -> selectedPlaylistToMerge = listBoxMerge.getValue().getId().toString());
+        mergeLayout.add(label, listBoxMerge);
+
+        return mergeLayout;
+    }
+
+// ----------------------------------------- Confirm dialog -----------------------------------------
 
     // create dialog window
     public static Dialog createDialog() {
@@ -131,159 +288,90 @@ public class PlaylistsView extends Main {
         return dialog;
     }
 
+    // prompt user to confirm selected actions
     public static void dialogChooseActionEvent() {
         Tab t = tabsheet.getSelectedTab();  
         if (t == tabsheet.getTabAt(0)) {
-                confirmDialog("Sort", sort);
+            confirmDialog("Sort", selectedSort);
         }
         else if (t == tabsheet.getTabAt(1)) {
-                confirmDialog("Filter", filter);
+            confirmDialog("Filter", selectedFilter);
         }
         else if (t == tabsheet.getTabAt(2)) {
-                confirmDialog("Merge", merge);
+            if (selectedPlaylistToMerge != null) {
+                confirmDialog("Merge", selectedPlaylistToMerge);
+            }
+            else {
+                errorDialog();
+            }
         }
     }
 
+    // save first selected playlist and open dialog for other options
     public static void openDialog(String selected) {
         currentlySelectedPlaylist = selected;
         dialog.open();
     }
 
-    // create tabsheet for dialog window
-    private static TabSheet createTabsheet() {
-        tabsheet = new TabSheet();      // create tabsheet container
-
-        sortTab = sortTab();            // create sort tab
-        filterTab = filterTab();        // create filter tab
-        mergeTab = mergeTab();          // create merge tab
-
-        // add tabs to tabsheet
-        tabsheet.add("Sort", sortTab);
-        tabsheet.add("Filter", filterTab);
-        tabsheet.add("Merge", mergeTab);
-
-        // space tabs equally
-        tabsheet.addThemeVariants(TabSheetVariant.LUMO_TABS_EQUAL_WIDTH_TABS);
-
-        return tabsheet;
-    }
-
-    // create sort tab for dialog window tabsheet
-    private static VerticalLayout sortTab() {
-        VerticalLayout sortLayout = new VerticalLayout();
-
-        // list of radio button group items (sort options)
-        List<String> items = Arrays.asList("Release date", "Duration", "Popularity", "Acousticness",
-        "Danceability", "Energy", "Instrumentalness", "Loudness", "Speechiness", "Tempo", "Valence");  
-
-        // create button group of sort options
-        RadioButtonGroup<String> radioGroupSort = new RadioButtonGroup<>();
-        radioGroupSort.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
-        radioGroupSort.setLabel("Sort by: ");
-        radioGroupSort.setItems(items);
-        radioGroupSort.setValue("Release date");
-        sort = "Release date"; // set first option to be selected by default
-        sortLayout.add(radioGroupSort);
-
-        // save currently selected button
-        radioGroupSort.addValueChangeListener(e -> { sort = e.getValue(); });
-
-        return sortLayout;
-    }
-
-    // create filter tab for dialog window tabsheet
-    private static VerticalLayout filterTab() {
-        VerticalLayout filterLayout = new VerticalLayout();
-        
-        // list of radio group button items (filter options)
-        List<String> items = Arrays.asList("Release date", "Audio quality", "Popularity");      
-
-        // create button group of filter options
-        RadioButtonGroup<String> radioGroupFilter = new RadioButtonGroup<>();
-        radioGroupFilter.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
-        radioGroupFilter.setLabel("Filter by: ");;
-        radioGroupFilter.setItems(items);
-        radioGroupFilter.setValue("Release date");
-        filter = "Release date"; // set first option to be selected by default
-        filterLayout.add(radioGroupFilter);
-
-        // save currently selected button
-        radioGroupFilter.addValueChangeListener(e -> { filter = e.getValue(); });
-
-        return filterLayout;
-    }
-
-    // create merge tab for dialog window tabsheet
-    private static VerticalLayout mergeTab() {
-        VerticalLayout mergeLayout = new VerticalLayout();
-
-        // list of other playlists to merge current playlist with
-        PlaylistSimplified[] playlists = SpotifyService.getPlaylists();
-
-        List<PlaylistSimplified> items = Arrays.asList(playlists);
-        
-        // create list of playlists
-        ListBox<PlaylistSimplified> listBox = new ListBox<>();
-        listBox.setItems(items);
-        Label label = new Label("Select a second playlist: ");
-        label.addClassNames(FontSize.SMALL, Margin.Top.MEDIUM);
-
-        // list box renderer (to display playlist image)
-        listBox.setRenderer(new ComponentRenderer<>(item -> {
-            HorizontalLayout row = new HorizontalLayout();
-            row.addClassNames(AlignItems.CENTER);
-            
-            // add playlist cover image and name
-            Avatar a = new Avatar();
-            a.setName("Image");
-            a.setImage(item.getImages()[0].getUrl());
-            Span name = new Span(item.getName());
-            
-            row.add(a, name);
-            row.getStyle().set("line-height", "var(--lumo-line-height-m)");
-            return row;
-        }));
-
-        listBox.addValueChangeListener(e -> merge = listBox.getValue().getId().toString());
-        merge = "New Playlist";
-        mergeLayout.add(label, listBox);
-
-        return mergeLayout;
-    }
-
     // create confirmation dialog
-    private static Boolean confirmDialog(String action, String selectedAction) {
+    private static void confirmDialog(String action, String selectedAction) {
         // create dialog
         ConfirmDialog confirmDialog = new ConfirmDialog();
         confirmDialog.setWidth("550px");
         confirmDialog.setHeader("Confirm");
 
         // confirmation message
-        Div div = new Div();
         if (action == "Merge") {
-            div = new Div(new Text("Are you sure you want to merge the following playlists:\n" 
-                + (SpotifyService.getPlaylistById(currentlySelectedPlaylist).getName()) + " and " + SpotifyService.getPlaylistById(merge).getName() + "?"));
+            confirmDialog.setText("Are you sure you want to merge the following playlists:\n" 
+                + (SpotifyService.getPlaylistById(currentlySelectedPlaylist).getName()) + " and " 
+                + SpotifyService.getPlaylistById(selectedPlaylistToMerge).getName() + "?");
         }
         else {
-            div = new Div(new Text("Are you sure you want to " + action.toLowerCase() + 
-                " this playlist by " + selectedAction.toLowerCase() + "?"));
+            confirmDialog.setText("Are you sure you want to " + action.toLowerCase() + 
+                " this playlist by " + selectedAction.toLowerCase() + "?");
         }
-
-        confirmDialog.add(div);
         
         confirmDialog.setCancelable(true);
         confirmDialog.setConfirmText(action);
 
         // check if user has confirmed action
-        Boolean confirm = false;
-        confirmDialog.addConfirmListener(e -> setConfirm(confirm, true));
+        confirmDialog.addConfirmListener(e -> {
+            if (action == "Sort") {
+                PlaylistActions.sortPlaylist(currentlySelectedPlaylist, selectedSort);
+            }
+            else if (action == "Filter") {
+                PlaylistActions.filterPlaylist(currentlySelectedPlaylist, selectedFilter, selectedDecade);
+            }
+            else if (action == "Merge") {
+                PlaylistActions.mergePlaylists(currentlySelectedPlaylist, selectedPlaylistToMerge);
+            }
+        });
 
         confirmDialog.open();   // open dialog
-        return confirm;
     }
 
-    // update marker value after user confirms or cancels playlist action
-    private static void setConfirm(Boolean a, Boolean b) {
-        a = b;
+    // reset values of second selected playlist when a new first playlist is selected
+    public static void resetMergePlaylistSelection() {
+        radioGroupSort.setValue(null);
+        radioGroupFilter.setValue(null);
+        listBoxMerge.setValue(null);
+        decadesContainer.setVisible(false);
+        radioGroupFilterDecades.clear();
+        decadeKeysStr = null;
+        selectedDecade = null;
+        selectedSort = selectedFilter = selectedPlaylistToMerge = null;
+    }
+
+// ---------------------------------------- Error dialog ----------------------------------------
+
+    // display error dialog when second playlist has not been selected
+    private static void errorDialog() {
+        // create dialog
+        ConfirmDialog errorDialog = new ConfirmDialog();
+        errorDialog.setWidth("550px");
+        errorDialog.setHeader("Error");
+        errorDialog.setText("Please make a selection.");
+        errorDialog.setConfirmText("Continue");
+        errorDialog.open();
     }
 }

@@ -11,3 +11,11 @@
   background-color: var(--lumo-base-color);
   box-shadow: var(--lumo-box-shadow-s);
 }
+
+.indented-radio-group {
+  margin-left: 20px;
+}
+
+.indented-radio-group-container {
+  margin-top: -25px;
+}

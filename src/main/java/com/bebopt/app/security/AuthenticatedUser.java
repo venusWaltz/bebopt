@@ -12,6 +12,7 @@ public class AuthenticatedUser {
 
     private final UserRepository userRepository;
     private final AuthenticationContext authenticationContext;
+    private static Boolean isLoggedIn = false;
 
     public AuthenticatedUser(AuthenticationContext authenticationContext, UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -25,6 +26,14 @@ public class AuthenticatedUser {
 
     public void logout() {
         authenticationContext.logout();
+    }
+
+    public static void setIsLoggedIn(Boolean bool) {
+        isLoggedIn = bool;
+    }
+
+    public static Boolean getIsLoggedIn() {
+        return isLoggedIn;
     }
 
 }

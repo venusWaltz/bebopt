@@ -134,12 +134,11 @@ public class AuthController {
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
         }
-
+        response.sendRedirect("/home");
+        
         spotifyApi.setAccessToken(null);
         spotifyApi.setRefreshToken(null);
         AuthenticatedUser.setIsLoggedIn(false);
-
-        response.sendRedirect("/home");
     }
 
 // ----------------------------------------- User -----------------------------------------
@@ -404,6 +403,8 @@ public class AuthController {
             .limit(10)
             .seed_artists(seed)
             .build();
+
+        try {
             final Recommendations recommendations = getRecommendationsRequest.execute();
             return recommendations;
 

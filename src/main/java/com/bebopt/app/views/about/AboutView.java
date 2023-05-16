@@ -23,7 +23,7 @@ public class AboutView extends VerticalLayout {
         setSpacing(false);
         setMargin(true);
 
-        H2 header = new H2("User Manual");
+        H2 header = new H2("User Guide");
         header.addClassNames(Margin.Bottom.NONE, Margin.Top.LARGE, FontSize.XXXLARGE);
 
 

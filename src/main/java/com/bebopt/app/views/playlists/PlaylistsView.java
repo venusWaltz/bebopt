@@ -298,12 +298,7 @@ public class PlaylistsView extends Main {
             confirmDialog("Filter", selectedFilter);
         }
         else if (t == tabsheet.getTabAt(2)) {
-            if (selectedPlaylistToMerge != null) {
-                confirmDialog("Merge", selectedPlaylistToMerge);
-            }
-            else {
-                errorDialog();
-            }
+            confirmDialog("Merge", selectedPlaylistToMerge);
         }
     }
 
@@ -319,6 +314,11 @@ public class PlaylistsView extends Main {
         ConfirmDialog confirmDialog = new ConfirmDialog();
         confirmDialog.setWidth("550px");
         confirmDialog.setHeader("Confirm");
+
+        if (selectedAction == null) {
+            errorDialog();
+            return;
+        }
 
         // confirmation message
         if (action == "Merge") {

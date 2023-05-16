@@ -402,7 +402,7 @@ public class AuthController {
     public static Recommendations getRecommendations() {
         final GetUsersTopTracksRequest getUsersTopTracksRequest = spotifyApi.getUsersTopTracks()
             .time_range("short_term")
-            .limit(10)
+            .limit(5)
             .build();
             try {
                 final Paging<Track> trackPaging = getUsersTopTracksRequest.execute();

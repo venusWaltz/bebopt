@@ -7,6 +7,7 @@ import com.bebopt.app.views.about.AboutView;
 import com.bebopt.app.views.home.HomeView;
 import com.bebopt.app.views.playlists.PlaylistsView;
 import com.bebopt.app.views.recommendations.RecommendationsView;
+import com.bebopt.app.views.howto.howtoview;
 import com.bebopt.app.views.stats.StatsView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -191,6 +192,8 @@ public class MainLayout extends AppLayout {
                 new MenuItemInfo("Recommendations", LineAwesomeIcon.MUSIC_SOLID.create(), RecommendationsView.class), //
 
                 new MenuItemInfo("About", LineAwesomeIcon.INFO_CIRCLE_SOLID.create(), AboutView.class), //
+
+                new MenuItemInfo("How to Use/User Manual", LineAwesomeIcon.GLASSES_SOLID.create(), howtoview.class), //
 
         };
     }

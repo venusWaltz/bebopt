@@ -18,12 +18,11 @@ import se.michaelthelin.spotify.model_objects.specification.User;
 
 @Service
 public class SpotifyService {
+    
+// ---------------------------------------- User ----------------------------------------
 
     public static User getCurrentUser() {
-        return AuthController.getProfile();
-    }
-    public static void logout() {
-        RedirectController.redirect("logout");
+        return AuthController.getUserProfile();
     }
 
 // ---------------------------------------- Tracks ----------------------------------------
@@ -34,11 +33,11 @@ public class SpotifyService {
     public static Track getTrackById(String id) {
         return AuthController.getTrackById(id);
     }
-    public static CurrentlyPlaying getCurrentlyPlayingItem() {
-        return AuthController.getCurrentlyPlaying();
-    }
     public static PagingCursorbased<PlayHistory> getRecentlyPlayedTracks() {
         return AuthController.getRecentlyPlayedTracks();
+    }
+    public static CurrentlyPlaying getCurrentlyPlaying() {
+        return AuthController.getCurrentlyPlaying();
     }
 
 // ---------------------------------------- Artists ----------------------------------------
@@ -64,6 +63,9 @@ public class SpotifyService {
     public static AudioFeatures[] getAudioFeatures(String tracks) {
         return AuthController.getAudioFeatures(tracks);
     }
+
+// ---------------------------------------- Playlist management ----------------------------------------
+
     public static Playlist createPlaylist() {
         return AuthController.createPlaylist();
     }
@@ -73,7 +75,6 @@ public class SpotifyService {
     public static SnapshotResult modifyPlaylist(String id) {
         return AuthController.modifyPlaylist(id);
     }
-
 
 // ---------------------------------------- Recommendations ----------------------------------------
 

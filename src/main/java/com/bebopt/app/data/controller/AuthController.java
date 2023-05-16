@@ -65,6 +65,8 @@ public class AuthController {
         return user;
     }
 
+// ----------------------------------------- Authorization -----------------------------------------
+
     // create SpotifyApi object to use when sending requests to Spotify API
     public static SpotifyApi spotifyApi = new SpotifyApi.Builder()
         .setClientId(clientID)
@@ -97,12 +99,12 @@ public class AuthController {
 
             spotifyApi.setAccessToken(authorizationCodeCredentials.getAccessToken());
             spotifyApi.setRefreshToken(authorizationCodeCredentials.getRefreshToken());
-
+            
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error" + e.getMessage());
         }
 
-        user = getProfile();
+        user = getUserProfile();
         AuthenticatedUser.setIsLoggedIn(true); 
 
         response.sendRedirect("http://localhost:8080/home");    // redirect to home page after retrieving access token
@@ -140,9 +142,11 @@ public class AuthController {
         response.sendRedirect("/home");
     }
 
+// ----------------------------------------- User -----------------------------------------
+
     // get current user's profile
     @GetMapping("user-profile")
-    public static User getProfile() {
+    public static User getUserProfile() {
         
         final GetCurrentUsersProfileRequest getCurrentUsersProfileRequest = spotifyApi.getCurrentUsersProfile()
         .build();
@@ -157,6 +161,8 @@ public class AuthController {
         return null;
     }
 
+// ----------------------------------------- Tracks -----------------------------------------
+
     // get user's top tracks
     @GetMapping("user-top-tracks/{timeRange}")
     public static Track[] getTopTracks(String timeRange) {
@@ -168,8 +174,6 @@ public class AuthController {
 
         try {
             final Paging<Track> trackPaging = getUsersTopTracksRequest.execute();
-
-            // top tracks returned as JSON
             return trackPaging.getItems();
 
         } catch (Exception e) {
@@ -178,6 +182,65 @@ public class AuthController {
 
         return new Track[0];
     }
+
+    // get track by id
+    @GetMapping("get-track-by-id/{id}")
+    public static Track getTrackById(String id) {
+        final GetTrackRequest getTrackRequest = spotifyApi
+            .getTrack(id)
+            .build();
+
+        try {
+            final Track track = getTrackRequest.execute();
+            return track;
+
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        
+        return null;
+    }
+
+    // get user's recently played items
+    @GetMapping("recently-played")
+    public static PagingCursorbased<PlayHistory> getRecentlyPlayedTracks() {
+        final GetCurrentUsersRecentlyPlayedTracksRequest getCurrentUsersRecentlyPlayedTracksRequest
+            = spotifyApi
+                .getCurrentUsersRecentlyPlayedTracks()
+                .limit(20)
+                .build();
+
+        try {
+            final PagingCursorbased<PlayHistory> recentlyPlayedTracks = getCurrentUsersRecentlyPlayedTracksRequest.execute();
+            return recentlyPlayedTracks;
+
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    // get user's currently playing track
+    @GetMapping("currently-playing")
+    public static CurrentlyPlaying getCurrentlyPlaying() {
+        final GetUsersCurrentlyPlayingTrackRequest getUsersCurrentlyPlayingTrackRequest
+            = spotifyApi
+                .getUsersCurrentlyPlayingTrack()
+                .build();
+
+        try {
+            final CurrentlyPlaying currentlyPlaying = getUsersCurrentlyPlayingTrackRequest.execute();
+            return currentlyPlaying;
+
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+// ----------------------------------------- Artists -----------------------------------------
 
     // get user's top artists
     @GetMapping("user-top-artists/{timeRange}")
@@ -190,8 +253,6 @@ public class AuthController {
 
         try {
             final Paging<Artist> artistPaging = getUsersTopArtistsRequest.execute();
-
-            // top artists returned as JSON 
             return artistPaging.getItems();
 
         } catch (Exception e) {
@@ -200,6 +261,27 @@ public class AuthController {
 
         return new Artist[0];
     }
+
+// ----------------------------------------- Albums -----------------------------------------
+
+    @GetMapping("get-album-by-id/{id}")
+    public static Album getAlbumById(String id) {
+        final GetAlbumRequest getAlbumRequest = spotifyApi
+            .getAlbum(id)
+            .build();
+
+        try {
+            final Album album = getAlbumRequest.execute();
+            return album;
+
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+// ----------------------------------------- Playlists -----------------------------------------
 
     // get user's playlists
     @GetMapping("user-playlists")
@@ -213,8 +295,8 @@ public class AuthController {
 
         try {
             final Paging<PlaylistSimplified> playlistPaging = getListOfCurrentUsersPlaylistsRequest.execute();
-
             return playlistPaging.getItems();
+
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -232,79 +314,7 @@ public class AuthController {
         try {
             final Playlist playlist = getPlaylistRequest.execute();
             return playlist;
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
 
-        return null;
-    }
-
-    // get track by id
-    @GetMapping("get-track-by-id/{id}")
-    public static Track getTrackById(String id) {
-        final GetTrackRequest getTrackRequest = spotifyApi
-            .getTrack(id)
-            .build();
-
-        try {
-            final Track track = getTrackRequest.execute();
-            return track;
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-        
-        return null;
-    }
-
-    // get user's currently playing track
-    @GetMapping("currently-playing")
-    public static CurrentlyPlaying getCurrentlyPlaying() {
-        final GetUsersCurrentlyPlayingTrackRequest getUsersCurrentlyPlayingTrackRequest
-            = spotifyApi
-                .getUsersCurrentlyPlayingTrack()
-                .build();
-
-        try {
-            final CurrentlyPlaying currentlyPlaying = getUsersCurrentlyPlayingTrackRequest.execute();
-            return currentlyPlaying;
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-
-        return null;
-    }
-
-    // get recommendations from a track
-    @GetMapping("recommendations")
-    public static Recommendations getRecommendations(String seed) {
-        final GetRecommendationsRequest getRecommendationsRequest = spotifyApi
-            .getRecommendations()
-            .limit(10)
-            .seed_artists(seed)
-            .build();
-        
-        try {
-            final Recommendations recommendations = getRecommendationsRequest.execute();
-            return recommendations;
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-
-        return null;
-    }
-
-    // get user's recently played items
-    @GetMapping("recently-played")
-    public static PagingCursorbased<PlayHistory> getRecentlyPlayedTracks() {
-        final GetCurrentUsersRecentlyPlayedTracksRequest getCurrentUsersRecentlyPlayedTracksRequest
-            = spotifyApi
-                .getCurrentUsersRecentlyPlayedTracks()
-                .limit(20)
-                .build();
-
-        try {
-            final PagingCursorbased<PlayHistory> recentlyPlayedTracks = getCurrentUsersRecentlyPlayedTracksRequest.execute();
-            return recentlyPlayedTracks;
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -322,6 +332,7 @@ public class AuthController {
         try {
             final AudioFeatures[] audioFeatures = getAudioFeaturesForSeveralTracksRequest.execute();
             return audioFeatures;
+
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -329,19 +340,7 @@ public class AuthController {
         return null;
     }
 
-    @GetMapping("get-album")
-    public static Album getAlbumById(String id) {
-        final GetAlbumRequest getAlbumRequest = spotifyApi.getAlbum(id).build();
-
-        try {
-            final Album album = getAlbumRequest.execute();
-            return album;
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-
-        return null;
-    }
+// ----------------------------------------- Playlist management -----------------------------------------
 
     @PostMapping("create-playlist") 
     public static Playlist createPlaylist() {
@@ -352,6 +351,7 @@ public class AuthController {
         try {
             final Playlist newPlaylist = createPlaylistRequest.execute();
             return newPlaylist;
+
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -368,6 +368,7 @@ public class AuthController {
         try {
             final SnapshotResult snapshotResult = addItemsToPlaylistRequest.execute();
             return snapshotResult;
+            
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -385,10 +386,35 @@ public class AuthController {
         try {
             final SnapshotResult snapshotResult = reorderPlaylistsItemsRequest.execute();
             return snapshotResult;
+
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
         }
         
         return null;
     }
+
+// ----------------------------------------- Recommendations -----------------------------------------
+
+    // get recommendations from a track
+    @GetMapping("recommendations")
+    public static Recommendations getRecommendations(String seed) {
+        final GetRecommendationsRequest getRecommendationsRequest = spotifyApi
+            .getRecommendations()
+            .limit(10)
+            .seed_artists(seed)
+            .build();
+        
+        try {
+            final Recommendations recommendations = getRecommendationsRequest.execute();
+            return recommendations;
+
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        return null;
+    }
+
 }
+

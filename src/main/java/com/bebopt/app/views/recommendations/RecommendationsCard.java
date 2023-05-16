@@ -18,11 +18,11 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Overflow;
 import com.vaadin.flow.theme.lumo.LumoUtility.TextColor;
 import com.vaadin.flow.theme.lumo.LumoUtility.Width;
 
-import se.michaelthelin.spotify.model_objects.specification.TrackSimplified;
+import se.michaelthelin.spotify.model_objects.specification.Track;
 
 public class RecommendationsCard extends HorizontalLayout {
     
-    public RecommendationsCard(TrackSimplified track, int index) {
+    public RecommendationsCard(Track track, int index) {
 
         //System.out.println(track.getName());
         //System.out.println(track.getArtists()[0].getName());
@@ -54,8 +54,8 @@ public class RecommendationsCard extends HorizontalLayout {
         Image image = new Image();
         image.setWidth(height);
         image.setHeight(height);
-        image.setSrc("images/empty-plant.png");
-        //image.setSrc(track.getAlbum().getImages()[0].getUrl());
+        //image.setSrc("images/empty-plant.png");
+        image.setSrc(track.getAlbum().getImages()[0].getUrl());
 
         Span title = new Span(track.getName());
         title.addClassNames(FontSize.SMALL, FontWeight.SEMIBOLD);

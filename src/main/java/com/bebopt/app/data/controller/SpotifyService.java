@@ -40,6 +40,12 @@ public class SpotifyService {
         return AuthController.getCurrentlyPlaying();
     }
 
+    public static Track[] getSeveralTrack(String ids) {//used for recommendations but makes more sense to me up here
+        //String ids = String.join(",", id);
+        Track[] rtracks = AuthController.getSeveralTracksRequest(ids);
+        return rtracks;
+    }
+
 // ---------------------------------------- Artists ----------------------------------------
 
     public static Artist[] getTopArtists(String timeRange) {
@@ -78,7 +84,12 @@ public class SpotifyService {
 
 // ---------------------------------------- Recommendations ----------------------------------------
 
-    public static Recommendations getRecommendations(String seed) {
-        return AuthController.getRecommendations(seed);
+    public static Recommendations getRecommendations() {
+        return AuthController.getRecommendations();
+    }
+
+    public static Artist[] getRelatedArtists() {
+        Artist[] rartists = AuthController.getRelatedArtists();
+        return rartists;
     }
 }

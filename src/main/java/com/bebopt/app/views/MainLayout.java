@@ -108,7 +108,12 @@ public class MainLayout extends AppLayout {
 
             // add user profile info here
             Avatar avatar = new Avatar(AuthController.getUser().getDisplayName());
-            avatar.setImage(AuthController.getUser().getImages()[0].getUrl());
+            try{
+                avatar.setImage(AuthController.getUser().getImages()[0].getUrl());
+            }
+            catch(Exception e){//if user doesn't have a profile image set seems to break so made it a try catch
+                avatar.setImage("images/empty-plant.png");
+            }
             avatar.setThemeName("xsmall");
             avatar.getElement().setAttribute("tabindex", "-1");
 

@@ -1,0 +1,73 @@
+package com.bebopt.app.views.recommendations;
+
+import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.theme.lumo.LumoUtility.AlignItems;
+import com.vaadin.flow.theme.lumo.LumoUtility.Background;
+import com.vaadin.flow.theme.lumo.LumoUtility.BorderRadius;
+import com.vaadin.flow.theme.lumo.LumoUtility.Display;
+import com.vaadin.flow.theme.lumo.LumoUtility.FontSize;
+import com.vaadin.flow.theme.lumo.LumoUtility.FontWeight;
+import com.vaadin.flow.theme.lumo.LumoUtility.JustifyContent;
+import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
+import com.vaadin.flow.theme.lumo.LumoUtility.Overflow;
+import com.vaadin.flow.theme.lumo.LumoUtility.TextColor;
+import com.vaadin.flow.theme.lumo.LumoUtility.Width;
+
+import se.michaelthelin.spotify.model_objects.specification.Track;
+
+public class RecommendationsCard extends HorizontalLayout {
+    
+    public RecommendationsCard(Track track, int index) {
+
+        //System.out.println(track.getName());
+        //System.out.println(track.getArtists()[0].getName());
+        //System.out.println(track.getExternalUrls());
+    
+        
+        String height = "60px";
+
+        Span num = new Span(String.valueOf(index + 1));
+        num.setWidth("15px");
+        addClassNames(AlignItems.CENTER);
+        
+        Div div = new Div();
+        div.addClassNames(Background.CONTRAST_5, Display.GRID, AlignItems.CENTER, JustifyContent.START,
+                Margin.Top.SMALL, Margin.Bottom.SMALL, Overflow.HIDDEN, BorderRadius.SMALL, Width.AUTO);
+        div.setSizeFull();
+
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.addClassName("header");
+        horizontalLayout.setSpacing(false);
+        horizontalLayout.setWidth(100f, Unit.PERCENTAGE);
+
+        VerticalLayout verticalLayout = new VerticalLayout();
+        verticalLayout.addClassName("card");
+        verticalLayout.setSpacing(false);
+        verticalLayout.setHeight(height);
+        verticalLayout.setJustifyContentMode(JustifyContentMode.CENTER);
+    
+        Image image = new Image();
+        image.setWidth(height);
+        image.setHeight(height);
+        //image.setSrc("images/empty-plant.png");
+        image.setSrc(track.getAlbum().getImages()[0].getUrl());
+
+        Span title = new Span(track.getName());
+        title.addClassNames(FontSize.SMALL, FontWeight.SEMIBOLD);
+        title.addClassName("title");
+        Span artist = new Span(track.getArtists()[0].getName());
+        artist.addClassNames(FontSize.XSMALL, TextColor.SECONDARY);
+        artist.addClassName("artist");
+        
+        add(num);
+        verticalLayout.add(title, artist);
+        horizontalLayout.add(image, verticalLayout);
+        div.add(horizontalLayout);
+        add(div);
+    }
+}

@@ -46,10 +46,26 @@ public class SpotifyService {
         return rtracks;
     }
 
+    public static String getTop5tids() {//gets top 5 tracks user has listened to used for recommendations but makes more sense to me up here
+        Track[] top5 = AuthController.getTopTracks("short_term");
+        String id[] = new String[5];
+        for(int i = 0; i < id.length; i++){
+            id[i] = top5[i].getId();
+        }
+        String ids = String.join(",", id);
+        //Track[] rtracks = AuthController.getSeveralTracksRequest(ids);
+        return ids;
+    }
+
 // ---------------------------------------- Artists ----------------------------------------
 
     public static Artist[] getTopArtists(String timeRange) {
         return AuthController.getTopArtists(timeRange);
+    }
+
+    public static String getTopArtistID() {
+        String id = AuthController.getTopArtists("short_term")[0].getId();
+        return id;
     }
 
 // ---------------------------------------- Albums ----------------------------------------
@@ -84,12 +100,12 @@ public class SpotifyService {
 
 // ---------------------------------------- Recommendations ----------------------------------------
 
-    public static Recommendations getRecommendations() {
-        return AuthController.getRecommendations();
+    public static Recommendations getRecommendations(String seed) {
+        return AuthController.getRecommendations(seed);
     }
 
-    public static Artist[] getRelatedArtists() {
-        Artist[] rartists = AuthController.getRelatedArtists();
+    public static Artist[] getRelatedArtists(String seed) {
+        Artist[] rartists = AuthController.getRelatedArtists(seed);
         return rartists;
     }
 }

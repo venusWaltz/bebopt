@@ -20,6 +20,11 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 import com.vaadin.flow.theme.lumo.LumoUtility.MaxWidth;
 import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
 import se.michaelthelin.spotify.model_objects.specification.Artist;
+import com.vaadin.flow.theme.lumo.LumoUtility.Grid.Column;
+import com.vaadin.flow.theme.lumo.LumoUtility.Display;
+import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
+import com.vaadin.flow.theme.lumo.LumoUtility.ListStyleType;
+
 
 import se.michaelthelin.spotify.model_objects.specification.Track;
 
@@ -31,10 +36,12 @@ public class RecommendationsView extends Div {
     private Div RArtistTab;
     private TabSheet tabsheet;
 
-    Recommendations recommended = SpotifyService.getRecommendations();
+    String tseed = SpotifyService.getTop5tids();
+    String aseed = SpotifyService.getTopArtistID();
+    Recommendations recommended = SpotifyService.getRecommendations(tseed);
     OrderedList trackContainerRecommended = RecommendedTracks();
-    Artist[] RelatedArtist = SpotifyService.getRelatedArtists();
-    OrderedList ArtistsContainer = RelatedArtist();
+    Artist[] RelatedArtist = SpotifyService.getRelatedArtists(aseed);
+    OrderedList ArtistsContainer = RelatedArtist(); 
 
     public RecommendationsView() {
         tabsheet = new TabSheet();
@@ -71,9 +78,9 @@ public class RecommendationsView extends Div {
 
     private OrderedList RelatedArtist() {
         OrderedList trackContainer = new OrderedList();
-        Artist[] RArtist = SpotifyService.getRelatedArtists();
-        for(int i = 0; i < recommended.getTracks().length; i++){
-            trackContainer.add(new RelatedArtistCard(RArtist[i]));
+        //Artist[] RArtist = SpotifyService.getRelatedArtists();
+        for(int i = 0; i < RelatedArtist.length; i++){
+            trackContainer.add(new RelatedArtistCard(RelatedArtist[i]));
         }
 
         //RecommendedUI();
@@ -103,10 +110,10 @@ public class RecommendationsView extends Div {
     }
 
     private Div RArtists() {
-        Div div = new Div();
-        addClassNames("Related Artists");
+        addClassNames("artist-view");
         addClassNames(MaxWidth.SCREEN_LARGE, Margin.Horizontal.AUTO, Padding.Bottom.LARGE, Padding.Horizontal.LARGE);
-        
+
+        Div div = new Div();
         
         HorizontalLayout container = new HorizontalLayout();
         container.addClassNames(AlignItems.CENTER, JustifyContent.BETWEEN);
@@ -116,10 +123,17 @@ public class RecommendationsView extends Div {
         header.addClassNames(Margin.Bottom.NONE, Margin.Top.XLARGE, FontSize.XXXLARGE);
         headerContainer.add(header);
 
+        
+        //Artist[] RelatedArtist = SpotifyService.getRelatedArtists(aseed);
+        OrderedList AartistContainer = new OrderedList();
+        AartistContainer = RelatedArtist();
+        AartistContainer.addClassNames(Gap.MEDIUM, Display.GRID, ListStyleType.NONE, Margin.NONE, Padding.NONE, JustifyContent.BETWEEN, Column.COLUMNS_5);
+
         container.add(headerContainer);
         Div artistDiv = new Div();
-        artistDiv.add(ArtistsContainer);
+        artistDiv.add(AartistContainer);
         div.add(container, artistDiv);
+
         return div;
     }
     

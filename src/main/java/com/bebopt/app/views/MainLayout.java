@@ -128,6 +128,11 @@ public class MainLayout extends AppLayout {
             userName.add(div);
             userName.getSubMenu().addItem("Sign out", e -> {
                 RedirectController.redirect("logout");  // log out of spotify account
+                authenticatedUser.logout();
+                //authenticatedUser.setIsLoggedIn(false);
+                //Anchor loginLink = new Anchor(AuthController.spotifyLogin(), "Sign in");
+                //loginLink.setId("sign-in");
+                //layout.add(loginLink);
             });
 
             layout.add(userMenu);

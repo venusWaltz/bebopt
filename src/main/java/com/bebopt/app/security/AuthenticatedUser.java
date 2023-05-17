@@ -26,6 +26,7 @@ public class AuthenticatedUser {
 
     public void logout() {
         authenticationContext.logout();
+        isLoggedIn = false;
     }
 
     public static void setIsLoggedIn(Boolean bool) {

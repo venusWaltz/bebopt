@@ -241,6 +241,22 @@ public class AuthController {
         return null;
     }
 
+    @GetMapping("get-several-track")
+    public static Track[] getSeveralTracksRequest(String ids) {
+        final GetSeveralTracksRequest getSeveralTracksRequest = spotifyApi
+            .getSeveralTracks(ids)
+            .build();
+
+        try {
+            final Track[] tracks  = getSeveralTracksRequest.execute();
+            return tracks;
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        
+        return null;
+    }
+
 // ----------------------------------------- Artists -----------------------------------------
 
     // get user's top artists
@@ -399,67 +415,29 @@ public class AuthController {
 
     // get recommendations from a track
     @GetMapping("recommendations")
-    public static Recommendations getRecommendations() {
-        final GetUsersTopTracksRequest getUsersTopTracksRequest = spotifyApi.getUsersTopTracks()
-            .time_range("short_term")
-            .limit(5)
+    public static Recommendations getRecommendations(String seed) {
+        final GetRecommendationsRequest getRecommendationsRequest = spotifyApi
+            .getRecommendations()
+            .limit(10)
+            .seed_tracks(seed)
             .build();
-            try {
-                final Paging<Track> trackPaging = getUsersTopTracksRequest.execute();
-                Track[] tracks = trackPaging.getItems();
-                //String seed = tracks[0].getId();
-                String seed = "";
-                for(int i = 0; i < tracks.length; i++){
-                    seed = String.join(",", tracks[i].getId());
-                    //System.out.println(tracks[i].getId());
-                }
-                //String ids = String.join(",", tracks.getId());
-                final GetRecommendationsRequest getRecommendationsRequest = spotifyApi
-                    .getRecommendations()
-                    .limit(10)
-                    .seed_tracks(seed)
-                    .build();
-                final Recommendations recommendations = getRecommendationsRequest.execute();
-                return recommendations;
-    
-            } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
-            }
-            return null;
-    }
-
-
-    @GetMapping("get-several-track")
-    public static Track[] getSeveralTracksRequest(String ids) {
-        final GetSeveralTracksRequest getSeveralTracksRequest = spotifyApi
-            .getSeveralTracks(ids)
-            .build();
-
         try {
-            final Track[] tracks  = getSeveralTracksRequest.execute();
-            return tracks;
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            final Recommendations recommendations = getRecommendationsRequest.execute();
+            return recommendations;
+    
+        } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
-        
         return null;
     }
 
     @GetMapping("related-artists")
-    public static Artist[] getRelatedArtists() {
-
-        final GetUsersTopArtistsRequest getUsersTopArtistsRequest = spotifyApi.getUsersTopArtists()
-            .time_range("short_term")
-            .limit(1)
+    public static Artist[] getRelatedArtists(String seed) {
+        final GetArtistsRelatedArtistsRequest getRelatedArtists = spotifyApi
+            .getArtistsRelatedArtists(seed)
             .build();
-
         try {
-            final Paging<Artist> trackPaging = getUsersTopArtistsRequest.execute();
-            Artist[] top_artist = trackPaging.getItems();
-            String seed = top_artist[0].getId();
-            final GetArtistsRelatedArtistsRequest getRelatedArtists = spotifyApi
-                .getArtistsRelatedArtists(seed)
-                .build();
+            
             final Artist[] relatedArtists = getRelatedArtists.execute();
             return relatedArtists;
 
@@ -469,6 +447,3 @@ public class AuthController {
 
         return null;
     }
-
-}
-

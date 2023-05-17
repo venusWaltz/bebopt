@@ -47,10 +47,13 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Grid.Column;
 
 import jakarta.annotation.security.PermitAll;
 import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+
+@AnonymousAllowed
 
 @PageTitle("Playlists")
 @Route(value = "playlists", layout = MainLayout.class)
-@PermitAll
+//@PermitAll
 public class PlaylistsView extends Main {
 
     private static String currentlySelectedPlaylist;

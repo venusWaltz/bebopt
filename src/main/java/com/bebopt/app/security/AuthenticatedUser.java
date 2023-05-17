@@ -24,6 +24,11 @@ public class AuthenticatedUser {
                 .map(userDetails -> userRepository.findByUsername(userDetails.getUsername()));
     }
 
+    public void login() {
+        //authenticationContext.logout();
+        isLoggedIn = true;
+    }
+
     public void logout() {
         authenticationContext.logout();
         isLoggedIn = false;

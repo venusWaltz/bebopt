@@ -150,9 +150,15 @@ public class MainLayout extends AppLayout {
         UnorderedList list = new UnorderedList();
         list.addClassNames(Display.FLEX, Gap.SMALL, ListStyleType.NONE, Margin.NONE, Padding.NONE);
         nav.add(list);
+        //list.add(menuItem)
+        for (MenuItemInfo menuItem : createPublicMenuItems()) {
+            //if (accessChecker.hasAccess(menuItem.getView())) {
+            list.add(menuItem);
 
+        }
         for (MenuItemInfo menuItem : createMenuItems()) {
-            if (accessChecker.hasAccess(menuItem.getView())) {
+            //if (accessChecker.hasAccess(menuItem.getView())) {
+            if (AuthenticatedUser.getIsLoggedIn()) {
                 list.add(menuItem);
             }
 
@@ -162,17 +168,25 @@ public class MainLayout extends AppLayout {
         return header;
     }
 
-    private MenuItemInfo[] createMenuItems() {
+    
+    private MenuItemInfo[] createPublicMenuItems() {
         return new MenuItemInfo[] { //
                 new MenuItemInfo("Home", LineAwesomeIcon.HOME_SOLID.create(), HomeView.class), //
 
+                new MenuItemInfo("About", LineAwesomeIcon.INFO_CIRCLE_SOLID.create(), AboutView.class), //
+        };
+    }
+    private MenuItemInfo[] createMenuItems() {
+        return new MenuItemInfo[] { //
+                //new MenuItemInfo("Home", LineAwesomeIcon.HOME_SOLID.create(), HomeView.class), //
+                
                 new MenuItemInfo("Stats", LineAwesomeIcon.CHART_BAR_SOLID.create(), StatsView.class), //
 
                 new MenuItemInfo("Playlists", LineAwesomeIcon.LIST_OL_SOLID.create(), PlaylistsView.class), //
 
                 new MenuItemInfo("Recommendations", LineAwesomeIcon.MUSIC_SOLID.create(), RecommendationsView.class), //
 
-                new MenuItemInfo("About", LineAwesomeIcon.INFO_CIRCLE_SOLID.create(), AboutView.class), //
+                //new MenuItemInfo("About", LineAwesomeIcon.INFO_CIRCLE_SOLID.create(), AboutView.class), //
         };
     }
 

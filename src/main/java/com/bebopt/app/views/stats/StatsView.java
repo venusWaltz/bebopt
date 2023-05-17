@@ -27,9 +27,13 @@ import jakarta.annotation.security.PermitAll;
 import se.michaelthelin.spotify.model_objects.specification.Artist;
 import se.michaelthelin.spotify.model_objects.specification.Track;
 
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+
+@AnonymousAllowed
+
 @PageTitle("Stats")
 @Route(value = "stats", layout = MainLayout.class)
-@PermitAll
+//@PermitAll
 public class StatsView extends Div {
 
     private Div trackTab;

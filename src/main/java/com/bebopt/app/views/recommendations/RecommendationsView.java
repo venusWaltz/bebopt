@@ -27,10 +27,13 @@ import com.vaadin.flow.theme.lumo.LumoUtility.ListStyleType;
 
 
 import se.michaelthelin.spotify.model_objects.specification.Track;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+
+@AnonymousAllowed
 
 @PageTitle("Recommendations")
 @Route(value = "Recommendations", layout = MainLayout.class)
-@PermitAll
+//@PermitAll
 public class RecommendationsView extends Div {
     private Div RTrackTab;
     private Div RArtistTab;

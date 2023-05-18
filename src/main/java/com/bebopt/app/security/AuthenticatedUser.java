@@ -13,7 +13,7 @@ public class AuthenticatedUser {
     }
 
     public void logout() {
-        RedirectController.redirect("logout");  // log out of spotify account
+        RedirectController.redirect("home");  // log out of spotify account
         isLoggedIn = false;
     }
 

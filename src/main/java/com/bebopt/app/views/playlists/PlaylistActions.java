@@ -41,7 +41,7 @@ public class PlaylistActions {
             sortedTracks = sortAudioFeatures(audioFeatures, option);
         }
 
-        // addToNewPlaylist(tracksToUriStr(sortedTracks));   // add songs to new playlist
+        addToNewPlaylist(tracksToUriStr(sortedTracks));   // add songs to new playlist
 
         System.out.println("\nSorted by " + option);
         for (Track track : sortedTracks)
@@ -104,7 +104,7 @@ public class PlaylistActions {
 
         // if songs are found, add to new playlist
         if (filteredTracks != null) {
-            // addToNewPlaylist(tracksToUriStr(filteredTracks));   // add songs to new playlist
+            addToNewPlaylist(tracksToUriStr(filteredTracks));   // add songs to new playlist
 
             System.out.println("\nFiltered by " + filterBy.toLowerCase() +
                 (filterBy.equals("Release decade") ? " (" + option + "s) - " : " - ")  
@@ -213,6 +213,14 @@ public class PlaylistActions {
     public static void addToNewPlaylist(String[] uris) {
         String id = SpotifyService.createPlaylist().getId(); // get id of newly created playlist
         SpotifyService.addToPlaylist(id, uris);
+    }
+
+    // return array of track uris
+    public static String[] tracksToUriStr(List<Track> tracks) {
+        String[] uris = new String[tracks.size()];
+        int i = 0;
+        for (Track track : tracks) uris[i++] = track.getId();
+        return uris;
     }
 
 }

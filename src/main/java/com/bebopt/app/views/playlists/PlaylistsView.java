@@ -186,7 +186,7 @@ public class PlaylistsView extends Main {
             if (selectedFilter.equals("Release decade")) {
                 if (radioGroupFilterDecades.isEmpty()) {
 
-                    // create hash map and get keys
+                    // create map and get keys
                     List<String> decadeKeysStr = getDecadeKeys();
 
                     Collections.sort(decadeKeysStr);

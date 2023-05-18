@@ -1,9 +1,9 @@
 package com.bebopt.app.views.recommendations;
 
 import com.bebopt.app.views.MainLayout;
+import com.bebopt.app.views.stats.TrackCard;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import jakarta.annotation.security.PermitAll;
 import com.vaadin.flow.component.html.OrderedList;
 import se.michaelthelin.spotify.model_objects.specification.Recommendations;
 import com.bebopt.app.data.controller.SpotifyService;
@@ -30,67 +30,58 @@ import se.michaelthelin.spotify.model_objects.specification.Track;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @AnonymousAllowed
-
 @PageTitle("Recommendations")
 @Route(value = "Recommendations", layout = MainLayout.class)
-//@PermitAll
 public class RecommendationsView extends Div {
-    private Div RTrackTab;
-    private Div RArtistTab;
+    private Div recommendedTracksTab;
+    private Div recommendedArtistsTab;
     private TabSheet tabsheet;
 
-    String tseed = SpotifyService.getTop5tids();
-    String aseed = SpotifyService.getTopArtistID();
-    Recommendations recommended = SpotifyService.getRecommendations(tseed);
+    String trackSeed = SpotifyService.getTop5tids();
+    String artistSeed = SpotifyService.getTopArtistID();
+    Recommendations recommended = SpotifyService.getRecommendations(trackSeed);
     OrderedList trackContainerRecommended = RecommendedTracks();
-    Artist[] RelatedArtist = SpotifyService.getRelatedArtists(aseed);
-    OrderedList ArtistsContainer = RelatedArtist(); 
+    Artist[] relatedArtist = SpotifyService.getRelatedArtists(artistSeed);
+    OrderedList artistsContainer = RelatedArtist(); 
+
 
     public RecommendationsView() {
         tabsheet = new TabSheet();
-        RTrackTab = RTracks();
-        RArtistTab = RArtists();
+        recommendedTracksTab = createTracksTab();
+        recommendedArtistsTab = createArtistsTab();
 
-        tabsheet.add("Recommended Tracks", RTrackTab);
-        tabsheet.add("Related Artists", RArtistTab);
-        add(tabsheet);
+        tabsheet.add("Recommended Tracks", recommendedTracksTab);
+        tabsheet.add("Related Artists", recommendedArtistsTab);
+
         tabsheet.addThemeVariants(TabSheetVariant.LUMO_TABS_EQUAL_WIDTH_TABS);
-        
+        add(tabsheet);
     }
 
     private OrderedList RecommendedTracks() {
-        
         // get user's top tracks
-        //int i = 0;
         OrderedList trackContainer = new OrderedList();
         String id[] = new String[recommended.getTracks().length];
         for(int i = 0; i < recommended.getTracks().length; i++){
             id[i] = recommended.getTracks()[i].getId();
-            //trackContainer.add(new RecommendationsCard(recommended.getTracks()[i], i));
         }
         String ids = String.join(",", id);
         Track[] tracks = SpotifyService.getSeveralTrack(ids);
         for(int i = 0; i < recommended.getTracks().length; i++){
-            trackContainer.add(new RecommendationsCard(tracks[i], i));
+            trackContainer.add(new TrackCard(tracks[i], i));
         }
 
-        //RecommendedUI(trackContainer);
-        //RecommendedUI();
         return trackContainer;
     }
 
     private OrderedList RelatedArtist() {
         OrderedList trackContainer = new OrderedList();
-        //Artist[] RArtist = SpotifyService.getRelatedArtists();
-        for(int i = 0; i < RelatedArtist.length; i++){
-            trackContainer.add(new RelatedArtistCard(RelatedArtist[i]));
-        }
+        for (Artist artist : relatedArtist) 
+            trackContainer.add(new RelatedArtistCard(artist));
 
-        //RecommendedUI();
         return trackContainer;
     }
 
-    private Div RTracks() {
+    private Div createTracksTab() {
         Div div = new Div();
         addClassNames("recommended-view");
         addClassNames(MaxWidth.SCREEN_LARGE, Margin.Horizontal.AUTO, Padding.Bottom.LARGE, Padding.Horizontal.LARGE);
@@ -99,7 +90,7 @@ public class RecommendationsView extends Div {
         container.addClassNames(AlignItems.CENTER, JustifyContent.BETWEEN);
 
         VerticalLayout headerContainer = new VerticalLayout();
-        H2 header = new H2("Recommendations for you");
+        H2 header = new H2("Recommendations");
 
         header.addClassNames(Margin.Bottom.NONE, Margin.Top.XLARGE, FontSize.XXXLARGE);
         headerContainer.add(header);
@@ -112,7 +103,7 @@ public class RecommendationsView extends Div {
         return div;
     }
 
-    private Div RArtists() {
+    private Div createArtistsTab() {
         addClassNames("artist-view");
         addClassNames(MaxWidth.SCREEN_LARGE, Margin.Horizontal.AUTO, Padding.Bottom.LARGE, Padding.Horizontal.LARGE);
 
@@ -126,8 +117,6 @@ public class RecommendationsView extends Div {
         header.addClassNames(Margin.Bottom.NONE, Margin.Top.XLARGE, FontSize.XXXLARGE);
         headerContainer.add(header);
 
-        
-        //Artist[] RelatedArtist = SpotifyService.getRelatedArtists(aseed);
         OrderedList AartistContainer = new OrderedList();
         AartistContainer = RelatedArtist();
         AartistContainer.addClassNames(Gap.MEDIUM, Display.GRID, ListStyleType.NONE, Margin.NONE, Padding.NONE, JustifyContent.BETWEEN, Column.COLUMNS_5);

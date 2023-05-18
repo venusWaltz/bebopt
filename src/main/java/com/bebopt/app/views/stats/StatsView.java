@@ -23,22 +23,18 @@ import com.vaadin.flow.theme.lumo.LumoUtility.MaxWidth;
 import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
 import com.vaadin.flow.theme.lumo.LumoUtility.Grid.Column;
 
-import jakarta.annotation.security.PermitAll;
 import se.michaelthelin.spotify.model_objects.specification.Artist;
 import se.michaelthelin.spotify.model_objects.specification.Track;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @AnonymousAllowed
-
 @PageTitle("Stats")
 @Route(value = "stats", layout = MainLayout.class)
-//@PermitAll
 public class StatsView extends Div {
 
     private Div trackTab;
     private Div artistTab;
-    private Div genreTab;
     private TabSheet tabsheet;
 
     private OrderedList genreContainer;
@@ -63,21 +59,15 @@ public class StatsView extends Div {
         // create tab page layouts
         trackTab = createTopTracks();
         artistTab = createTopArtists();
-        genreTab = createTopGenres();
  
         // add tabs to tabsheet
         tabsheet.add("Top Tracks", trackTab);
         tabsheet.add("Top Artists", artistTab);
-        tabsheet.add("Top Genres", genreTab);
         add(tabsheet);
         
         // distribute tabs evenly
         tabsheet.addThemeVariants(TabSheetVariant.LUMO_TABS_EQUAL_WIDTH_TABS);
 
-        int j = 0;
-        genreContainer.add(new GenreCard("Rock", 50, j++));
-        genreContainer.add(new GenreCard("Pop", 35, j++));
-        genreContainer.add(new GenreCard("Blues", 15, j++));
     }
 
     // load top tracks into ordered lists

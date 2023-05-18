@@ -1,4 +1,4 @@
-package com.bebopt.app.data.entity;
+package com.bebopt.app.data.spotify;
 
 public class Client {
     private static String clientID = "4d988bad11c14e7c844bd1b166b8a8ad";

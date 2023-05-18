@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import com.bebopt.app.data.entity.Client;
 import com.bebopt.app.security.AuthenticatedUser;
 
 import jakarta.servlet.http.HttpServletResponse;

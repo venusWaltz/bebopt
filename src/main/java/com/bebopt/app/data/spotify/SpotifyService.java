@@ -1,4 +1,4 @@
-package com.bebopt.app.data.controller;
+package com.bebopt.app.data.spotify;
 
 import org.springframework.stereotype.Service;
 
@@ -40,20 +40,18 @@ public class SpotifyService {
         return AuthController.getCurrentlyPlaying();
     }
 
-    public static Track[] getSeveralTrack(String ids) {//used for recommendations but makes more sense to me up here
-        //String ids = String.join(",", id);
+    public static Track[] getSeveralTracks(String ids) {//used for recommendations but makes more sense to me up here
         Track[] rtracks = AuthController.getSeveralTracksRequest(ids);
         return rtracks;
     }
 
-    public static String getTop5tids() {//gets top 5 tracks user has listened to used for recommendations but makes more sense to me up here
+    public static String getTop5TrackIds() {//gets top 5 tracks user has listened to used for recommendations but makes more sense to me up here
         Track[] top5 = AuthController.getTopTracks("short_term");
         String id[] = new String[5];
         for(int i = 0; i < id.length; i++){
             id[i] = top5[i].getId();
         }
         String ids = String.join(",", id);
-        //Track[] rtracks = AuthController.getSeveralTracksRequest(ids);
         return ids;
     }
 
@@ -63,7 +61,7 @@ public class SpotifyService {
         return AuthController.getTopArtists(timeRange);
     }
 
-    public static String getTopArtistID() {
+    public static String getTopArtistId() {
         String id = AuthController.getTopArtists("short_term")[0].getId();
         return id;
     }

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.bebopt.app.data.controller.SpotifyService;
+import com.bebopt.app.data.spotify.SpotifyService;
 import com.bebopt.app.views.MainLayout;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
@@ -78,7 +78,7 @@ public class PlaylistsView extends Main {
     private static Integer selectedDecade;
     static String selectedPlaylistToMerge;
 
-    public static Dialog dialog;
+    public static Dialog optionsDialog;
 
     public PlaylistsView() throws Exception {
         constructUI();
@@ -92,7 +92,7 @@ public class PlaylistsView extends Main {
         }
     }
 
-// ----------------------------------------- Construct UI and tabsheet -----------------------------------------
+// ----------------------------------------- Construct UI -----------------------------------------
 
     private void constructUI() {
         addClassNames("playlists-view");
@@ -116,6 +116,8 @@ public class PlaylistsView extends Main {
         container.add(headerContainer);
         add(container, playlistsContainer, dialog);
     }
+
+// ----------------------------------------- Options dialog tabsheet -----------------------------------------
 
     // create tabsheet for dialog window
     private static TabSheet createTabsheet() {
@@ -178,29 +180,31 @@ public class PlaylistsView extends Main {
         filterLayout.add(radioGroupFilter, decadesContainer);
 
         // save currently selected button
-        radioGroupFilter.addValueChangeListener(e -> { 
-            selectedFilter = e.getValue(); 
+        radioGroupFilter.addValueChangeListener(e -> {
+            selectedFilter = e.getValue();
 
             if (selectedFilter.equals("Release decade")) {
                 if (radioGroupFilterDecades.isEmpty()) {
+
                     // create hash map and get keys
                     List<String> decadeKeysStr = getDecadeKeys();
+
                     Collections.sort(decadeKeysStr);
                     // add decade options to view
                     radioGroupFilterDecades.setItems(decadeKeysStr);
                     decadesContainer.add(radioGroupFilterDecades);
                     decadesContainer.setVisible(true);
-                }
-                else
+
+                } else
                     decadesContainer.setVisible(true);
-            }
-            else
+            } else
                 decadesContainer.setVisible(false);
         });
 
         return filterLayout;
     }
 
+    // return keys for map of decades
     public static List<String> getDecadeKeys() {
         Set<Integer> decadeMapKeys = PlaylistActions.filterGetKeys(currentlySelectedPlaylist);
         // display available decades below radio button in new radio group
@@ -222,9 +226,7 @@ public class PlaylistsView extends Main {
         VerticalLayout mergeLayout = new VerticalLayout();
 
         // list of other playlists to merge current playlist with
-        PlaylistSimplified[] playlists = SpotifyService.getPlaylists();
-
-        List<PlaylistSimplified> items = Arrays.asList(playlists);
+        List<PlaylistSimplified> items = Arrays.asList(SpotifyService.getPlaylists());
         
         // create list of playlists
         listBoxMerge = new ListBox<>();
@@ -239,7 +241,6 @@ public class PlaylistsView extends Main {
             
             // add playlist cover image and name
             Avatar a = new Avatar();
-            a.setName("Image");
             a.setImage(item.getImages()[0].getUrl());
             Span name = new Span(item.getName());
             
@@ -248,44 +249,46 @@ public class PlaylistsView extends Main {
             return row;
         }));
 
-        listBoxMerge.addValueChangeListener(e -> selectedPlaylistToMerge = listBoxMerge.getValue().getId().toString());
+        listBoxMerge.addValueChangeListener(e -> 
+            selectedPlaylistToMerge = listBoxMerge.getValue().getId().toString()
+        );
         mergeLayout.add(label, listBoxMerge);
 
         return mergeLayout;
     }
 
-// ----------------------------------------- Confirm dialog -----------------------------------------
+// ----------------------------------------- Options dialog -----------------------------------------
 
     // create dialog window
     public static Dialog createDialog() {
         // create dialog
-        dialog = new Dialog();
-        dialog.setHeaderTitle("Playlist Options");
-        dialog.setHeight("800px");
-        dialog.setWidth("650px");
-        dialog.addThemeVariants(DialogVariant.LUMO_NO_PADDING);
-        dialog.add(createTabsheet());
+        optionsDialog = new Dialog();
+        optionsDialog.setHeaderTitle("Playlist Options");
+        optionsDialog.setHeight("800px");
+        optionsDialog.setWidth("650px");
+        optionsDialog.addThemeVariants(DialogVariant.LUMO_NO_PADDING);
+        optionsDialog.add(createTabsheet());
 
         // add close button at top right of dialog header
-        Button closeButton = new Button(new Icon("lumo", "cross"), e -> dialog.close());
+        Button closeButton = new Button(new Icon("lumo", "cross"), e -> optionsDialog.close());
         closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        dialog.getHeader().add(closeButton);
+        optionsDialog.getHeader().add(closeButton);
 
         // button to make changes directly to current playlist
         Button edit = new Button("Edit Playlist", e -> {
             dialogChooseActionEvent();
         });
         edit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);      // button style
-        dialog.getFooter().add(edit);                           // add button to footer
+        optionsDialog.getFooter().add(edit);                           // add button to footer
 
         // button to add songs to new empty playlist
         Button newPlaylist = new Button("New Playlist", e -> {
             dialogChooseActionEvent();
         });
         newPlaylist.addThemeVariants(ButtonVariant.LUMO_PRIMARY);       // button style
-        dialog.getFooter().add(newPlaylist);                            // add button to footer
+        optionsDialog.getFooter().add(newPlaylist);                            // add button to footer
         
-        return dialog;
+        return optionsDialog;
     }
 
     // prompt user to confirm selected actions
@@ -305,9 +308,11 @@ public class PlaylistsView extends Main {
     // save first selected playlist and open dialog for other options
     public static void openDialog(String selected) {
         currentlySelectedPlaylist = selected;
-        dialog.open();
+        optionsDialog.open();
     }
 
+// ----------------------------------------- Confirm dialog -----------------------------------------
+    
     // create confirmation dialog
     private static void confirmDialog(String action, String selectedAction) {
         // create dialog

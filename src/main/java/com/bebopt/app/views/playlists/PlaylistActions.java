@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.bebopt.app.data.controller.SpotifyService;
+import com.bebopt.app.data.spotify.SpotifyService;
 
 import se.michaelthelin.spotify.model_objects.specification.AudioFeatures;
 import se.michaelthelin.spotify.model_objects.specification.Playlist;
@@ -111,6 +111,7 @@ public class PlaylistActions {
                 + filteredTracks.size() + " song(s) found:");
             for (Track track : filteredTracks) {
                 System.out.println(track.getName());
+
             }
         } else { System.out.println("No songs found"); }
     }
@@ -130,7 +131,6 @@ public class PlaylistActions {
         List<Track> tracks = getPlaylistTracks(playlistId);
         decadeMap = createDecadeMap(tracks);
         return decadeMap.keySet();
-
     }
 
     // filter playlist and create map of tracks from each decade
@@ -164,9 +164,10 @@ public class PlaylistActions {
         for (Track track : playlistTracks1) uris[i++] = track.getUri();
         for (Track track : playlistTracks2) uris[i++] = track.getUri();
 
+        addToNewPlaylist(uris);
+
         System.out.println("\nMerging " + SpotifyService.getPlaylistById(firstPlaylistId).getName()
             + " and " + SpotifyService.getPlaylistById(secondPlaylistId).getName());
-        addToNewPlaylist(uris);
     }
 
 // ---------------------------------------- Helper functions ----------------------------------------
@@ -178,9 +179,9 @@ public class PlaylistActions {
 
         // send playlist tracks to getAudioFeatures method as a comma-separated list of track ids
         String trackIds = "";
-        for (PlaylistTrack track : tracks) {
+        for (PlaylistTrack track : tracks) 
             trackIds += (trackIds.isEmpty() ? "" : ",") + track.getTrack().getId();
-        }
+        
         AudioFeatures[] audioFeatures = SpotifyService.getAudioFeatures(trackIds);
         return audioFeatures;
     }
@@ -192,9 +193,9 @@ public class PlaylistActions {
         PlaylistTrack[] playlistTracks = playlist.getTracks().getItems();
         List<Track> tracks = new ArrayList<Track>();
 
-        for (PlaylistTrack playlistTrack : playlistTracks) {
+        for (PlaylistTrack playlistTrack : playlistTracks)
             tracks.add(SpotifyService.getTrackById(playlistTrack.getTrack().getId()));
-        }
+        
         return tracks;
     }
 
@@ -212,14 +213,6 @@ public class PlaylistActions {
     public static void addToNewPlaylist(String[] uris) {
         String id = SpotifyService.createPlaylist().getId(); // get id of newly created playlist
         SpotifyService.addToPlaylist(id, uris);
-    }
-
-    // return array of track uris
-    public static String[] tracksToUriStr(List<Track> tracks) {
-        String[] uris = new String[tracks.size()];
-        int i = 0;
-        for (Track track : tracks) uris[i++] = track.getId();
-        return uris;
     }
 
 }

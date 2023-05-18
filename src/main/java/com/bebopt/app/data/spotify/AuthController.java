@@ -1,4 +1,4 @@
-package com.bebopt.app.data.controller;
+package com.bebopt.app.data.spotify;
 
 import java.io.IOException;
 import java.net.URI;
@@ -107,7 +107,7 @@ public class AuthController {
         }
 
         user = getUserProfile();
-        AuthenticatedUser.setIsLoggedIn(true); 
+        AuthenticatedUser.login(); 
 
         response.sendRedirect("http://localhost:8080/home");    // redirect to home page after retrieving access token
 
@@ -136,8 +136,9 @@ public class AuthController {
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
         }
-        response.sendRedirect("/home");
         
+        Redirect.redirect("home");
+
         spotifyApi.setAccessToken(null);
         spotifyApi.setRefreshToken(null);
         AuthenticatedUser.setIsLoggedIn(false);

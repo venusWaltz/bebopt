@@ -1,6 +1,6 @@
 package com.bebopt.app.views;
 
-import com.bebopt.app.data.controller.AuthController;
+import com.bebopt.app.data.spotify.AuthController;
 import com.bebopt.app.security.AuthenticatedUser;
 import com.bebopt.app.views.about.AboutView;
 import com.bebopt.app.views.home.HomeView;

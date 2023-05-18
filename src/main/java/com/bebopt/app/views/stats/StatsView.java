@@ -1,6 +1,6 @@
 package com.bebopt.app.views.stats;
 
-import com.bebopt.app.data.controller.SpotifyService;
+import com.bebopt.app.data.spotify.SpotifyService;
 import com.bebopt.app.views.MainLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
@@ -45,17 +45,26 @@ public class StatsView extends Div {
     private String longTerm = "long_term";
 
     // load user data from spotify into ordered lists
-    OrderedList trackContainerShortTerm = getTopTracks(shortTerm);
-    OrderedList trackContainerMediumTerm = getTopTracks(mediumTerm);
-    OrderedList trackContainerLongTerm = getTopTracks(longTerm);
+    OrderedList trackContainerShortTerm;
+    OrderedList trackContainerMediumTerm;
+    OrderedList trackContainerLongTerm;
     
-    OrderedList artistContainerShortTerm = getTopArtists(shortTerm);
-    OrderedList artistContainerMediumTerm = getTopArtists(mediumTerm);
-    OrderedList artistContainerLongTerm = getTopArtists(longTerm);
+    OrderedList artistContainerShortTerm;
+    OrderedList artistContainerMediumTerm;
+    OrderedList artistContainerLongTerm;
 
     public StatsView() {
+        
         tabsheet = new TabSheet();
 
+        trackContainerShortTerm = getTopTracks(shortTerm);
+        trackContainerMediumTerm = getTopTracks(mediumTerm);
+        trackContainerLongTerm = getTopTracks(longTerm);
+        
+        artistContainerShortTerm = getTopArtists(shortTerm);
+        artistContainerMediumTerm = getTopArtists(mediumTerm);
+        artistContainerLongTerm = getTopArtists(longTerm);
+        
         // create tab page layouts
         trackTab = createTopTracks();
         artistTab = createTopArtists();
@@ -65,21 +74,23 @@ public class StatsView extends Div {
         tabsheet.add("Top Artists", artistTab);
         add(tabsheet);
         
-        // distribute tabs evenly
         tabsheet.addThemeVariants(TabSheetVariant.LUMO_TABS_EQUAL_WIDTH_TABS);
-
     }
+
+// ----------------------------------------- Get data -----------------------------------------
 
     // load top tracks into ordered lists
     private OrderedList getTopTracks(String term) {
         // get user's top tracks
         Track[] userTracks = SpotifyService.getTopTracks(term);
+
         // add tracks to container
         int i = 0;
         OrderedList trackContainer = new OrderedList();
-        for(Track track : userTracks) {
+
+        for(Track track : userTracks) 
             trackContainer.add(new TrackCard(track, i++));
-        }
+        
         return trackContainer;
     }
 
@@ -87,13 +98,17 @@ public class StatsView extends Div {
     private OrderedList getTopArtists(String term) {
         // get user's top artists
         Artist[] userArtists = SpotifyService.getTopArtists(term);
+
         // add artists to container
         OrderedList artistContainer = new OrderedList();
-        for(Artist artist : userArtists) {
+
+        for(Artist artist : userArtists) 
             artistContainer.add(new ArtistCard(artist));
-        }
+
         return artistContainer;
     }
+
+// ----------------------------------------- Tabsheet -----------------------------------------
 
     // create top tracks tab
     private Div createTopTracks() {

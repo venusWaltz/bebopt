@@ -1,19 +1,21 @@
 package com.bebopt.app.security;
 
-import com.bebopt.app.data.controller.RedirectController;
 import org.springframework.stereotype.Component;
+
+import com.bebopt.app.data.spotify.Redirect;
 
 @Component
 public class AuthenticatedUser {
 
     private static Boolean isLoggedIn = false;
 
-    public void login() {
+    public static void login() {
         isLoggedIn = true;
     }
 
     public void logout() {
-        RedirectController.redirect("logout");  // log out of spotify account
+        Redirect.redirect("logout");  // log out of spotify account
+        Redirect.redirect("home");
         isLoggedIn = false;
     }
 

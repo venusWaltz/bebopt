@@ -1,12 +1,13 @@
 package com.bebopt.app.views.recommendations;
 
+import com.bebopt.app.data.spotify.SpotifyService;
 import com.bebopt.app.views.MainLayout;
 import com.bebopt.app.views.stats.TrackCard;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.component.html.OrderedList;
 import se.michaelthelin.spotify.model_objects.specification.Recommendations;
-import com.bebopt.app.data.controller.SpotifyService;
+
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -33,20 +34,28 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 @PageTitle("Recommendations")
 @Route(value = "Recommendations", layout = MainLayout.class)
 public class RecommendationsView extends Div {
+    
     private Div recommendedTracksTab;
     private Div recommendedArtistsTab;
     private TabSheet tabsheet;
 
-    String trackSeed = SpotifyService.getTop5tids();
-    String artistSeed = SpotifyService.getTopArtistID();
-    Recommendations recommended = SpotifyService.getRecommendations(trackSeed);
-    OrderedList trackContainerRecommended = RecommendedTracks();
-    Artist[] relatedArtist = SpotifyService.getRelatedArtists(artistSeed);
-    OrderedList artistsContainer = RelatedArtist(); 
-
+    String trackSeed;
+    String artistSeed;
+    Recommendations recommended;
+    OrderedList trackContainerRecommended;
+    Artist[] relatedArtist;
+    OrderedList artistsContainer;
 
     public RecommendationsView() {
         tabsheet = new TabSheet();
+        
+        trackSeed = SpotifyService.getTop5TrackIds();
+        artistSeed = SpotifyService.getTopArtistId();
+        recommended = SpotifyService.getRecommendations(trackSeed);
+        trackContainerRecommended = RecommendedTracks();
+        relatedArtist = SpotifyService.getRelatedArtists(artistSeed);
+        artistsContainer = RelatedArtist();
+
         recommendedTracksTab = createTracksTab();
         recommendedArtistsTab = createArtistsTab();
 
@@ -60,12 +69,13 @@ public class RecommendationsView extends Div {
     private OrderedList RecommendedTracks() {
         // get user's top tracks
         OrderedList trackContainer = new OrderedList();
+
         String id[] = new String[recommended.getTracks().length];
         for(int i = 0; i < recommended.getTracks().length; i++){
             id[i] = recommended.getTracks()[i].getId();
         }
         String ids = String.join(",", id);
-        Track[] tracks = SpotifyService.getSeveralTrack(ids);
+        Track[] tracks = SpotifyService.getSeveralTracks(ids);
         for(int i = 0; i < recommended.getTracks().length; i++){
             trackContainer.add(new TrackCard(tracks[i], i));
         }

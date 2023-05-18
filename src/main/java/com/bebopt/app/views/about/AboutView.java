@@ -31,8 +31,8 @@ public class AboutView extends VerticalLayout {
         H2 headerIntro = new H2("Introduction");
         headerIntro.addClassNames(Margin.Top.LARGE, Margin.Bottom.NONE, FontSize.XXLARGE);
 
-        H2 headerPurpose = new H2("1.1 Purpose");
-        headerPurpose.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.NONE, FontSize.LARGE);
+        H2 headerPurpose = new H2("1.1. Purpose");
+        headerPurpose.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.XSMALL, FontSize.LARGE);
         headerPurpose.getStyle().set("color", "#4f545e");
         headerPurpose.getStyle().set("margin-left", "30px");
 
@@ -41,12 +41,12 @@ public class AboutView extends VerticalLayout {
         description1.getStyle().set("margin-left", "30px");
 
         H2 headerSystemReq = new H2("1.2. System Requirements");
-        headerSystemReq.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.NONE, FontSize.LARGE);
+        headerSystemReq.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.XSMALL, FontSize.LARGE);
         headerSystemReq.getStyle().set("color", "#4f545e");
         headerSystemReq.getStyle().set("margin-left", "30px");
 
         Paragraph description2 = new Paragraph("To access and use the Spotify Web App, you will need:");
-        description2.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
+        description2.addClassNames(Margin.Bottom.NONE, Margin.Top.NONE, TextColor.SECONDARY);
         description2.getStyle().set("margin-left", "30px");
 
         Paragraph desc1 = new Paragraph("A computer or mobile device with an internet connection");
@@ -64,8 +64,60 @@ public class AboutView extends VerticalLayout {
         H2 headerStart = new H2("Getting Started");
         headerStart.addClassNames(Margin.Top.LARGE, Margin.Bottom.NONE, FontSize.XXLARGE);
 
-        H2 headerAccount = new H2("2.1. Account Creation");
-        headerAccount.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.NONE, FontSize.LARGE);
+
+
+        H2 headerInstallation = new H2("2.1. Project Installation and Setup");
+        headerInstallation.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.XSMALL, FontSize.LARGE);
+        headerInstallation.getStyle().set("color", "#4f545e");
+        headerInstallation.getStyle().set("margin-left", "30px");
+
+        Paragraph pt1 = new Paragraph("Ensure that the Java Development Kit (JDK) is installed on your computer. Also ensure that Maven, a build automation tool for Java projects, is installed; this can be downloaded online or though a package manager. You will also need an integrated Development Environment (IDE) to run the project.");
+        pt1.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
+        pt1.getStyle().set("margin-left", "30px");
+
+        Paragraph pt2 = new Paragraph("Clone the repository to your computer or download it as a ZIP file and extract it to a local directory.");
+        pt2.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
+        pt2.getStyle().set("margin-left", "30px");
+
+        Paragraph pt3 = new Paragraph("Configure your IDE to use the correct JDK version installed on your device, ensuring the correct path to the JDK is set in your IDE’s settings.");
+        pt3.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
+        pt3.getStyle().set("margin-left", "30px");
+
+        Paragraph pt4 = new Paragraph("Open the project in your IDE.");
+        pt4.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
+        pt4.getStyle().set("margin-left", "30px");
+
+        Paragraph pt5 = new Paragraph("Configure the project with Spotify:");
+        pt5.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
+        pt5.getStyle().set("margin-left", "30px");
+
+        Paragraph subpt1 = new Paragraph("Create a new Spotify application using the following guide: https://developer.spotify.com/documentation/web-api/concepts/apps.");
+        subpt1.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
+        subpt1.getStyle().set("margin-left", "60px");
+
+        Paragraph subpt2 = new Paragraph("Set the redirect URI in your application to http://localhost:8080/callback. This is where the application will be redirected after you log in.");
+        subpt2.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
+        subpt2.getStyle().set("margin-left", "60px");
+
+        Paragraph subpt3 = new Paragraph("The Client ID is the unique identifier of your new app, and the Client Secret is the key that will be used to authorize your Web API calls. As the Client Secret is a sensitive value, you should never reveal it publicly. If your Client Secret is exposed, you may request a new one within your Spotify application. Copy your Client ID and Client Secret into their respective fields in the Client class of the opened project in your IDE. If you wish, you may alternatively set these values in your application.properties file and update the AuthController class to retrieve these values directly instead of using the Client class.");
+        subpt3.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
+        subpt3.getStyle().set("margin-left", "60px");
+
+        Paragraph pt6 = new Paragraph("Run the project from your IDE. This will start the embedded Tomcat server.");
+        pt6.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
+        pt6.getStyle().set("margin-left", "30px");
+
+        Paragraph pt7 = new Paragraph("Access the application by entering http://localhost:8080 (or another port if you have configured the project differently) in your web browser.");
+        pt7.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
+        pt7.getStyle().set("margin-left", "30px");
+
+        Paragraph pt8 = new Paragraph("Close the application by closing your web browser and terminating the program in your IDE.");
+        pt8.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
+        pt8.getStyle().set("margin-left", "30px");
+
+    
+        H2 headerAccount = new H2("2.2. Account Creation");
+        headerAccount.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.XSMALL, FontSize.LARGE);
         headerAccount.getStyle().set("color", "#4f545e");
         headerAccount.getStyle().set("margin-left", "30px");
 
@@ -73,8 +125,8 @@ public class AboutView extends VerticalLayout {
         description3.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
         description3.getStyle().set("margin-left", "30px");
 
-        H2 headerLogin = new H2("2.2. Logging In");
-        headerLogin.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.NONE, FontSize.LARGE);
+        H2 headerLogin = new H2("2.3. Logging In");
+        headerLogin.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.XSMALL, FontSize.LARGE);
         headerLogin.getStyle().set("color", "#4f545e");
         headerLogin.getStyle().set("margin-left", "30px");
 
@@ -82,8 +134,8 @@ public class AboutView extends VerticalLayout {
         description4.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
         description4.getStyle().set("margin-left", "30px");
 
-        H2 headerHome = new H2("2.3. Home Page Overview");
-        headerHome.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.NONE, FontSize.LARGE);
+        H2 headerHome = new H2("2.4. Home Page Overview");
+        headerHome.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.XSMALL, FontSize.LARGE);
         headerHome.getStyle().set("color", "#4f545e");
         headerHome.getStyle().set("margin-left", "30px");
 
@@ -91,8 +143,8 @@ public class AboutView extends VerticalLayout {
         description5.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
         description5.getStyle().set("margin-left", "30px");
 
-        H2 headerNavigate = new H2("2.4. Navigating the Sidebar Menu");
-        headerNavigate.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.NONE, FontSize.LARGE);
+        H2 headerNavigate = new H2("2.5. Navigating the Sidebar Menu");
+        headerNavigate.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.XSMALL, FontSize.LARGE);
         headerNavigate.getStyle().set("color", "#4f545e");
         headerNavigate.getStyle().set("margin-left", "30px");
 
@@ -100,7 +152,8 @@ public class AboutView extends VerticalLayout {
         description6.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
         description6.getStyle().set("margin-left", "30px");
 
-        add(headerStart, headerAccount, description3, headerLogin, description4);
+        add(headerStart, headerInstallation, pt1, pt2, pt3, pt4, pt5, subpt1, subpt2, subpt3, pt6, pt7, pt8);
+        add(headerAccount, description3, headerLogin, description4);
         add(headerHome, description5, headerNavigate, description6);
     
 
@@ -110,7 +163,7 @@ public class AboutView extends VerticalLayout {
         headerStats.addClassNames(Margin.Top.LARGE, Margin.Bottom.NONE, FontSize.XXLARGE);
 
         H2 headerTracks = new H2("3.1. Top Tracks");
-        headerTracks.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.NONE, FontSize.LARGE);
+        headerTracks.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.XSMALL, FontSize.LARGE);
         headerTracks.getStyle().set("color", "#4f545e");
         headerTracks.getStyle().set("margin-left", "30px");
 
@@ -119,7 +172,7 @@ public class AboutView extends VerticalLayout {
         description7.getStyle().set("margin-left", "30px");
 
         H2 headerArtists = new H2("3.2. Top Artists");
-        headerArtists.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.NONE, FontSize.LARGE);
+        headerArtists.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.XSMALL, FontSize.LARGE);
         headerArtists.getStyle().set("color", "#4f545e");
         headerArtists.getStyle().set("margin-left", "30px");
 
@@ -127,17 +180,17 @@ public class AboutView extends VerticalLayout {
         description8.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
         description8.getStyle().set("margin-left", "30px");
 
-        H2 headerGenres = new H2("3.3. Top Genres");
-        headerGenres.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.NONE, FontSize.LARGE);
-        headerGenres.getStyle().set("color", "#4f545e");
-        headerGenres.getStyle().set("margin-left", "30px");
+        // H2 headerGenres = new H2("3.3. Top Genres");
+        // headerGenres.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.XSMALL, FontSize.LARGE);
+        // headerGenres.getStyle().set("color", "#4f545e");
+        // headerGenres.getStyle().set("margin-left", "30px");
 
-        Paragraph description9 = new Paragraph("To view your top genres, go to the Statistics section and select the 'Top Genres' tab. The genres will be presented in a numbered list.");
-        description9.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
-        description9.getStyle().set("margin-left", "30px");
+        // Paragraph description9 = new Paragraph("To view your top genres, go to the Statistics section and select the 'Top Genres' tab. The genres will be presented in a numbered list.");
+        // description9.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
+        // description9.getStyle().set("margin-left", "30px");
 
-        H2 headerTime = new H2("3.4. Time Range Selection");
-        headerTime.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.NONE, FontSize.LARGE);
+        H2 headerTime = new H2("3.3. Time Range Selection");
+        headerTime.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.XSMALL, FontSize.LARGE);
         headerTime.getStyle().set("color", "#4f545e");
         headerTime.getStyle().set("margin-left", "30px");
 
@@ -146,7 +199,7 @@ public class AboutView extends VerticalLayout {
         description10.getStyle().set("margin-left", "30px");
 
         add(headerStats, headerTracks, description7, headerArtists, description8);
-        add(headerGenres, description9, headerTime, description10);
+        add(headerTime, description10);
     
     
 
@@ -155,7 +208,7 @@ public class AboutView extends VerticalLayout {
         headerPlaylists.addClassNames(Margin.Top.LARGE, Margin.Bottom.NONE, FontSize.XXLARGE);
 
         H2 headerOverview = new H2("4.1. Playlist Overview");
-        headerOverview.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.NONE, FontSize.LARGE);
+        headerOverview.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.XSMALL, FontSize.LARGE);
         headerOverview.getStyle().set("color", "#4f545e");
         headerOverview.getStyle().set("margin-left", "30px");
 
@@ -164,7 +217,7 @@ public class AboutView extends VerticalLayout {
         description11.getStyle().set("margin-left", "30px");
 
         H2 headerSort = new H2("4.2. Sorting Playlists");
-        headerSort.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.NONE, FontSize.LARGE);
+        headerSort.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.XSMALL, FontSize.LARGE);
         headerSort.getStyle().set("color", "#4f545e");
         headerSort.getStyle().set("margin-left", "30px");
 
@@ -173,7 +226,7 @@ public class AboutView extends VerticalLayout {
         description12.getStyle().set("margin-left", "30px");
 
         H2 headerFilter = new H2("4.3. Filtering Playlists");
-        headerFilter.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.NONE, FontSize.LARGE);
+        headerFilter.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.XSMALL, FontSize.LARGE);
         headerFilter.getStyle().set("color", "#4f545e");
         headerFilter.getStyle().set("margin-left", "30px");
 
@@ -182,7 +235,7 @@ public class AboutView extends VerticalLayout {
         description13.getStyle().set("margin-left", "30px");
 
         H2 headerMerge = new H2("4.4. Merging Playlists");
-        headerMerge.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.NONE, FontSize.LARGE);
+        headerMerge.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.XSMALL, FontSize.LARGE);
         headerMerge.getStyle().set("color", "#4f545e");
         headerMerge.getStyle().set("margin-left", "30px");
 
@@ -203,16 +256,25 @@ public class AboutView extends VerticalLayout {
         H2 headerRecs = new H2("Getting Recommended Songs");
         headerRecs.addClassNames(Margin.Top.LARGE, Margin.Bottom.NONE, FontSize.XXLARGE);
   
-        H2 headerSelect = new H2("5.1. Song Selection");
-        headerSelect.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.NONE, FontSize.LARGE);
-        headerSelect.getStyle().set("color", "#4f545e");
-        headerSelect.getStyle().set("margin-left", "30px");
+        H2 headerRecommendations = new H2("5.1. Recommended Songs");
+        headerRecommendations.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.XSMALL, FontSize.LARGE);
+        headerRecommendations.getStyle().set("color", "#4f545e");
+        headerRecommendations.getStyle().set("margin-left", "30px");
 
-        Paragraph description15 = new Paragraph("In the Recommendations section, you can search for and select specific songs to generate recommendations from by entering their names in the search bar at the top of the page. After making your selection, click on the Generate Recommendations button and a list of song recommendations will be created.");
+        Paragraph description15 = new Paragraph("The recommended songs section provides you with a list of song recommendations based off of your most listened to tracks.");
         description15.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
         description15.getStyle().set("margin-left", "30px");
 
-        add(headerRecs, headerSelect, description15);  
+        H2 headerRelatedArtists = new H2("5.2. Related Artists");
+        headerRelatedArtists.addClassNames(Margin.Top.MEDIUM, Margin.Bottom.XSMALL, FontSize.LARGE);
+        headerRelatedArtists.getStyle().set("color", "#4f545e");
+        headerRelatedArtists.getStyle().set("margin-left", "30px");
+
+        Paragraph description16 = new Paragraph("Selecting the Related Artists tab of the recommendations page will give you a list of artists similar to those you have recently listened to.");
+        description16.addClassNames(Margin.Bottom.XSMALL, Margin.Top.NONE, TextColor.SECONDARY);
+        description16.getStyle().set("margin-left", "30px");
+
+        add(headerRecs, headerRecommendations, description15, headerRelatedArtists, description16);  
         
         
         

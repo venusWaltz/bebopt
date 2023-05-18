@@ -274,19 +274,19 @@ public class PlaylistsView extends Main {
         closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         optionsDialog.getHeader().add(closeButton);
 
-        // button to make changes directly to current playlist
-        Button edit = new Button("Edit Playlist", e -> {
-            dialogChooseActionEvent();
-        });
-        edit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);      // button style
-        optionsDialog.getFooter().add(edit);                           // add button to footer
+        // // button to make changes directly to current playlist
+        // Button edit = new Button("Edit Playlist", e -> {
+        //     dialogChooseActionEvent();
+        // });
+        // edit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);      // button style
+        // optionsDialog.getFooter().add(edit);                    // add button to footer
 
         // button to add songs to new empty playlist
         Button newPlaylist = new Button("New Playlist", e -> {
             dialogChooseActionEvent();
         });
-        newPlaylist.addThemeVariants(ButtonVariant.LUMO_PRIMARY);       // button style
-        optionsDialog.getFooter().add(newPlaylist);                            // add button to footer
+        newPlaylist.addThemeVariants(ButtonVariant.LUMO_PRIMARY);   // button style
+        optionsDialog.getFooter().add(newPlaylist);                 // add button to footer
         
         return optionsDialog;
     }

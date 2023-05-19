@@ -88,7 +88,12 @@ public class PlaylistsView extends Main {
 
         // save playlists into image container
         for(PlaylistSimplified playlist : playlists) {
+            int a = playlist.getTracks().getTotal();
+            //if(a != 0){
                 playlistsContainer.add(new PlaylistsViewCard(playlist));
+           // }
+            
+                
         }
     }
 
@@ -110,7 +115,6 @@ public class PlaylistsView extends Main {
 
         playlistsContainer = new OrderedList();
         playlistsContainer.addClassNames(Gap.SMALL, Display.GRID, ListStyleType.NONE, Margin.NONE, Padding.NONE, JustifyContent.BETWEEN, Column.COLUMNS_6);
-        
         // playlist action dialog - appears when user selects a playlist
         Dialog dialog = createDialog();
         container.add(headerContainer);
@@ -134,7 +138,6 @@ public class PlaylistsView extends Main {
 
         // space tabs equally
         tabsheet.addThemeVariants(TabSheetVariant.LUMO_TABS_EQUAL_WIDTH_TABS);
-
         return tabsheet;
     }    
 
@@ -144,7 +147,7 @@ public class PlaylistsView extends Main {
 
         // list of radio button group items (sort options)
         List<String> items = Arrays.asList("Release date", "Duration", "Popularity", "Acousticness",
-        "Danceability", "Energy", "Instrumentalness", "Loudness", "Speechiness", "Tempo", "Valence");  
+        "Danceability", "Energy", "Instrumentalness", "Loudness", "Speechiness", "Tempo", "Valence");
 
         // create button group of sort options
         radioGroupSort = new RadioButtonGroup<>();
@@ -224,7 +227,6 @@ public class PlaylistsView extends Main {
     // create merge tab for dialog window tabsheet
     private static VerticalLayout mergeTab() {
         VerticalLayout mergeLayout = new VerticalLayout();
-
         // list of other playlists to merge current playlist with
         List<PlaylistSimplified> items = Arrays.asList(SpotifyService.getPlaylists());
         
@@ -241,19 +243,22 @@ public class PlaylistsView extends Main {
             
             // add playlist cover image and name
             Avatar a = new Avatar();
-            a.setImage(item.getImages()[0].getUrl());
+            //if(item.getImages())
+            if(item.getImages().length != 0){
+                a.setImage(item.getImages()[0].getUrl());
+            }
+            else{
+                a.setImage("images/empty-plant.png");
+            }
             Span name = new Span(item.getName());
-            
             row.add(a, name);
             row.getStyle().set("line-height", "var(--lumo-line-height-m)");
             return row;
         }));
-
         listBoxMerge.addValueChangeListener(e -> 
             selectedPlaylistToMerge = listBoxMerge.getValue().getId().toString()
         );
         mergeLayout.add(label, listBoxMerge);
-
         return mergeLayout;
     }
 

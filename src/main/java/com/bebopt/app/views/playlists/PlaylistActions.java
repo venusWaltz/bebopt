@@ -219,7 +219,7 @@ public class PlaylistActions {
     public static String[] tracksToUriStr(List<Track> tracks) {
         String[] uris = new String[tracks.size()];
         int i = 0;
-        for (Track track : tracks) uris[i++] = track.getId();
+        for (Track track : tracks) uris[i++] = track.getUri();
         return uris;
     }
 

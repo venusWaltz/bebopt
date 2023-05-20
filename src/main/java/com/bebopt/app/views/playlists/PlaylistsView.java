@@ -88,12 +88,7 @@ public class PlaylistsView extends Main {
 
         // save playlists into image container
         for(PlaylistSimplified playlist : playlists) {
-            int a = playlist.getTracks().getTotal();
-            //if(a != 0){
-                playlistsContainer.add(new PlaylistsViewCard(playlist));
-           // }
-            
-                
+            playlistsContainer.add(new PlaylistsViewCard(playlist));
         }
     }
 

@@ -21,6 +21,13 @@ public class SpotifyService {
     
 // ---------------------------------------- User ----------------------------------------
 
+    public static String getUri() {
+        return AuthController.getSpotifyLoginUri();
+    }
+
+
+// ---------------------------------------- User ----------------------------------------
+
     public static User getCurrentUser() {
         return AuthController.getUserProfile();
     }

@@ -78,7 +78,7 @@ public class AuthController {
     // create spotify login URI for user authorization
     @GetMapping("spotify-url")
     @ResponseBody
-    public static String spotifyLogin() {
+    public static String getSpotifyLoginUri() {
         AuthorizationCodeUriRequest authorizationCodeUriRequest = spotifyApi.authorizationCodeUri()
             .scope(scopes)
             .show_dialog(true)
@@ -362,7 +362,7 @@ public class AuthController {
     @PostMapping("create-playlist") 
     public static Playlist createPlaylist() {
         final CreatePlaylistRequest createPlaylistRequest = spotifyApi
-            .createPlaylist(user.getId(), "name")
+            .createPlaylist(user.getId(), "New Playlist")
             .build();
 
         try {

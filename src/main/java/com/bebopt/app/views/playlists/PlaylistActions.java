@@ -48,11 +48,7 @@ public class PlaylistActions {
             System.out.println(track.getName());
 
     }
-    
-    // sort array of Tracks
-    public static List<Track> sortTracks(List<Track> tracks) {
-        return null;
-    }
+
     // sort array of AudioFeatures
     public static List<Track> sortAudioFeatures(AudioFeatures[] audioFeatures, String selectedSort) {
         SortBy sortByFunction = getFunction(selectedSort);

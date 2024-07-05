@@ -16,39 +16,44 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 import com.vaadin.flow.theme.lumo.LumoUtility.Overflow;
 import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
 import com.vaadin.flow.theme.lumo.LumoUtility.Width;
-import se.michaelthelin.spotify.model_objects.specification.Track;
 
 import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified;
 
+/**
+ * The {@code PlaylistsViewCard} class represents a UI component for displaying a single playlist.
+ * It includes a playlist image, playlist name, and a context menu for additional options.
+ */
 public class PlaylistsViewCard extends ListItem {
 
+    private PlaylistSimplified playlist;
+    /**
+     * Constructor for the {@code PlaylistsViewCard} class.
+     * Initializes the UI component for a playlist card.
+     * 
+     * @param playlist A {@code PlaylistSimplified} object representing a Spotify playlist.
+     */
     public PlaylistsViewCard(PlaylistSimplified playlist) {
-        addClassNames(Background.CONTRAST_5, Display.FLEX, FlexDirection.COLUMN, AlignItems.START, Padding.SMALL,
-                BorderRadius.SMALL);
+        this.playlist = playlist;
+        addClassNames(Background.CONTRAST_5, Display.FLEX, FlexDirection.COLUMN, AlignItems.START, 
+                Padding.SMALL, BorderRadius.SMALL);
+
         Div div = new Div();
-        div.addClassNames(Background.CONTRAST, Display.FLEX, AlignItems.CENTER, JustifyContent.CENTER,
-                Margin.Bottom.SMALL, Overflow.HIDDEN, BorderRadius.SMALL, Width.FULL);
         div.setHeight("132px");
         div.setWidth("132px");
+        div.addClassNames(Background.CONTRAST, Display.FLEX, AlignItems.CENTER, JustifyContent.CENTER,
+                Margin.Bottom.SMALL, Overflow.HIDDEN, BorderRadius.SMALL, Width.FULL);
+
         Image image = new Image();
         image.setWidth("100%");
-        if(playlist.getImages().length != 0){
-            image.setSrc(playlist.getImages()[0].getUrl());
-        }
-        else{
-            image.setSrc("images/empty-plant.png");
-        }
+        if (this.playlist.getImages().length != 0) { image.setSrc(this.playlist.getImages()[0].getUrl()); }
+        else { image.setSrc("images/empty-plant.png"); }
         
-
         div.add(image);
         Span header = new Span();
         header.addClassNames(FontSize.MEDIUM, FontWeight.SEMIBOLD);
-        header.setText(playlist.getName());
-        this.addClickListener(e -> {
-            PlaylistsView.resetMergePlaylistSelection();
-            PlaylistsView.openDialog(playlist.getId());
-        });
+        header.setText(this.playlist.getName());
+
+        this.addClickListener(e -> PlaylistsView.onPlaylistSelect(this.playlist));
         add(div, header);
     }
-    
 }

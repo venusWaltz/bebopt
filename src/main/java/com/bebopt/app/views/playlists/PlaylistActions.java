@@ -2,7 +2,6 @@ package com.bebopt.app.views.playlists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -16,46 +15,56 @@ import se.michaelthelin.spotify.model_objects.specification.Playlist;
 import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack;
 import se.michaelthelin.spotify.model_objects.specification.Track;
 
+/**
+ * The {@code PlaylistActions} class provides methods to perform various actions on playlists.
+ */
 public class PlaylistActions {
 
     static Map<Integer, List<Track>> decadeMap;
 
-// ---------------------------------------- Sort ----------------------------------------
+    // ------------------------------------------- Sort -------------------------------------------
 
+    /**
+     * Sorts the tracks in a playlist based on the specified option.
+     * 
+     * @param playlistId The ID of the playlist to be sorted.
+     * @param option     The sorting criterion (e.g., "Release Date" or "Popularity").
+     */
     public static void sortPlaylist(String playlistId, String option) {
         List<Track> sortedTracks = new ArrayList<>();
 
         if (option.equals("Release date") || option.equals("Popularity")) {
             sortedTracks = getPlaylistTracks(playlistId);
+            Comparator<Track> comparator = "Release date".equals(option) ?
+                Comparator.comparingInt(track -> getReleaseDate(track)) :
+                Comparator.comparingInt(Track::getPopularity).reversed();
+            sortedTracks.sort(comparator);
+        } else { sortedTracks = sortAudioFeatures(getAudioFeatures(playlistId), option); }
 
-            Comparator<Track> comparator;
-            if (option.equals("Release date")) 
-                comparator = Comparator.comparingInt(track -> getReleaseDate(track));
-            else
-                comparator = Comparator.comparingInt(Track::getPopularity).reversed();
-            
-            Collections.sort(sortedTracks, comparator);
-
-        } else {
-            AudioFeatures[] audioFeatures = getAudioFeatures(playlistId);
-            sortedTracks = sortAudioFeatures(audioFeatures, option);
-        }
-
-        addToNewPlaylist(tracksToUriStr(sortedTracks));   // add songs to new playlist
-
+        addToNewPlaylist(tracksToUriStr(sortedTracks));
         System.out.println("\nSorted by " + option);
-        for (Track track : sortedTracks)
-            System.out.println(track.getName());
-
+        for (Track track : sortedTracks) { System.out.println(track.getName()); }
     }
 
-    // sort array of AudioFeatures
+    /**
+     * Sorts and array of audio features based on the selected option.
+     * 
+     * @param audioFeatures The array of {@code AudioFeatures} to be sorted.
+     * @param selectedSort  The sorting criterion.
+     * @return A list of sorted {@code Track} objects.
+     */
     public static List<Track> sortAudioFeatures(AudioFeatures[] audioFeatures, String selectedSort) {
         SortBy sortByFunction = getFunction(selectedSort);
         Arrays.sort(audioFeatures, Comparator.comparing(sortByFunction::getValue));
         return getTracksFromAudioFeatures(audioFeatures);
     }
 
+    /**
+     * Converts an array of sorted audio features into a list of tracks.
+     * 
+     * @param sortedFeatures The array of sorted {@code AudioFeatures}.
+     * @return A list of {@code Track} objects.
+     */
     private static List<Track> getTracksFromAudioFeatures(AudioFeatures[] sortedFeatures) {
         List<Track> tracks = new ArrayList<>();
         for (AudioFeatures feature : sortedFeatures) {
@@ -64,11 +73,17 @@ public class PlaylistActions {
         return tracks;
     }
 
-    interface SortBy {
-        Float getValue(AudioFeatures audioFeatures);
-    }
+    /**
+     * Functional interface for getting a value from an {@code AudioFeatures} object.
+     */
+    interface SortBy { Float getValue(AudioFeatures audioFeatures); }
 
-    // create instance of SortBy interface for selected sort type
+    /**
+     * Returns a {@code SortBy} function based on the selected option.
+     * 
+     * @param option The sorting criterion.
+     * @return A {@code SortBy} function.
+     */
     public static SortBy getFunction(String option) {
         switch (option) {
             case "Duration": return feature -> (float) feature.getDurationMs();
@@ -84,52 +99,64 @@ public class PlaylistActions {
         }
     }
 
-// ---------------------------------------- Filter ----------------------------------------
+    // ------------------------------------------ Filter ------------------------------------------
 
+    /**
+     * Filters the tracks in a playlist based on the specified criterion.
+     * 
+     * @param playlistId The ID of the playlist to be filtered.
+     * @param filterBy   The filtering criterion (e.g., "Release Decade").
+     * @param option     The specific option for the filter criterion.
+     */
     public static void filterPlaylist(String playlistId, String filterBy, Integer option) {
-        // List<Track> tracks = getPlaylistTracks(playlistId);
         List<Track> filteredTracks = new ArrayList<>();
         System.out.println(filterBy);
 
-        // filter songs in playlist
-        switch (filterBy) {
-            case "Release decade":
-                filteredTracks = filterByReleaseDecade(playlistId, filterBy, option);
-                break;
+        if ("Release decade".equals(filterBy)) {
+            filteredTracks = filterByReleaseDecade(playlistId, option);
         }
 
-        // if songs are found, add to new playlist
         if (filteredTracks != null) {
-            addToNewPlaylist(tracksToUriStr(filteredTracks));   // add songs to new playlist
-
+            addToNewPlaylist(tracksToUriStr(filteredTracks)); 
             System.out.println("\nFiltered by " + filterBy.toLowerCase() +
-                (filterBy.equals("Release decade") ? " (" + option + "s) - " : " - ")  
-                + filteredTracks.size() + " song(s) found:");
-            for (Track track : filteredTracks) {
-                System.out.println(track.getName());
-
-            }
+                    (filterBy.equals("Release decade") ? " (" + option + "s) - " : " - ")
+                    + filteredTracks.size() + " song(s) found:");
+            for (Track track : filteredTracks) { System.out.println(track.getName()); }
         } else { System.out.println("No songs found"); }
     }
 
-    public static List<Track> filterByReleaseDecade(String playlistId, String filterBy, Integer option) {
-        if (decadeMap != null && option != null)
-            return decadeMap.get(option);
-        else if (decadeMap == null)
-            System.out.println("Decade map not found");
-        else if (option == null)
-            System.out.println("No decade selected");
+    /**
+     * Filters the tracks in a playlist by their release decade.
+     * 
+     * @param playlistId The ID of the playlist to be filtered.
+     * @param option     The specific decade to filter by.
+     * @return A list of filtered {@code Track} objects.
+     */
+    public static List<Track> filterByReleaseDecade(String playlistId, Integer option) {
+        if (decadeMap != null && option != null) return decadeMap.get(option);
+        else if (decadeMap == null) System.out.println("Decade map not found");
+        else if (option == null)    System.out.println("No decade selected");
         return null;
     }
 
-    // create decade map, return keys (to display + allow user to choose from keys)
+    /**
+     * Creates a map of tracks grouped by their release decade.
+     * 
+     * @param playlistId The ID of the playlist to be filtered.
+     * @return A set of integers representing the available decades.
+     */
     public static Set<Integer> filterGetKeys(String playlistId) {
         List<Track> tracks = getPlaylistTracks(playlistId);
         decadeMap = createDecadeMap(tracks);
         return decadeMap.keySet();
     }
 
-    // filter playlist and create map of tracks from each decade
+    /**
+     * Creates a map of tracks from each decade.
+     * 
+     * @param tracks The list of tracks to be grouped by decade.
+     * @return A map with decades as keys and lists of tracks as values.
+     */
     public static Map<Integer, List<Track>> createDecadeMap(List<Track> tracks) {
         Integer earliest = Integer.MAX_VALUE;
         Integer latest = Integer.MIN_VALUE;
@@ -138,10 +165,8 @@ public class PlaylistActions {
         for (Track track : tracks) {
             Integer releaseYear = getReleaseDate(track);
 
-            if (releaseYear < earliest)
-                earliest = releaseYear;
-            if (releaseYear > latest)
-                latest = releaseYear;
+            if (releaseYear < earliest) { earliest = releaseYear; }
+            if (releaseYear > latest)   { latest = releaseYear; }
 
             Integer decade = releaseYear / 10 * 10;
             decadeMap.computeIfAbsent(decade, k -> new ArrayList<>()).add(track);
@@ -150,40 +175,50 @@ public class PlaylistActions {
         return decadeMap;
     }
 
-// ---------------------------------------- Merge ----------------------------------------
+    // ------------------------------------------ Merge -------------------------------------------
 
-    public static void mergePlaylists(String firstPlaylistId, String secondPlaylistId) { // + location
+    /**
+     * Merges two playlists into a new playlist.
+     * 
+     * @param firstPlaylistId  The ID of the first playlist.
+     * @param secondPlaylistId The ID of the second playlist.
+     */
+    public static void mergePlaylists(String firstPlaylistId, String secondPlaylistId) { 
         List<Track> playlistTracks1 = getPlaylistTracks(firstPlaylistId);
         List<Track> playlistTracks2 = getPlaylistTracks(secondPlaylistId);
         String[] uris = new String[playlistTracks1.size() + playlistTracks2.size()];
         int i = 0;
-        for (Track track : playlistTracks1) uris[i++] = track.getUri();
-        for (Track track : playlistTracks2) uris[i++] = track.getUri();
+        for (Track track : playlistTracks1) { uris[i++] = track.getUri(); }
+        for (Track track : playlistTracks2) { uris[i++] = track.getUri(); }
 
         addToNewPlaylist(uris);
-
         System.out.println("\nMerging " + SpotifyService.getPlaylistById(firstPlaylistId).getName()
-            + " and " + SpotifyService.getPlaylistById(secondPlaylistId).getName());
+                + " and " + SpotifyService.getPlaylistById(secondPlaylistId).getName());
     }
 
-// ---------------------------------------- Helper functions ----------------------------------------
+    // ------------------------------------- Helper Functions -------------------------------------
 
+    /**
+     * Retrieves the audio features for the tracks in a playlist.
+     * 
+     * @param playlistId The ID of the playlist.
+     * @return An array of {@code AudioFeatures} objects.
+     */
     public static AudioFeatures[] getAudioFeatures(String playlistId) {
-        // get tracks in playlist
         Playlist playlist = SpotifyService.getPlaylistById(playlistId);
         PlaylistTrack[] tracks = playlist.getTracks().getItems();
-
-        // send playlist tracks to getAudioFeatures method as a comma-separated list of track ids
         String trackIds = "";
-        for (PlaylistTrack track : tracks) 
+        for (PlaylistTrack track : tracks)
             trackIds += (trackIds.isEmpty() ? "" : ",") + track.getTrack().getId();
-        
-        AudioFeatures[] audioFeatures = SpotifyService.getAudioFeatures(trackIds);
-        return audioFeatures;
+        return SpotifyService.getAudioFeatures(trackIds);
     }
 
-    // pull tracks from playlist into Track objects (necessary data is not saved in
-    // PlaylistTrack objects)
+    /**
+     * Retrieves the tracks from a playlist.
+     * 
+     * @param playlistId The ID of the playlist.
+     * @return A list of {@code Track} objects.
+     */
     public static List<Track> getPlaylistTracks(String playlistId) {
         Playlist playlist = SpotifyService.getPlaylistById(playlistId);
         PlaylistTrack[] playlistTracks = playlist.getTracks().getItems();
@@ -191,32 +226,51 @@ public class PlaylistActions {
 
         for (PlaylistTrack playlistTrack : playlistTracks)
             tracks.add(SpotifyService.getTrackById(playlistTrack.getTrack().getId()));
-        
+
         return tracks;
     }
 
-    // get track release date
+    /**
+     * Retrieves the release date of a track.
+     *
+     * @param track The {@code Track} object.
+     * @return The release year of the track.
+     */
     public static Integer getReleaseDate(Track track) {
         return Integer.valueOf(track.getAlbum().getReleaseDate().substring(0, 4));
     }
 
-    // get track related to audioFeature object
+    /**
+     * Retrieves the track associated with an audio feature.
+     *
+     * @param audioFeature The {@code AudioFeatures} object.
+     * @return The {@code Track} object.
+     */
     public static Track getTrack(AudioFeatures audioFeature) {
         return SpotifyService.getTrackById(audioFeature.getId());
     }
 
-    // add songs to new playlist
+    /**
+     * Adds tracks to a new playlist.
+     *
+     * @param uris The array of track URIs to be added.
+     */
     public static void addToNewPlaylist(String[] uris) {
-        String id = SpotifyService.createPlaylist().getId(); // get id of newly created playlist
+        String id = SpotifyService.createPlaylist().getId(); /* Retrieve ID of the new playlist. */
         SpotifyService.addToPlaylist(id, uris);
     }
 
-    // return array of track uris
+    /**
+     * Converts a list of tracks to an array of URIs.
+     *
+     * @param tracks The list of {@code Track} objects.
+     * @return An array of track URIs.
+     */
     public static String[] tracksToUriStr(List<Track> tracks) {
         String[] uris = new String[tracks.size()];
         int i = 0;
-        for (Track track : tracks) uris[i++] = track.getUri();
+        for (Track track : tracks)
+            uris[i++] = track.getUri();
         return uris;
     }
-
 }

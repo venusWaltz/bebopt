@@ -87,7 +87,7 @@ public class PlaylistsView extends Main {
     private static List<String> filterItems = Arrays.asList("Release decade");
 
     /**
-     * Constructor for the PlaylistsView class.
+     * Constructor for the {@code PlaylistsView} class.
      * Initializes the UI and loads Spotify playlists.
      * 
      * @throws Exception if an error occurs during Spotify API interaction.

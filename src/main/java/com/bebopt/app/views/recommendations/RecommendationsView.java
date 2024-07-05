@@ -2,6 +2,7 @@ package com.bebopt.app.views.recommendations;
 
 import com.bebopt.app.data.spotify.SpotifyService;
 import com.bebopt.app.views.MainLayout;
+import com.bebopt.app.views.stats.ArtistCard;
 import com.bebopt.app.views.stats.TrackCard;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -30,6 +31,9 @@ import com.vaadin.flow.theme.lumo.LumoUtility.ListStyleType;
 import se.michaelthelin.spotify.model_objects.specification.Track;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
+/**
+ * The {@code RecommendationsView} class displays recommendations for tracks and related artists.
+ */
 @AnonymousAllowed
 @PageTitle("Recommendations")
 @Route(value = "Recommendations", layout = MainLayout.class)
@@ -42,101 +46,119 @@ public class RecommendationsView extends Div {
     String trackSeed;
     String artistSeed;
     Recommendations recommended;
-    OrderedList trackContainerRecommended;
-    Artist[] relatedArtist;
+    OrderedList tracksContainer;
     OrderedList artistsContainer;
+    Artist[] relatedArtist;
 
+    /**
+     * Constructor for the {@code RecommendationsView} class.
+     */
     public RecommendationsView() {
-        tabsheet = new TabSheet();
-        
+        loadRecommendations();
+        createTabSheet();
+        add(tabsheet);
+    }
+    
+    /**
+     * Load recommendation data.
+     */
+    private void loadRecommendations() {
         trackSeed = SpotifyService.getTop5TrackIds();
         artistSeed = SpotifyService.getTopArtistId();
         recommended = SpotifyService.getRecommendations(trackSeed);
-        trackContainerRecommended = RecommendedTracks();
+        tracksContainer = getRecommendedTracks();
         relatedArtist = SpotifyService.getRelatedArtists(artistSeed);
-        artistsContainer = RelatedArtist();
-
-        recommendedTracksTab = createTracksTab();
-        recommendedArtistsTab = createArtistsTab();
-
-        tabsheet.add("Recommended Tracks", recommendedTracksTab);
-        tabsheet.add("Related Artists", recommendedArtistsTab);
-
-        tabsheet.addThemeVariants(TabSheetVariant.LUMO_TABS_EQUAL_WIDTH_TABS);
-        add(tabsheet);
+        artistsContainer = getRelatedArtists();
     }
-
-    private OrderedList RecommendedTracks() {
-        // get user's top tracks
-        OrderedList trackContainer = new OrderedList();
+    
+    /**
+     * Retrieves recommended tracks.
+     * 
+     * @return The OrderedList containing recommended tracks.
+     */
+    private OrderedList getRecommendedTracks() {
+        OrderedList container = new OrderedList();
 
         String id[] = new String[recommended.getTracks().length];
         for(int i = 0; i < recommended.getTracks().length; i++){
             id[i] = recommended.getTracks()[i].getId();
         }
-        String ids = String.join(",", id);
-        Track[] tracks = SpotifyService.getSeveralTracks(ids);
+        Track[] tracks = SpotifyService.getSeveralTracks(String.join(",", id));
         for(int i = 0; i < recommended.getTracks().length; i++){
-            trackContainer.add(new TrackCard(tracks[i], i));
+            container.add(new TrackCard(tracks[i], i));
         }
 
-        return trackContainer;
+        return container;
     }
 
-    private OrderedList RelatedArtist() {
-        OrderedList trackContainer = new OrderedList();
-        for (Artist artist : relatedArtist) 
-            trackContainer.add(new RelatedArtistCard(artist));
-
-        return trackContainer;
+    /**
+     * Retrieves recommended related artists.
+     * 
+     * @return The OrderedList containing recommended related artists.
+     */
+    private OrderedList getRelatedArtists() {
+        OrderedList container = new OrderedList();
+        for (Artist artist : relatedArtist) { container.add(new ArtistCard(artist)); }
+        return container;
     }
 
+    /**
+     * Create the TabSheet and tabs.
+     */
+    private void createTabSheet() {
+        tabsheet = new TabSheet();
+        recommendedTracksTab = createTracksTab();
+        recommendedArtistsTab = createArtistsTab();
+        tabsheet.add("Recommended Tracks", recommendedTracksTab);
+        tabsheet.add("Related Artists", recommendedArtistsTab);
+        tabsheet.addThemeVariants(TabSheetVariant.LUMO_TABS_EQUAL_WIDTH_TABS);
+    }
+
+    /**
+     * Create the tab to display recommended tracks.
+     * 
+     * @return The "Recommendations" tab.
+     */
     private Div createTracksTab() {
-        Div div = new Div();
-        addClassNames("recommended-view");
-        addClassNames(MaxWidth.SCREEN_LARGE, Margin.Horizontal.AUTO, Padding.Bottom.LARGE, Padding.Horizontal.LARGE);
-
-        HorizontalLayout container = new HorizontalLayout();
-        container.addClassNames(AlignItems.CENTER, JustifyContent.BETWEEN);
-
-        VerticalLayout headerContainer = new VerticalLayout();
-        H2 header = new H2("Recommendations");
-
-        header.addClassNames(Margin.Bottom.NONE, Margin.Top.XLARGE, FontSize.XXXLARGE);
-        headerContainer.add(header);
-
-        Div trackDiv = new Div();
-        trackDiv.add(trackContainerRecommended);
-        container.add(headerContainer);
-        div.add(container, trackDiv);
-
-        return div;
+        Div tab = createTab("Recommendations", "recommended-view");
+        tab.add(tracksContainer);
+        return tab;
     }
 
+    /**
+     * Create the tab to display recommended related artists.
+     * 
+     * @return The "Related Artists" tab.
+     */
     private Div createArtistsTab() {
-        addClassNames("artist-view");
-        addClassNames(MaxWidth.SCREEN_LARGE, Margin.Horizontal.AUTO, Padding.Bottom.LARGE, Padding.Horizontal.LARGE);
+        Div tab = createTab("Related Artists", "artist-view");
+        artistsContainer.addClassNames(Gap.MEDIUM, Display.GRID, ListStyleType.NONE, Margin.NONE, Padding.NONE, JustifyContent.BETWEEN, Column.COLUMNS_5);
+        tab.add(artistsContainer);
+        return tab;
+    }
 
-        Div div = new Div();
+    /**
+     * Create a base tab layout.
+     * 
+     * @param headerText The title used for the header text of the tab.
+     * @param viewClassName The class name for the tab.
+     * @return The new tab.
+     */
+    private Div createTab(String headerText, String viewClassName) {
+        Div tab = new Div();
+        addClassNames(viewClassName, MaxWidth.SCREEN_LARGE, Margin.Horizontal.AUTO, Padding.Bottom.LARGE, Padding.Horizontal.LARGE);
         
-        HorizontalLayout container = new HorizontalLayout();
-        container.addClassNames(AlignItems.CENTER, JustifyContent.BETWEEN);
-
         VerticalLayout headerContainer = new VerticalLayout();
-        H2 header = new H2("Related Artists");
+        H2 header = new H2(headerText);
         header.addClassNames(Margin.Bottom.NONE, Margin.Top.XLARGE, FontSize.XXXLARGE);
         headerContainer.add(header);
 
-        OrderedList AartistContainer = new OrderedList();
-        AartistContainer = RelatedArtist();
-        AartistContainer.addClassNames(Gap.MEDIUM, Display.GRID, ListStyleType.NONE, Margin.NONE, Padding.NONE, JustifyContent.BETWEEN, Column.COLUMNS_5);
-
+        HorizontalLayout container = new HorizontalLayout();
+        container.addClassNames(AlignItems.CENTER, JustifyContent.BETWEEN);
+        
         container.add(headerContainer);
-        Div artistDiv = new Div();
-        artistDiv.add(AartistContainer);
-        div.add(container, artistDiv);
+        tab.add(container);
 
-        return div;
+        return tab;
     }
-    
 }

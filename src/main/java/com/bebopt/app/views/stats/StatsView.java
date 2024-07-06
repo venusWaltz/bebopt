@@ -28,14 +28,18 @@ import se.michaelthelin.spotify.model_objects.specification.Track;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
+/**
+ * The {@code StatsView} class represents the statistics view of the application.
+ * It displays the user's top tracks and artists over different time frames.
+ */
 @AnonymousAllowed
 @PageTitle("Stats")
 @Route(value = "stats", layout = MainLayout.class)
 public class StatsView extends Div {
 
+    private TabSheet tabsheet;
     private Div trackTab;
     private Div artistTab;
-    private TabSheet tabsheet;
 
     private OrderedList genreContainer;
     Select<String> sortBy;
@@ -44,73 +48,82 @@ public class StatsView extends Div {
     private String mediumTerm = "medium_term";
     private String longTerm = "long_term";
 
-    // load user data from spotify into ordered lists
     OrderedList trackContainerShortTerm;
     OrderedList trackContainerMediumTerm;
     OrderedList trackContainerLongTerm;
-    
     OrderedList artistContainerShortTerm;
     OrderedList artistContainerMediumTerm;
     OrderedList artistContainerLongTerm;
 
+    /**
+     * Constructor for the {@code StatsView} class.
+     * Initializes the view components and loads user data from Spotify.
+     */
     public StatsView() {
-        
-        tabsheet = new TabSheet();
-
+        loadStats();
+        createTabsheet();
+        add(tabsheet);
+    }
+    
+    /**
+     * Load statistics data.
+     */
+    private void loadStats() {
         trackContainerShortTerm = getTopTracks(shortTerm);
         trackContainerMediumTerm = getTopTracks(mediumTerm);
         trackContainerLongTerm = getTopTracks(longTerm);
-        
         artistContainerShortTerm = getTopArtists(shortTerm);
         artistContainerMediumTerm = getTopArtists(mediumTerm);
         artistContainerLongTerm = getTopArtists(longTerm);
-        
-        // create tab page layouts
+    }
+    
+    /**
+     * Create the TabSheet and tabs.
+     */
+    private void createTabsheet() {
+        tabsheet = new TabSheet();
         trackTab = createTopTracks();
         artistTab = createTopArtists();
- 
-        // add tabs to tabsheet
         tabsheet.add("Top Tracks", trackTab);
         tabsheet.add("Top Artists", artistTab);
-        add(tabsheet);
-        
         tabsheet.addThemeVariants(TabSheetVariant.LUMO_TABS_EQUAL_WIDTH_TABS);
     }
+// ------------------------------------------- Get data -------------------------------------------
 
-// ----------------------------------------- Get data -----------------------------------------
-
-    // load top tracks into ordered lists
+    /**
+     * Loads top tracks into an ordered list based on the specified term.
+     * 
+     * @param term The time range for top tracks (short, medium, long).
+     * @return The OrderedList of top tracks.
+     */
     private OrderedList getTopTracks(String term) {
-        // get user's top tracks
         Track[] userTracks = SpotifyService.getTopTracks(term);
-
-        // add tracks to container
         int i = 0;
         OrderedList trackContainer = new OrderedList();
-
-        for(Track track : userTracks) 
-            trackContainer.add(new TrackCard(track, i++));
-        
+        for(Track track : userTracks) { trackContainer.add(new TrackCard(track, i++)); }
         return trackContainer;
     }
 
-    // load top artists into ordered lists
+    /**
+     * Loads top artists into an ordered list based on the specified term.
+     * 
+     * @param term The time range for top artists (short, medium, long).
+     * @return The OrderedList of top artists.
+     */
     private OrderedList getTopArtists(String term) {
-        // get user's top artists
         Artist[] userArtists = SpotifyService.getTopArtists(term);
-
-        // add artists to container
         OrderedList artistContainer = new OrderedList();
-
-        for(Artist artist : userArtists) 
-            artistContainer.add(new ArtistCard(artist));
-
+        for(Artist artist : userArtists) { artistContainer.add(new ArtistCard(artist)); }
         return artistContainer;
     }
 
-// ----------------------------------------- Tabsheet -----------------------------------------
+// ------------------------------------------- Tabsheet -------------------------------------------
 
-    // create top tracks tab
+    /**
+     * Creates the "Top Tracks" tab.
+     * 
+     * @return The Div containing the "Top Tracks" tab content.
+     */
     private Div createTopTracks() {
         Div div = new Div();
         addClassNames("track-view");
@@ -133,31 +146,19 @@ public class StatsView extends Div {
         container.add(headerContainer, sortBy);
         div.add(container, trackDiv);
 
-        // update tracks when user selects time frame from select menu
-        sortBy.addValueChangeListener(e -> {
-            if (sortBy.getValue() == "Last four weeks"){
-                trackDiv.removeAll();
-                trackDiv.add(trackContainerShortTerm);            
-            }
-            if (sortBy.getValue() == "Last six months") {
-                trackDiv.removeAll();
-                trackDiv.add(trackContainerMediumTerm);
-            }
-            if (sortBy.getValue() == "All data") {
-                trackDiv.removeAll();
-                trackDiv.add(trackContainerLongTerm);
-            }
-        });
-
+        setChangeListener(sortBy, trackDiv, trackContainerShortTerm, trackContainerMediumTerm, trackContainerLongTerm);
         return div;
     }
 
-    // create top artists tab
+    /**
+     * Creates the "Top Artists" tab.
+     * 
+     * @return The Div containing the "Top Artists" tab content.
+     */
     private Div createTopArtists() {
+        Div div = new Div();
         addClassNames("artist-view");
         addClassNames(MaxWidth.SCREEN_LARGE, Margin.Horizontal.AUTO, Padding.Bottom.LARGE, Padding.Horizontal.LARGE);
-
-        Div div = new Div();
         
         HorizontalLayout container = new HorizontalLayout();
         container.addClassNames(AlignItems.CENTER, JustifyContent.BETWEEN);
@@ -184,31 +185,19 @@ public class StatsView extends Div {
         artistDiv.add(artistContainerShortTerm);
         div.add(container, artistDiv);
 
-        // update artists when user selects time frame from select menu
-        sortBy.addValueChangeListener(e -> {
-            if (sortBy.getValue() == "Last four weeks"){
-                artistDiv.removeAll();
-                artistDiv.add(artistContainerShortTerm);            
-            }
-            if (sortBy.getValue() == "Last six months") {
-                artistDiv.removeAll();
-                artistDiv.add(artistContainerMediumTerm);
-            }
-            if (sortBy.getValue() == "All data") {
-                artistDiv.removeAll();
-                artistDiv.add(artistContainerLongTerm);
-            }
-        });
-
+        setChangeListener(sortBy, artistDiv, artistContainerShortTerm, artistContainerMediumTerm, artistContainerLongTerm);
         return div;
     }
 
-    // create top genres tab
+    /**
+     * Creates the "Top Genres" tab.
+     * 
+     * @return The Div containing the "Top Genres" tab content.
+     */
     private Div createTopGenres() {
+        Div div = new Div();
         addClassNames("genre-view");
         addClassNames(MaxWidth.SCREEN_LARGE, Margin.Horizontal.AUTO, Padding.Bottom.LARGE, Padding.Horizontal.LARGE);
-        
-        Div div = new Div();
         
         VerticalLayout headerContainer = new VerticalLayout();
         H2 header = new H2("Your Top Genres");
@@ -218,5 +207,27 @@ public class StatsView extends Div {
         genreContainer = new OrderedList();
         div.add(headerContainer, genreContainer);
         return div;
+    }
+
+    /**
+     * Sets a value change listener on the given Select component to update the content
+     * of the given Div based on the selected time frame.
+     * 
+     * @param sortBy The Select component to set the listener on.
+     * @param contentDiv The Div to update based on the selected time frame.
+     * @param shortTerm The container for short term data.
+     * @param mediumTerm The container for medium term data.
+     * @param longTerm The container for long term data.
+     */
+    private void setChangeListener(Select<String> sortBy, Div contentDiv, OrderedList shortTerm, 
+                                   OrderedList mediumTerm, OrderedList longTerm) {
+        sortBy.addValueChangeListener(e -> {
+            contentDiv.removeAll();
+            switch (sortBy.getValue()) {
+                case "Last four weeks": contentDiv.add(shortTerm); break;
+                case "Last six months": contentDiv.add(mediumTerm); break;
+                case "All data": contentDiv.add(longTerm); break;
+            }
+        });
     }
 }

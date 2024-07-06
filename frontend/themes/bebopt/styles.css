@@ -1,8 +1,10 @@
 @import url('./main-layout.css');
 @import url('./views/stats-view.css');
+@import url('./views/artist-view.css');
 @import url('./views/playlists-view.css');
 @import url('./views/recommendations-view.css');
-@import url('@fontsource/dm-sans/index.css');    html {
+@import url('@fontsource/dm-sans/index.css');    
+    html {
       --lumo-size-xl: 4rem;
       --lumo-size-l: 3rem;
       --lumo-size-m: 2.5rem;
@@ -17,8 +19,7 @@
       --lumo-border-radius-m: calc(var(--lumo-size-m) / 2);
       --lumo-border-radius-l: var(--lumo-size-m);
       --lumo-body-text-color: hsla(122, 40%, 16%, 0.94);
---lumo-font-family: DM Sans;
-
+      --lumo-font-family: DM Sans;
     }
 
     [theme~="dark"] {
@@ -46,5 +47,4 @@
       --lumo-success-color: hsl(159, 76%, 57%);
       --lumo-success-contrast-color: hsl(159, 29%, 10%);
       --lumo-success-text-color: hsl(159, 61%, 40%);
-
     }

@@ -26,14 +26,21 @@ import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified;
 public class PlaylistsViewCard extends ListItem {
 
     private PlaylistSimplified playlist;
+    
     /**
      * Constructor for the {@code PlaylistsViewCard} class.
-     * Initializes the UI component for a playlist card.
      * 
      * @param playlist A {@code PlaylistSimplified} object representing a Spotify playlist.
      */
     public PlaylistsViewCard(PlaylistSimplified playlist) {
         this.playlist = playlist;
+        initializeCard();
+    }
+
+    /**
+     * Initializes the UI component for a playlist card.
+     */
+    private void initializeCard() {
         addClassNames(Background.CONTRAST_5, Display.FLEX, FlexDirection.COLUMN, AlignItems.START, 
                 Padding.SMALL, BorderRadius.SMALL);
 
@@ -45,7 +52,7 @@ public class PlaylistsViewCard extends ListItem {
 
         Image image = new Image();
         image.setWidth("100%");
-        if (this.playlist.getImages().length != 0) { image.setSrc(this.playlist.getImages()[0].getUrl()); }
+        if (playlist.getImages().length != 0) { image.setSrc(this.playlist.getImages()[0].getUrl()); }
         else { image.setSrc("images/empty-plant.png"); }
         
         div.add(image);
@@ -53,7 +60,7 @@ public class PlaylistsViewCard extends ListItem {
         header.addClassNames(FontSize.MEDIUM, FontWeight.SEMIBOLD);
         header.setText(this.playlist.getName());
 
-        this.addClickListener(e -> PlaylistsView.onPlaylistSelect(this.playlist));
+        this.addClickListener(e -> PlaylistsView.onPlaylistSelect(playlist));
         add(div, header);
     }
 }

@@ -19,27 +19,43 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Width;
 
 import se.michaelthelin.spotify.model_objects.specification.Artist;
 
+/**
+ * The {@code ArtistCard} class represents a UI component to display artist information.
+ */
 public class ArtistCard extends ListItem {
 
+    private Artist artist;
+
+    /**
+     * Constructor for the {@code ArtistCard} class.
+     * 
+     * @param artist The artist object containing the artist information.
+     */
     public ArtistCard(Artist artist) {
-        addClassNames(Background.CONTRAST_5, Display.FLEX, FlexDirection.COLUMN, AlignItems.START, Padding.SMALL,
-                BorderRadius.SMALL, Margin.Bottom.MEDIUM);
+        this.artist = artist;
+        initializeCard();
+    }
+
+    /**
+     * Initializes the UI component for an artist card.
+     */
+    private void initializeCard() {
+        addClassNames(Background.CONTRAST_5, Display.FLEX, FlexDirection.COLUMN, AlignItems.START, 
+                Padding.SMALL, BorderRadius.SMALL, Margin.Bottom.MEDIUM);
 
         Div div = new Div();
+        div.setHeight("150px");
+        div.setWidth("150px");
         div.addClassNames(Background.CONTRAST, Display.FLEX, AlignItems.CENTER, JustifyContent.CENTER,
                 Margin.Bottom.XSMALL, Overflow.HIDDEN, BorderRadius.SMALL, Width.AUTO);
-        div.setHeight("160px");
-        div.setWidth("160px");
 
         Image image = new Image();
         if (artist.getImages()[0].getHeight() < artist.getImages()[0].getWidth())
-            image.setHeight("100%");
-        else
-            image.setWidth("100%");
+             { image.setHeight("100%"); }
+        else { image.setWidth("100%"); }
         image.setSrc(artist.getImages()[0].getUrl());
 
         div.add(image);
-
         Span header = new Span();
         header.addClassNames(FontSize.MEDIUM, FontWeight.SEMIBOLD);
         header.setText(artist.getName());

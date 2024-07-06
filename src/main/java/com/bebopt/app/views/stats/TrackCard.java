@@ -20,8 +20,18 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Width;
 
 import se.michaelthelin.spotify.model_objects.specification.Track;
 
+/**
+ * The {@code TrackCard} class represents a UI component to display track information.
+ */
 public class TrackCard extends HorizontalLayout {
     
+    /**
+     * Constructor for the {@code TrackCard} class.
+     * Initializes the UI component for a track card.
+     * 
+     * @param track The track object containing the track's information.
+     * @param index The index of the track in the full list of tracks.
+     */
     public TrackCard(Track track, int index) {
         String height = "60px";
 

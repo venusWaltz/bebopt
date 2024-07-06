@@ -52,6 +52,9 @@ import se.michaelthelin.spotify.requests.data.users_profile.GetCurrentUsersProfi
 import se.michaelthelin.spotify.requests.data.tracks.GetSeveralTracksRequest;
 import se.michaelthelin.spotify.requests.data.artists.GetArtistsRelatedArtistsRequest;
 
+/**
+ * The {@code AuthController} class manages Spotify API interactions and user authorization.
+ */
 @RestController
 @RequestMapping("")
 public class AuthController {
@@ -62,24 +65,54 @@ public class AuthController {
     private String code = "";
     private static User user;
 
-    public static User getUser() {
-        return user;
-    }
-
-// ----------------------------------------- Authorization -----------------------------------------
-
-    // create SpotifyApi object to use when sending requests to Spotify API
+    /* create SpotifyApi object to use when sending requests to Spotify API */
     public static SpotifyApi spotifyApi = new SpotifyApi.Builder()
         .setClientId(clientID)
         .setClientSecret(clientSecret)
         .setRedirectUri(redirectUri)
         .build();
 
-    // create spotify login URI for user authorization
+// --------------------------------------------- User ---------------------------------------------
+
+    /**
+     * Retrieve the profile information of the current authenticated Spotify user.
+     *
+     * @return The Spotify {@code User} object.
+     */
+    public static User getUser() {
+        return user;
+    }
+
+    /**
+     * Retrieves the profile information of the current authenticated Spotify user.
+     * 
+     * @return The Spotify user profile.
+     */
+    @GetMapping("user-profile")
+    public static User getUserProfile() {
+        final GetCurrentUsersProfileRequest getCurrentUsersProfileRequest = 
+                spotifyApi.getCurrentUsersProfile().build();
+        try {
+            final User user = getCurrentUsersProfileRequest.execute();
+            return user;
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        return null;
+    }
+    
+// ---------------------------------------- Authorization -----------------------------------------
+
+    /**
+     * Retrieve the Spotify login URI for user authorization.
+     * 
+     * @return The Spotify login URI.
+     */
     @GetMapping("spotify-url")
     @ResponseBody
     public static String getSpotifyLoginUri() {
-        AuthorizationCodeUriRequest authorizationCodeUriRequest = spotifyApi.authorizationCodeUri()
+        AuthorizationCodeUriRequest authorizationCodeUriRequest = spotifyApi
+            .authorizationCodeUri()
             .scope(scopes)
             .show_dialog(true)
             .build();
@@ -87,34 +120,37 @@ public class AuthController {
         return uri.toString();
     }
 
-    // following authentication, the app is redirected to our callback URI (http://localhost:8080/callback);
-    // from here, we get the code Spotify has added to our URI and use it to get a temporary access token
+    /**
+     * Handles user authorization callback from Spotify by requesting a temporary access token.
+     * todo: Add error handling.
+     * 
+     * @param userCode
+     * @param response
+     * @return
+     * @throws IOException
+     */
     @GetMapping("callback")
-    public String getUserCode(@RequestParam("code") String userCode, HttpServletResponse response) throws IOException{
-        code = userCode;    // set program var code to userCode from URI
-        
-        // use retrieved code to send request to Spotify API for access token
-        AuthorizationCodeRequest authorizationCodeRequest = spotifyApi.authorizationCode(code).build();
+    public String getUserCode(@RequestParam("code") String code, HttpServletResponse response) throws IOException{
+        this.code = code;
+        /* Use code retrieved to send a request for an access token to the Spotify API. */ 
+        AuthorizationCodeRequest authorizationCodeRequest = spotifyApi.authorizationCode(this.code).build();
         try {
             final AuthorizationCodeCredentials authorizationCodeCredentials = authorizationCodeRequest.execute();
-
             spotifyApi.setAccessToken(authorizationCodeCredentials.getAccessToken());
             spotifyApi.setRefreshToken(authorizationCodeCredentials.getRefreshToken());
-            
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error" + e.getMessage());
         }
-
         user = getUserProfile();
         AuthenticatedUser.login(); 
-
-        response.sendRedirect("http://localhost:8080/home");    // redirect to home page after retrieving access token
-
+        response.sendRedirect("http://localhost:8080/home");   /* Redirect after retrieving the access token. */ 
         return spotifyApi.getAccessToken();
-    }   // handle errors
+    }
 
-    // refresh access token when it expires (fix later)
-    public static void refeshAccessToken() {
+    /**
+     * Refresh access token at expiry.
+     */
+    public static void refreshAccessToken() {
         try {
             AuthorizationCodeRefreshRequest authorizationCodeRefreshRequest = spotifyApi.authorizationCodeRefresh()
                 .refresh_token(spotifyApi.getRefreshToken())
@@ -127,7 +163,12 @@ public class AuthController {
         }
     }
 
-    // logout
+    /**
+     * Logs the current user out by revoking their access tokens and clearing their session data.
+     * 
+     * @param response The HTTP servlet response.
+     * @throws IOException If an I/O error occurs.
+     */
     @GetMapping("logout")
     public static void logout(HttpServletResponse response) throws IOException {
         try {
@@ -135,285 +176,100 @@ public class AuthController {
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
         }
-        
         Redirect.redirect("home");
-
         spotifyApi.setAccessToken(null);
         spotifyApi.setRefreshToken(null);
         AuthenticatedUser.setIsLoggedIn(false);
     }
 
-// ----------------------------------------- User -----------------------------------------
+// -------------------------------------------- Tracks --------------------------------------------
 
-    // get current user's profile
-    @GetMapping("user-profile")
-    public static User getUserProfile() {
-        
-        final GetCurrentUsersProfileRequest getCurrentUsersProfileRequest = spotifyApi.getCurrentUsersProfile()
-        .build();
-
-        try {
-            final User user = getCurrentUsersProfileRequest.execute();
-            return user;
-
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-        return null;
-    }
-
-// ----------------------------------------- Tracks -----------------------------------------
-
-    // get user's top tracks
+    /**
+     * Retrieves the top tracks of the current authenticated Spotify user.
+     * 
+     * @param timeRange The time range for which to retrieve top tracks (short, medium, long).
+     * @return The array of {@code Track} objects representing the top tracks.
+     */
     @GetMapping("user-top-tracks/{timeRange}")
     public static Track[] getTopTracks(String timeRange) {
-        
-        final GetUsersTopTracksRequest getUsersTopTracksRequest = spotifyApi.getUsersTopTracks()
-            .time_range(timeRange)
-            // .limit(10)
+        final GetUsersTopTracksRequest getUsersTopTracksRequest = spotifyApi
+            .getUsersTopTracks()
+            .time_range(timeRange) //.limit(10)
             .build();
-
         try {
             final Paging<Track> trackPaging = getUsersTopTracksRequest.execute();
             return trackPaging.getItems();
-
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-
+        } catch (Exception e) { System.out.println("Error: " + e.getMessage()); }
         return new Track[0];
     }
 
-    // get track by id
+    /**
+     * Retrieves a specific track from the Spotify API by its ID.
+     * 
+     * @param id The track ID.
+     * @return The {@code Track} object representing the requested track.
+     */
     @GetMapping("get-track-by-id/{id}")
     public static Track getTrackById(String id) {
         final GetTrackRequest getTrackRequest = spotifyApi
             .getTrack(id)
             .build();
-
         try {
             final Track track = getTrackRequest.execute();
             return track;
-
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
         }
-        
         return null;
     }
 
-    // get user's recently played items
-    @GetMapping("recently-played")
-    public static PagingCursorbased<PlayHistory> getRecentlyPlayedTracks() {
-        final GetCurrentUsersRecentlyPlayedTracksRequest getCurrentUsersRecentlyPlayedTracksRequest
-            = spotifyApi
-                .getCurrentUsersRecentlyPlayedTracks()
-                .limit(20)
-                .build();
-
-        try {
-            final PagingCursorbased<PlayHistory> recentlyPlayedTracks = getCurrentUsersRecentlyPlayedTracksRequest.execute();
-            return recentlyPlayedTracks;
-
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-
-        return null;
-    }
-
-    // get user's currently playing track
-    @GetMapping("currently-playing")
-    public static CurrentlyPlaying getCurrentlyPlaying() {
-        final GetUsersCurrentlyPlayingTrackRequest getUsersCurrentlyPlayingTrackRequest
-            = spotifyApi
-                .getUsersCurrentlyPlayingTrack()
-                .build();
-
-        try {
-            final CurrentlyPlaying currentlyPlaying = getUsersCurrentlyPlayingTrackRequest.execute();
-            return currentlyPlaying;
-
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-
-        return null;
-    }
-
+    /**
+     * Retrieves multiple tracks from the Spotify API by their IDs.
+     * 
+     * @param ids A comma-separated list of IDs.
+     * @return The array of {@code Track} objects representing the requested tracks.
+     */
     @GetMapping("get-several-track")
     public static Track[] getSeveralTracksRequest(String ids) {
         final GetSeveralTracksRequest getSeveralTracksRequest = spotifyApi
             .getSeveralTracks(ids)
             .build();
-
         try {
             final Track[] tracks  = getSeveralTracksRequest.execute();
             return tracks;
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
         }
-        
         return null;
     }
 
-// ----------------------------------------- Artists -----------------------------------------
-
-    // get user's top artists
-    @GetMapping("user-top-artists/{timeRange}")
-    public static Artist[] getTopArtists(@PathVariable String timeRange) {
-
-        final GetUsersTopArtistsRequest getUsersTopArtistsRequest = spotifyApi.getUsersTopArtists()
-            .time_range(timeRange)
-            // .limit(10)
-            .build();
-
-        try {
-            final Paging<Artist> artistPaging = getUsersTopArtistsRequest.execute();
-            return artistPaging.getItems();
-
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-
-        return new Artist[0];
-    }
-
-// ----------------------------------------- Albums -----------------------------------------
-
-    @GetMapping("get-album-by-id/{id}")
-    public static Album getAlbumById(String id) {
-        final GetAlbumRequest getAlbumRequest = spotifyApi
-            .getAlbum(id)
-            .build();
-
-        try {
-            final Album album = getAlbumRequest.execute();
-            return album;
-
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-
-        return null;
-    }
-
-// ----------------------------------------- Playlists -----------------------------------------
-
-    // get user's playlists
-    @GetMapping("user-playlists")
-    public static PlaylistSimplified[] getPlaylists() {
-
-        final GetListOfCurrentUsersPlaylistsRequest getListOfCurrentUsersPlaylistsRequest 
-            = spotifyApi
-                .getListOfCurrentUsersPlaylists()
-                .limit(10)
-                .build();
-
-        try {
-            final Paging<PlaylistSimplified> playlistPaging = getListOfCurrentUsersPlaylistsRequest.execute();
-            return playlistPaging.getItems();
-
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-    
-        return null;    
-    }
-
-    // get a playlist by its id
-    @GetMapping("get-playlist-by-id/{id}")
-    public static Playlist getPlaylistById(String id) {
-        final GetPlaylistRequest getPlaylistRequest = spotifyApi
-            .getPlaylist(id)
-            .build();
-
-        try {
-            final Playlist playlist = getPlaylistRequest.execute();
-            return playlist;
-
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-
-        return null;
-    }
-
+    /**
+     * Retrieves the audio features of several tracks by their IDs.
+     * 
+     * @param tracks A comma-separated lisst of IDs.
+     * @return The array of {@code AudioFeatures} objects representing the audio features of the tracks.
+     */
     @GetMapping("audio-features")
     public static AudioFeatures[] getAudioFeatures(String tracks) {
         final GetAudioFeaturesForSeveralTracksRequest getAudioFeaturesForSeveralTracksRequest
             = spotifyApi
                 .getAudioFeaturesForSeveralTracks(tracks)
                 .build();
-
         try {
             final AudioFeatures[] audioFeatures = getAudioFeaturesForSeveralTracksRequest.execute();
             return audioFeatures;
-
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
         }
-
         return null;
     }
 
-// ----------------------------------------- Playlist management -----------------------------------------
-
-    @PostMapping("create-playlist") 
-    public static Playlist createPlaylist() {
-        final CreatePlaylistRequest createPlaylistRequest = spotifyApi
-            .createPlaylist(user.getId(), "New Playlist")
-            .build();
-
-        try {
-            final Playlist newPlaylist = createPlaylistRequest.execute();
-            return newPlaylist;
-
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-
-        return null;
-    }
-
-    @PostMapping("add-items-to-playlist")
-    public static SnapshotResult addToPlaylist(String id, String[] uris) {
-        final AddItemsToPlaylistRequest addItemsToPlaylistRequest = spotifyApi
-            .addItemsToPlaylist(id, uris) // max length 50 for String[] uris, use JsonArray to add >50 tracks
-            .build();
-
-        try {
-            final SnapshotResult snapshotResult = addItemsToPlaylistRequest.execute();
-            return snapshotResult;
-            
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-
-        return null;
-    }
-
-    @PutMapping("update-playlist-items")
-    public static SnapshotResult modifyPlaylist(String id) {
-        final ReorderPlaylistsItemsRequest reorderPlaylistsItemsRequest 
-            = spotifyApi
-                .reorderPlaylistsItems(id, 0, 0)
-                .build();
-        
-        try {
-            final SnapshotResult snapshotResult = reorderPlaylistsItemsRequest.execute();
-            return snapshotResult;
-
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-        
-        return null;
-    }
-
-// ----------------------------------------- Recommendations -----------------------------------------
-
-    // get recommendations from a track
+    /**
+     * Retrieves recommendations from the Spotify API by seed tracks.
+     * 
+     * @param seed A comma-separated list of track IDs.
+     * @return The {@code Recommendations} object containing recommended tracks.
+     */
     @GetMapping("recommendations")
     public static Recommendations getRecommendations(String seed) {
         final GetRecommendationsRequest getRecommendationsRequest = spotifyApi
@@ -424,27 +280,217 @@ public class AuthController {
         try {
             final Recommendations recommendations = getRecommendationsRequest.execute();
             return recommendations;
-    
-        } catch (Exception e) {
+        } catch (Exception e) { System.out.println("Error: " + e.getMessage()); }
+        return null;
+    }
+
+    /**
+     * Retrieves the recently played tracks of the current authenticated Spotify user.
+     * 
+     * @return A paging object containing the recently played tracks.
+     */
+    @GetMapping("recently-played")
+    public static PagingCursorbased<PlayHistory> getRecentlyPlayedTracks() {
+        final GetCurrentUsersRecentlyPlayedTracksRequest getCurrentUsersRecentlyPlayedTracksRequest
+            = spotifyApi
+                .getCurrentUsersRecentlyPlayedTracks()
+                .limit(20)
+                .build();
+        try {
+            final PagingCursorbased<PlayHistory> recentlyPlayedTracks = getCurrentUsersRecentlyPlayedTracksRequest.execute();
+            return recentlyPlayedTracks;
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
         }
         return null;
     }
 
+    /**
+     * Retrieves the currently playing track of the current authenticated Spotify user.
+     * ? Is this only available to Spotify Premium users?
+     * 
+     * @return The {@code CurrentlyPlaying} object representing the track being played.
+     */
+    @GetMapping("currently-playing")
+    public static CurrentlyPlaying getCurrentlyPlaying() {
+        final GetUsersCurrentlyPlayingTrackRequest getUsersCurrentlyPlayingTrackRequest
+            = spotifyApi
+                .getUsersCurrentlyPlayingTrack()
+                .build();
+        try {
+            final CurrentlyPlaying currentlyPlaying = getUsersCurrentlyPlayingTrackRequest.execute();
+            return currentlyPlaying;
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        return null;
+    }
+
+// -------------------------------------------- Albums --------------------------------------------
+
+    /**
+     * Retrieves a specified album from the Spotify API by its ID.
+     * 
+     * @param id The album ID.
+     * @return The {@code Album} object representing the requested album.
+     */
+    @GetMapping("get-album-by-id/{id}")
+    public static Album getAlbumById(String id) {
+        final GetAlbumRequest getAlbumRequest = spotifyApi
+            .getAlbum(id)
+            .build();
+        try {
+            final Album album = getAlbumRequest.execute();
+            return album;
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        return null;
+    }
+    
+// ------------------------------------------- Artists --------------------------------------------
+
+    /**
+     * Retrieves the top artists of the current authenticated Spotify user.
+     * 
+     * @param timeRange The time range for which to retrieve top artists (short, medium, long).
+     * @return The array of {@code Artist} objects representing the top artists.
+     */
+    @GetMapping("user-top-artists/{timeRange}")
+    public static Artist[] getTopArtists(@PathVariable String timeRange) {
+        final GetUsersTopArtistsRequest getUsersTopArtistsRequest = spotifyApi
+            .getUsersTopArtists()
+            .time_range(timeRange) // .limit(10)
+            .build();
+        try {
+            final Paging<Artist> artistPaging = getUsersTopArtistsRequest.execute();
+            return artistPaging.getItems();
+        } catch (Exception e) { System.out.println("Error: " + e.getMessage()); }
+        return new Artist[0];
+    }
+
+    /**
+     * Retrieves releated artists for a specified artist from the Spotify API by its ID.
+     * 
+     * @param seed The artist ID.
+     * @return The array of {@code Artist} objects representing the related artists.
+     */
     @GetMapping("related-artists")
     public static Artist[] getRelatedArtists(String seed) {
         final GetArtistsRelatedArtistsRequest getRelatedArtists = spotifyApi
             .getArtistsRelatedArtists(seed)
             .build();
         try {
-            
             final Artist[] relatedArtists = getRelatedArtists.execute();
             return relatedArtists;
-
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
+        return null;
+    }
 
+// ------------------------------------------ Playlists -------------------------------------------
+
+    /**
+     * Retrieves a specified playlist from the Spotify API by its ID.
+     * 
+     * @param id The playlist ID.
+     * @return The {@code Playlist} object representing the requested playlist.
+     */
+    @GetMapping("get-playlist-by-id/{id}")
+    public static Playlist getPlaylistById(String id) {
+        final GetPlaylistRequest getPlaylistRequest = spotifyApi
+            .getPlaylist(id)
+            .build();
+        try {
+            final Playlist playlist = getPlaylistRequest.execute();
+            return playlist;
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Retrieves playlists owned by the current authenticated Spotify user.
+     * 
+     * @return The array of {@code PlaylistSimplified} objects representing the user's playlists.
+     */
+    @GetMapping("user-playlists")
+    public static PlaylistSimplified[] getPlaylists() {
+        final GetListOfCurrentUsersPlaylistsRequest getListOfCurrentUsersPlaylistsRequest 
+            = spotifyApi
+                .getListOfCurrentUsersPlaylists()
+                .limit(10)
+                .build();
+        try {
+            final Paging<PlaylistSimplified> playlistPaging = getListOfCurrentUsersPlaylistsRequest.execute();
+            return playlistPaging.getItems();
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        return null;    
+    }
+
+    /**
+     * Creates a new playlist for the current authenticated Spotify user.
+     * todo: add new @param fields for the playlist name, description, isPublic.
+     * 
+     * @return The {@code Playlist} object representing the newly created playlist.
+     */
+    @PostMapping("create-playlist") 
+    public static Playlist createPlaylist() {
+        final CreatePlaylistRequest createPlaylistRequest = spotifyApi
+            .createPlaylist(user.getId(), "New Playlist")
+            .build();
+        try {
+            final Playlist newPlaylist = createPlaylistRequest.execute();
+            return newPlaylist;
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Adds tracks to a specified playlist.
+     * 
+     * @param id The playlist ID.
+     * @param uris A comma-separated list of track IDs to be added to the playlist.
+     * @return The {@code SnapshotResult object} indicating the status of the operation.
+     */
+    @PostMapping("add-items-to-playlist")
+    public static SnapshotResult addToPlaylist(String id, String[] uris) {
+        final AddItemsToPlaylistRequest addItemsToPlaylistRequest = spotifyApi
+            .addItemsToPlaylist(id, uris) // max length 50 for String[] uris, use JsonArray to add >50 tracks
+            .build();
+        try {
+            final SnapshotResult snapshotResult = addItemsToPlaylistRequest.execute();
+            return snapshotResult;
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Reorder tracks in a specified playlist.
+     * 
+     * @param id The ID of the playlist to be modified.
+     * @return The {@code SnapshotResult} object indicating the status of the operation.
+     */
+    @PutMapping("update-playlist-items")
+    public static SnapshotResult modifyPlaylist(String id) {
+        final ReorderPlaylistsItemsRequest reorderPlaylistsItemsRequest 
+            = spotifyApi
+                .reorderPlaylistsItems(id, 0, 0)
+                .build();
+        try {
+            final SnapshotResult snapshotResult = reorderPlaylistsItemsRequest.execute();
+            return snapshotResult;
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
         return null;
     }
 }

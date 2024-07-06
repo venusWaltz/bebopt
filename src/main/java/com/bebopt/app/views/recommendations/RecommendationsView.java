@@ -39,17 +39,18 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 @Route(value = "Recommendations", layout = MainLayout.class)
 public class RecommendationsView extends Div {
     
+    private static final int TOP_TRACK_COUNT = 5;
     private Div recommendedTracksTab;
     private Div recommendedArtistsTab;
     private TabSheet tabsheet;
-
-    String trackSeed;
-    String artistSeed;
-    Recommendations recommended;
-    OrderedList tracksContainer;
-    OrderedList artistsContainer;
-    Artist[] relatedArtist;
-
+    
+    private String trackSeed;
+    private String artistSeed;
+    private Recommendations recommended;
+    private OrderedList tracksContainer;
+    private OrderedList artistsContainer;
+    private Artist[] relatedArtist;
+    
     /**
      * Constructor for the {@code RecommendationsView} class.
      */
@@ -63,7 +64,7 @@ public class RecommendationsView extends Div {
      * Load recommendation data.
      */
     private void loadRecommendations() {
-        trackSeed = SpotifyService.getTop5TrackIds();
+        trackSeed = SpotifyService.getTopNTrackIds(TOP_TRACK_COUNT);
         artistSeed = SpotifyService.getTopArtistId();
         recommended = SpotifyService.getRecommendations(trackSeed);
         tracksContainer = getRecommendedTracks();

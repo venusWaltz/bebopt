@@ -41,45 +41,65 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Width;
 
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
+/**
+ * The {@code MainLayout} class provides the navigation and header.
+ */
 public class MainLayout extends AppLayout {
 
+    /**
+     * Nested static class representing a menu item.
+     */
     public static class MenuItemInfo extends ListItem {
 
         private final Class<? extends Component> view;
 
+        /**
+         * Constructs a new menu item for each page of the application.
+         * 
+         * @param menuTitle The title of the menu item.
+         * @param icon The icon of the menu item.
+         * @param view The view class associated with the menu item for routing.
+         */
         public MenuItemInfo(String menuTitle, Component icon, Class<? extends Component> view) {
             this.view = view;
             RouterLink link = new RouterLink();
-
-            link.addClassNames(Display.FLEX, Gap.XSMALL, Height.MEDIUM, AlignItems.CENTER, Padding.Horizontal.SMALL,
-                    TextColor.BODY);
+            link.addClassNames(Display.FLEX, Gap.XSMALL, Height.MEDIUM, AlignItems.CENTER, 
+                    Padding.Horizontal.SMALL, TextColor.BODY);
             link.setRoute(view);
-
             Span text = new Span(menuTitle);
-
             text.addClassNames(FontWeight.MEDIUM, FontSize.MEDIUM, Whitespace.NOWRAP);
-
-            if (icon != null) {
-                link.add(icon);
-            }
+            if (icon != null) { link.add(icon); }
             link.add(text);
             add(link);
         }
 
+        /**
+         * Gets the view class associated with the menu item.
+         * 
+         * @return The view class.
+         */
         public Class<?> getView() {
             return view;
         }
-
     }
 
     private AuthenticatedUser authenticatedUser;
 
+    /**
+     * Constructs a new {@code MainLayout}.
+     * 
+     * @param authenticatedUser The authenticated user.
+     */
     public MainLayout(AuthenticatedUser authenticatedUser) {
         this.authenticatedUser = authenticatedUser;
-
         addToNavbar(createHeaderContent());
     }
 
+    /**
+     * Creates the header content of the layout.
+     * 
+     * @return The header content component.
+     */
     private Component createHeaderContent() {
         Header header = new Header();
         header.addClassNames(BoxSizing.BORDER, Display.FLEX, FlexDirection.COLUMN, Width.FULL);
@@ -92,22 +112,16 @@ public class MainLayout extends AppLayout {
         layout.add(appName);
 
         if (AuthenticatedUser.isLoggedIn()) {
-
             MenuBar userMenu = new MenuBar();
             userMenu.setThemeName("tertiary-inline contrast");
-
+            MenuItem userName = userMenu.addItem("");
             Avatar avatar = new Avatar(AuthController.getUser().getDisplayName());
-
-            try{
-                avatar.setImage(AuthController.getUser().getImages()[0].getUrl());
-            }
-            catch(Exception e){     //if user doesn't have a profile image set
-                avatar.setImage("images/empty-plant.png");
-            }
             avatar.setThemeName("xsmall");
             avatar.getElement().setAttribute("tabindex", "-1");
 
-            MenuItem userName = userMenu.addItem("");
+            try { avatar.setImage(AuthController.getUser().getImages()[0].getUrl()); }
+            catch(Exception e) { avatar.setImage("images/empty-plant.png"); }
+
             Div div = new Div();
             div.add(avatar);
             div.add(AuthController.getUser().getDisplayName());
@@ -119,9 +133,7 @@ public class MainLayout extends AppLayout {
             userName.getSubMenu().addItem("Sign out", e -> {
                 authenticatedUser.logout();
             });
-
             layout.add(userMenu);
-
         } else {
             Anchor loginLink = new Anchor(SpotifyService.getUri(), "Sign in");
             loginLink.setId("sign-in");
@@ -131,39 +143,41 @@ public class MainLayout extends AppLayout {
         Nav nav = new Nav();
         nav.addClassNames(Display.FLEX, Overflow.AUTO, Padding.Horizontal.MEDIUM, Padding.Vertical.XSMALL);
 
-        // Wrap the links in a list; improves accessibility
+        /* Wrap the links in a list; improves accessibility. */
         UnorderedList list = new UnorderedList();
         list.addClassNames(Display.FLEX, Gap.SMALL, ListStyleType.NONE, Margin.NONE, Padding.NONE);
         nav.add(list);
-        for (MenuItemInfo menuItem : createPublicMenuItems()) {
-            list.add(menuItem);
-        }
+        for (MenuItemInfo menuItem : createPublicMenuItems()) { list.add(menuItem); }
         for (MenuItemInfo menuItem : createMenuItems()) {
-            if (AuthenticatedUser.isLoggedIn()) {
-                list.add(menuItem);
-            }
+            if (AuthenticatedUser.isLoggedIn()) { list.add(menuItem); }
         }
 
         header.add(layout, nav);
         return header;
     }
-
     
+    /**
+     * Creates the public menu items.
+     * 
+     * @return The array of public {@code MenuItemInfo} objects.
+     */
     private MenuItemInfo[] createPublicMenuItems() {
-        return new MenuItemInfo[] { //
-                new MenuItemInfo("Home", LineAwesomeIcon.HOME_SOLID.create(), HomeView.class), //
-
-                new MenuItemInfo("About", LineAwesomeIcon.INFO_CIRCLE_SOLID.create(), AboutView.class), //
+        return new MenuItemInfo[] {
+                new MenuItemInfo("Home", LineAwesomeIcon.HOME_SOLID.create(), HomeView.class),
+                new MenuItemInfo("About", LineAwesomeIcon.INFO_CIRCLE_SOLID.create(), AboutView.class),
         };
     }
+
+    /**
+     * Creates the authenticated menu items.
+     * 
+     * @return The array of authenticated {@code MenuItemInfo} objects.
+     */
     private MenuItemInfo[] createMenuItems() {
-        return new MenuItemInfo[] { //
-                new MenuItemInfo("Stats", LineAwesomeIcon.CHART_BAR_SOLID.create(), StatsView.class), //
-
-                new MenuItemInfo("Playlists", LineAwesomeIcon.LIST_OL_SOLID.create(), PlaylistsView.class), //
-
-                new MenuItemInfo("Recommendations", LineAwesomeIcon.MUSIC_SOLID.create(), RecommendationsView.class), //
+        return new MenuItemInfo[] {
+                new MenuItemInfo("Stats", LineAwesomeIcon.CHART_BAR_SOLID.create(), StatsView.class),
+                new MenuItemInfo("Playlists", LineAwesomeIcon.LIST_OL_SOLID.create(), PlaylistsView.class),
+                new MenuItemInfo("Recommendations", LineAwesomeIcon.MUSIC_SOLID.create(), RecommendationsView.class),
         };
     }
-
 }

@@ -71,35 +71,6 @@ public class AuthController {
         .setClientSecret(clientSecret)
         .setRedirectUri(redirectUri)
         .build();
-
-// --------------------------------------------- User ---------------------------------------------
-
-    /**
-     * Retrieve the profile information of the current authenticated Spotify user.
-     *
-     * @return The Spotify {@code User} object.
-     */
-    public static User getUser() {
-        return user;
-    }
-
-    /**
-     * Retrieves the profile information of the current authenticated Spotify user.
-     * 
-     * @return The Spotify user profile.
-     */
-    @GetMapping("user-profile")
-    public static User getUserProfile() {
-        final GetCurrentUsersProfileRequest getCurrentUsersProfileRequest = 
-                spotifyApi.getCurrentUsersProfile().build();
-        try {
-            final User user = getCurrentUsersProfileRequest.execute();
-            return user;
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-        return null;
-    }
     
 // ---------------------------------------- Authorization -----------------------------------------
 
@@ -182,6 +153,35 @@ public class AuthController {
         AuthenticatedUser.setIsLoggedIn(false);
     }
 
+// --------------------------------------------- User ---------------------------------------------
+
+    /**
+     * Retrieve the profile information of the current authenticated Spotify user.
+     *
+     * @return The Spotify {@code User} object.
+     */
+    public static User getUser() {
+        return user;
+    }
+
+    /**
+     * Retrieves the profile information of the current authenticated Spotify user.
+     * 
+     * @return The Spotify user profile.
+     */
+    @GetMapping("user-profile")
+    public static User getUserProfile() {
+        final GetCurrentUsersProfileRequest getCurrentUsersProfileRequest = 
+                spotifyApi.getCurrentUsersProfile().build();
+        try {
+            final User user = getCurrentUsersProfileRequest.execute();
+            return user;
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        return null;
+    }
+    
 // -------------------------------------------- Tracks --------------------------------------------
 
     /**

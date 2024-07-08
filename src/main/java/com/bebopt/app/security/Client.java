@@ -1,4 +1,4 @@
-package com.bebopt.app.data.spotify;
+package com.bebopt.app.security;
 
 /**
  * The {@code Client} class is a utility class for storing Spotify client credentials.

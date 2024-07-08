@@ -1,7 +1,8 @@
-package com.bebopt.app.views.stats;
+package com.bebopt.app.views;
 
-import com.bebopt.app.data.spotify.SpotifyService;
-import com.bebopt.app.views.MainLayout;
+import com.bebopt.app.api.SpotifyService;
+import com.bebopt.app.objects.ArtistCard;
+import com.bebopt.app.objects.TrackCard;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.OrderedList;

@@ -1,4 +1,4 @@
-package com.bebopt.app.data.spotify;
+package com.bebopt.app.api;
 
 import java.io.IOException;
 import java.net.URI;
@@ -12,7 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.bebopt.app.routing.Router;
 import com.bebopt.app.security.AuthenticatedUser;
+import com.bebopt.app.security.Client;
 
 import jakarta.servlet.http.HttpServletResponse;
 import se.michaelthelin.spotify.SpotifyApi;
@@ -57,7 +60,7 @@ import se.michaelthelin.spotify.requests.data.artists.GetArtistsRelatedArtistsRe
  */
 @RestController
 @RequestMapping("")
-public class AuthController {
+public class SpotifyApiClient {
     private static String clientID = Client.getClientID();
     private static String clientSecret = Client.getClientSecret();
     private static String scopes = "user-read-private,playlist-read-private,user-top-read,user-read-currently-playing,user-read-recently-played,playlist-modify-private,playlist-modify-public";
@@ -147,7 +150,7 @@ public class AuthController {
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
         }
-        Redirect.redirect("home");
+        Router.redirect("home");
         spotifyApi.setAccessToken(null);
         spotifyApi.setRefreshToken(null);
         AuthenticatedUser.setIsLoggedIn(false);

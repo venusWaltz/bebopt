@@ -1,4 +1,4 @@
-package com.bebopt.app.views.stats;
+package com.bebopt.app.objects;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;

@@ -1,13 +1,8 @@
 package com.bebopt.app.views;
 
-import com.bebopt.app.data.spotify.AuthController;
-import com.bebopt.app.data.spotify.SpotifyService;
+import com.bebopt.app.api.SpotifyApiClient;
+import com.bebopt.app.api.SpotifyService;
 import com.bebopt.app.security.AuthenticatedUser;
-import com.bebopt.app.views.about.AboutView;
-import com.bebopt.app.views.home.HomeView;
-import com.bebopt.app.views.playlists.PlaylistsView;
-import com.bebopt.app.views.recommendations.RecommendationsView;
-import com.bebopt.app.views.stats.StatsView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -115,16 +110,16 @@ public class MainLayout extends AppLayout {
             MenuBar userMenu = new MenuBar();
             userMenu.setThemeName("tertiary-inline contrast");
             MenuItem userName = userMenu.addItem("");
-            Avatar avatar = new Avatar(AuthController.getUser().getDisplayName());
+            Avatar avatar = new Avatar(SpotifyApiClient.getUser().getDisplayName());
             avatar.setThemeName("xsmall");
             avatar.getElement().setAttribute("tabindex", "-1");
 
-            try { avatar.setImage(AuthController.getUser().getImages()[0].getUrl()); }
+            try { avatar.setImage(SpotifyApiClient.getUser().getImages()[0].getUrl()); }
             catch(Exception e) { avatar.setImage("images/empty-plant.png"); }
 
             Div div = new Div();
             div.add(avatar);
-            div.add(AuthController.getUser().getDisplayName());
+            div.add(SpotifyApiClient.getUser().getDisplayName());
             div.add(new Icon("lumo", "dropdown"));
             div.getElement().getStyle().set("display", "flex");
             div.getElement().getStyle().set("align-items", "center");

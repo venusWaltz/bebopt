@@ -1,4 +1,4 @@
-package com.bebopt.app.views.playlists;
+package com.bebopt.app.views;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -6,8 +6,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.bebopt.app.data.spotify.SpotifyService;
-import com.bebopt.app.views.MainLayout;
+import com.bebopt.app.api.PlaylistManager;
+import com.bebopt.app.api.SpotifyService;
+import com.bebopt.app.objects.PlaylistsViewCard;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -273,7 +274,7 @@ public class PlaylistsView extends Main {
      * @return Keys of map corresponding to music decades.
      */
     public static List<String> getDecadeKeys() {
-        Set<Integer> decadeMapKeys = PlaylistActions.filterGetKeys(selectedPlaylistID);
+        Set<Integer> decadeMapKeys = PlaylistManager.filterGetKeys(selectedPlaylistID);
         decadeKeysStr = decadeMapKeys.stream().map(key -> key + "s").collect(Collectors.toList());
         return decadeKeysStr;
     }
@@ -332,9 +333,9 @@ public class PlaylistsView extends Main {
         confirmDialog.setConfirmText(action);
         confirmDialog.addConfirmListener(e -> {
             switch (action) {
-                case "Sort": PlaylistActions.sortPlaylist(selectedPlaylistID, selectedSort); break;
-                case "Filter": PlaylistActions.filterPlaylist(selectedPlaylistID, selectedFilter, selectedDecade); break;
-                case "Merge": PlaylistActions.mergePlaylists(selectedPlaylistID, selectedMergePlaylistID); break;
+                case "Sort": PlaylistManager.sortPlaylist(selectedPlaylistID, selectedSort); break;
+                case "Filter": PlaylistManager.filterPlaylist(selectedPlaylistID, selectedFilter, selectedDecade); break;
+                case "Merge": PlaylistManager.mergePlaylists(selectedPlaylistID, selectedMergePlaylistID); break;
             }
         });
         confirmDialog.open();

@@ -1,4 +1,4 @@
-package com.bebopt.app.views.stats;
+package com.bebopt.app.objects;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
@@ -37,7 +37,7 @@ public class TrackCard extends HorizontalLayout {
     
         Image image = new Image();
         image.setSrc(track.getAlbum().getImages()[0].getUrl());
-        
+
         Span num = new Span(String.valueOf(index + 1));
         num.addClassNames("num");
         Span title = new Span(track.getName());

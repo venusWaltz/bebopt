@@ -1,7 +1,8 @@
 package com.bebopt.app.security;
 
 import org.springframework.stereotype.Component;
-import com.bebopt.app.data.spotify.Redirect;
+
+import com.bebopt.app.routing.Router;
 
 /**
  * The {@code AuthenticatedUser} class manages the authentication state of the user.
@@ -23,8 +24,8 @@ public class AuthenticatedUser {
      * the {@code isLoggedIn} flag to false.
      */
     public void logout() {
-        Redirect.redirect("logout");
-        Redirect.redirect("home");
+        Router.redirect("logout");
+        Router.redirect("home");
         isLoggedIn = false;
     }
 

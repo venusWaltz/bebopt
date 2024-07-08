@@ -1,4 +1,4 @@
-package com.bebopt.app.views.playlists;
+package com.bebopt.app.api;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.bebopt.app.data.spotify.SpotifyService;
-
 import se.michaelthelin.spotify.model_objects.specification.AudioFeatures;
 import se.michaelthelin.spotify.model_objects.specification.Playlist;
 import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack;
@@ -18,7 +16,7 @@ import se.michaelthelin.spotify.model_objects.specification.Track;
 /**
  * The {@code PlaylistActions} class provides methods to perform various actions on playlists.
  */
-public class PlaylistActions {
+public class PlaylistManager {
 
     static Map<Integer, List<Track>> decadeMap;
 

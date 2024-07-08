@@ -1,4 +1,4 @@
-package com.bebopt.app.data;
+package com.bebopt.app.security;
 
 public enum Role {
     USER, ADMIN;

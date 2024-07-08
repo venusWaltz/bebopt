@@ -1,6 +1,5 @@
-package com.bebopt.app.views.home;
+package com.bebopt.app.views;
 
-import com.bebopt.app.views.MainLayout;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;

@@ -1,4 +1,4 @@
-package com.bebopt.app.data.spotify;
+package com.bebopt.app.routing;
 
 import com.vaadin.flow.component.UI;
 
@@ -6,7 +6,7 @@ import com.vaadin.flow.component.UI;
  * The {@code Redirect} class is a utility class for redirecting the current UI page to
  * a specified URL.
  */
-public class Redirect {
+public class Router {
  
     /**
      * Redirect the current UI page to the specified URL.

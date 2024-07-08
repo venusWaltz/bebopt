@@ -1,6 +1,5 @@
-package com.bebopt.app.views.about;
+package com.bebopt.app.views;
 
-import com.bebopt.app.views.MainLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;

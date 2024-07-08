@@ -1,4 +1,4 @@
-package com.bebopt.app.data.spotify;
+package com.bebopt.app.api;
 
 import org.springframework.stereotype.Service;
 
@@ -30,7 +30,7 @@ public class SpotifyService {
      * @return The Spotify login URI.
      */
     public static String getUri() {
-        return AuthController.getSpotifyLoginUri();
+        return SpotifyApiClient.getSpotifyLoginUri();
     }
 
     /**
@@ -39,7 +39,7 @@ public class SpotifyService {
      * @return The user profile.
      */
     public static User getCurrentUser() {
-        return AuthController.getUserProfile();
+        return SpotifyApiClient.getUserProfile();
     }
 
 // -------------------------------------------- Tracks --------------------------------------------
@@ -51,7 +51,7 @@ public class SpotifyService {
      * @return The {@code Track} object corresponding to the given ID.
      */
     public static Track getTrackById(String id) {
-        return AuthController.getTrackById(id);
+        return SpotifyApiClient.getTrackById(id);
     }
 
     /**
@@ -61,7 +61,7 @@ public class SpotifyService {
      * @return The array of top tracks.
      */
     public static Track[] getTopTracks(String timeRange) {
-        return AuthController.getTopTracks(timeRange);
+        return SpotifyApiClient.getTopTracks(timeRange);
     }
 
     /**
@@ -71,7 +71,7 @@ public class SpotifyService {
      * @return The array of tracks corresponding to the given IDs.
      */
     public static Track[] getSeveralTracks(String ids) {
-        return AuthController.getSeveralTracksRequest(ids);
+        return SpotifyApiClient.getSeveralTracksRequest(ids);
     }
     
     /**
@@ -81,7 +81,7 @@ public class SpotifyService {
      * @return The array of audio features objects corresponding to the given track IDs.
      */
     public static AudioFeatures[] getAudioFeatures(String tracks) {
-        return AuthController.getAudioFeatures(tracks);
+        return SpotifyApiClient.getAudioFeatures(tracks);
     }
 
     /**
@@ -91,7 +91,7 @@ public class SpotifyService {
      * @return Recommendations object containing track recommendations.
      */
     public static Recommendations getRecommendations(String seed) {
-        return AuthController.getRecommendations(seed);
+        return SpotifyApiClient.getRecommendations(seed);
     }
 
     /**
@@ -100,7 +100,7 @@ public class SpotifyService {
      * @return The paging object containing the recently played tracks.
      */
     public static PagingCursorbased<PlayHistory> getRecentlyPlayedTracks() {
-        return AuthController.getRecentlyPlayedTracks();
+        return SpotifyApiClient.getRecentlyPlayedTracks();
     }
 
     /**
@@ -109,7 +109,7 @@ public class SpotifyService {
      * @return Information about the currently playing track.
      */
     public static CurrentlyPlaying getCurrentlyPlaying() {
-        return AuthController.getCurrentlyPlaying();
+        return SpotifyApiClient.getCurrentlyPlaying();
     }
 
     /**
@@ -118,7 +118,7 @@ public class SpotifyService {
      * @return Comma-separated string of top 5 track IDs.
      */
     public static String getTopNTrackIds(int n) {
-        Track[] top = AuthController.getTopTracks("short_term");
+        Track[] top = SpotifyApiClient.getTopTracks("short_term");
         String id[] = new String[n];
         for(int i = 0; i < id.length; i++) { id[i] = top[i].getId(); }
         return String.join(",", id);
@@ -133,7 +133,7 @@ public class SpotifyService {
          * @return The album object corresponding to the given ID.
          */
         public static Album getAlbumById(String id) {
-            return AuthController.getAlbumById(id);
+            return SpotifyApiClient.getAlbumById(id);
         }
 
 // ------------------------------------------- Artists --------------------------------------------
@@ -144,7 +144,7 @@ public class SpotifyService {
      * @return The ID of the top artist.
      */
     public static String getTopArtistId() {
-        return AuthController.getTopArtists("short_term")[0].getId();
+        return SpotifyApiClient.getTopArtists("short_term")[0].getId();
     }
 
     /**
@@ -154,7 +154,7 @@ public class SpotifyService {
      * @return The array of top artists.
      */
     public static Artist[] getTopArtists(String timeRange) {
-        return AuthController.getTopArtists(timeRange);
+        return SpotifyApiClient.getTopArtists(timeRange);
     }
 
     /**
@@ -164,7 +164,7 @@ public class SpotifyService {
      * @return An array of related artists.
      */
     public static Artist[] getRelatedArtists(String seed) {
-        return AuthController.getRelatedArtists(seed);
+        return SpotifyApiClient.getRelatedArtists(seed);
     }
 
 // ------------------------------------------ Playlists -------------------------------------------
@@ -176,7 +176,7 @@ public class SpotifyService {
      * @return The full playlist object corresponding to the given ID.
      */
     public static Playlist getPlaylistById(String id) {
-        return AuthController.getPlaylistById(id);
+        return SpotifyApiClient.getPlaylistById(id);
     }
 
     /**
@@ -185,7 +185,7 @@ public class SpotifyService {
      * @return The array of simplified playlist objects.
      */
     public static PlaylistSimplified[] getPlaylists() {
-        return AuthController.getPlaylists();
+        return SpotifyApiClient.getPlaylists();
     }
 
     /**
@@ -194,7 +194,7 @@ public class SpotifyService {
      * @return The created playlist object.
      */
     public static Playlist createPlaylist() {
-        return AuthController.createPlaylist();
+        return SpotifyApiClient.createPlaylist();
     }
 
     /**
@@ -205,7 +205,7 @@ public class SpotifyService {
      * @return Snapshot result indicating the state of the playlist after modification.
      */
     public static SnapshotResult addToPlaylist(String id, String[] uris) {
-        return AuthController.addToPlaylist(id, uris);
+        return SpotifyApiClient.addToPlaylist(id, uris);
     }
 
     /**
@@ -215,6 +215,6 @@ public class SpotifyService {
      * @return Snapshot result indicating the state of the playlist after modification.
      */
     public static SnapshotResult modifyPlaylist(String id) {
-        return AuthController.modifyPlaylist(id);
+        return SpotifyApiClient.modifyPlaylist(id);
     }
 }

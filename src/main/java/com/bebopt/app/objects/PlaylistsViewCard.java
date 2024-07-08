@@ -1,5 +1,6 @@
-package com.bebopt.app.views.playlists;
+package com.bebopt.app.objects;
 
+import com.bebopt.app.views.PlaylistsView;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.ListItem;

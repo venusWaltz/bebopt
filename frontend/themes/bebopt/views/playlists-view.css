@@ -1,4 +1,10 @@
 .playlists-view ol {
+  margin: 0;
+  padding: 0;
+  gap: var(--lumo-space-s);
+  list-style-type: none;
+  justify-content: space-between;
+  display: grid;
   grid-template-columns: repeat(auto-fill, 157px);
 }
 
@@ -18,4 +24,17 @@
 
 .indented-radio-group-container {
   margin-top: -25px;
+}
+
+.playlists-view label {
+  font-size: var(--lumo-font-size-s);
+  margin-top: var(--lumo-space-m);
+}
+
+.playlists-view .row {
+  align-items: center;
+}
+
+.playlists-view .confirm-dialog {
+  width: 550px;
 }

@@ -12,17 +12,10 @@ import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.lumo.LumoUtility.AlignItems;
-import com.vaadin.flow.theme.lumo.LumoUtility.Display;
 import com.vaadin.flow.theme.lumo.LumoUtility.FontSize;
-import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
-import com.vaadin.flow.theme.lumo.LumoUtility.JustifyContent;
-import com.vaadin.flow.theme.lumo.LumoUtility.ListStyleType;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 import com.vaadin.flow.theme.lumo.LumoUtility.MaxWidth;
 import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
-import com.vaadin.flow.theme.lumo.LumoUtility.Grid.Column;
-
 import se.michaelthelin.spotify.model_objects.specification.Artist;
 import se.michaelthelin.spotify.model_objects.specification.Track;
 
@@ -61,7 +54,7 @@ public class StatsView extends Div {
      */
     public StatsView() {
         loadStats();
-        createTabsheet();
+        constructUI();
         add(tabsheet);
     }
     
@@ -80,7 +73,8 @@ public class StatsView extends Div {
     /**
      * Create the TabSheet and tabs.
      */
-    private void createTabsheet() {
+    private void constructUI() {
+        addClassNames("page-view", "stats-view");
         tabsheet = new TabSheet();
         trackTab = createTopTracks();
         artistTab = createTopArtists();
@@ -88,6 +82,7 @@ public class StatsView extends Div {
         tabsheet.add("Top Artists", artistTab);
         tabsheet.addThemeVariants(TabSheetVariant.LUMO_TABS_EQUAL_WIDTH_TABS);
     }
+
 // ------------------------------------------- Get data -------------------------------------------
 
     /**
@@ -126,15 +121,12 @@ public class StatsView extends Div {
      */
     private Div createTopTracks() {
         Div div = new Div();
-        addClassNames("track-view");
-        addClassNames(MaxWidth.SCREEN_LARGE, Margin.Horizontal.AUTO, Padding.Bottom.LARGE, Padding.Horizontal.LARGE);
 
         HorizontalLayout container = new HorizontalLayout();
-        container.addClassNames(AlignItems.CENTER, JustifyContent.BETWEEN);
+        container.addClassNames("header-container");
 
         VerticalLayout headerContainer = new VerticalLayout();
         H2 header = new H2("Your Top Tracks");
-        header.addClassNames(Margin.Bottom.NONE, Margin.Top.XLARGE, FontSize.XXXLARGE);
         headerContainer.add(header);
 
         Select<String> sortBy = new Select<>();
@@ -157,32 +149,22 @@ public class StatsView extends Div {
      */
     private Div createTopArtists() {
         Div div = new Div();
-        addClassNames("artist-view");
-        addClassNames(MaxWidth.SCREEN_LARGE, Margin.Horizontal.AUTO, Padding.Bottom.LARGE, Padding.Horizontal.LARGE);
+        div.addClassNames("artist-view");
         
         HorizontalLayout container = new HorizontalLayout();
-        container.addClassNames(AlignItems.CENTER, JustifyContent.BETWEEN);
+        container.addClassNames("header-container");
 
         VerticalLayout headerContainer = new VerticalLayout();
         H2 header = new H2("Your Top Artists");
-        header.addClassNames(Margin.Bottom.NONE, Margin.Top.XLARGE, FontSize.XXXLARGE);
         headerContainer.add(header);
 
         Select<String> sortBy = new Select<>();
         sortBy.setItems("Last four weeks", "Last six months", "All data");
         sortBy.setValue("Last four weeks");
 
-        OrderedList artistContainer = new OrderedList();
-        artistContainer = getTopArtists(longTerm);
-        artistContainer.addClassNames(Gap.MEDIUM, Display.GRID, ListStyleType.NONE, Margin.NONE, Padding.NONE, JustifyContent.BETWEEN, Column.COLUMNS_5);
-
-        artistContainerShortTerm.addClassNames(Gap.MEDIUM, Display.GRID, ListStyleType.NONE, Margin.NONE, Padding.NONE, JustifyContent.BETWEEN, Column.COLUMNS_5);
-        artistContainerMediumTerm.addClassNames(Gap.MEDIUM, Display.GRID, ListStyleType.NONE, Margin.NONE, Padding.NONE, JustifyContent.BETWEEN, Column.COLUMNS_5);
-        artistContainerLongTerm.addClassNames(Gap.MEDIUM, Display.GRID, ListStyleType.NONE, Margin.NONE, Padding.NONE, JustifyContent.BETWEEN, Column.COLUMNS_5);
-
-        container.add(headerContainer, sortBy);
         Div artistDiv = new Div();
         artistDiv.add(artistContainerShortTerm);
+        container.add(headerContainer, sortBy);
         div.add(container, artistDiv);
 
         setChangeListener(sortBy, artistDiv, artistContainerShortTerm, artistContainerMediumTerm, artistContainerLongTerm);

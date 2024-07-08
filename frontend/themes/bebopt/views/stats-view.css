@@ -75,3 +75,13 @@
     color: var(--lumo-body-text-color);
   }
 }
+
+.stats-view .artist-view ol {
+  margin: 0;
+  padding: 0;
+  gap: var(--lumo-space-m);
+  list-style-type: none;
+  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 174px);
+}

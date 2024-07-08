@@ -4,6 +4,16 @@
   height: 100%;
 }
 
+.recommendations-view .artists-container {
+  margin: 0;
+  padding: 0;
+  gap: var(--lumo-space-m);
+  list-style-type: none;
+  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 174px);
+}
+
 .recommendations-view vaadin-split-layout {
   width: 100%;
   height: 100%;

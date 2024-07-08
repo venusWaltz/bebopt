@@ -1,0 +1,8 @@
+.page-view {
+    max-width: 1024px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: var(--lumo-space-l);
+    padding-left: var(--lumo-space-l);
+    padding-right: var(--lumo-space-l);
+}

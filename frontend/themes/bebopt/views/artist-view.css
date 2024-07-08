@@ -1,13 +1,18 @@
+.artist-view {
+  max-width: 1024px;
+  align-items: center;
+}
+
 .artist-view ol {
     grid-template-columns: repeat(auto-fill, 174px);
-  }
+}
   
-  .artist-view li {
-    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
-    transition-property: background-color, box-shadow;
-  }
-  
-  .artist-view li:hover {
-    background-color: var(--lumo-base-color);
-    box-shadow: var(--lumo-box-shadow-s);
-  }
+.artist-view li {
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, box-shadow;
+}
+
+.artist-view li:hover {
+  background-color: var(--lumo-base-color);
+  box-shadow: var(--lumo-box-shadow-s);
+}

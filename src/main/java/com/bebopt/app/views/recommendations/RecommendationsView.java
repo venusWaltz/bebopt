@@ -15,19 +15,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
-import com.vaadin.flow.theme.lumo.LumoUtility.AlignItems;
-import com.vaadin.flow.theme.lumo.LumoUtility.FontSize;
-import com.vaadin.flow.theme.lumo.LumoUtility.JustifyContent;
-import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
-import com.vaadin.flow.theme.lumo.LumoUtility.MaxWidth;
-import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
 import se.michaelthelin.spotify.model_objects.specification.Artist;
-import com.vaadin.flow.theme.lumo.LumoUtility.Grid.Column;
-import com.vaadin.flow.theme.lumo.LumoUtility.Display;
-import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
-import com.vaadin.flow.theme.lumo.LumoUtility.ListStyleType;
-
-
 import se.michaelthelin.spotify.model_objects.specification.Track;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
@@ -113,6 +101,7 @@ public class RecommendationsView extends Div {
         tabsheet.add("Recommended Tracks", recommendedTracksTab);
         tabsheet.add("Related Artists", recommendedArtistsTab);
         tabsheet.addThemeVariants(TabSheetVariant.LUMO_TABS_EQUAL_WIDTH_TABS);
+        addClassNames("page-view", "recommendations-view");
     }
 
     /**
@@ -121,7 +110,7 @@ public class RecommendationsView extends Div {
      * @return The "Recommendations" tab.
      */
     private Div createTracksTab() {
-        Div tab = createTab("Recommendations", "recommended-view");
+        Div tab = createTab("Recommendations");
         tab.add(tracksContainer);
         return tab;
     }
@@ -132,8 +121,9 @@ public class RecommendationsView extends Div {
      * @return The "Related Artists" tab.
      */
     private Div createArtistsTab() {
-        Div tab = createTab("Related Artists", "artist-view");
-        artistsContainer.addClassNames(Gap.MEDIUM, Display.GRID, ListStyleType.NONE, Margin.NONE, Padding.NONE, JustifyContent.BETWEEN, Column.COLUMNS_5);
+        Div tab = createTab("Related Artists");
+        tab.addClassNames("artist-view");
+        artistsContainer.addClassNames("artists-container");
         tab.add(artistsContainer);
         return tab;
     }
@@ -145,21 +135,16 @@ public class RecommendationsView extends Div {
      * @param viewClassName The class name for the tab.
      * @return The new tab.
      */
-    private Div createTab(String headerText, String viewClassName) {
+    private Div createTab(String headerText) {
         Div tab = new Div();
-        addClassNames(viewClassName, MaxWidth.SCREEN_LARGE, Margin.Horizontal.AUTO, Padding.Bottom.LARGE, Padding.Horizontal.LARGE);
-        
+        HorizontalLayout container = new HorizontalLayout();
         VerticalLayout headerContainer = new VerticalLayout();
         H2 header = new H2(headerText);
-        header.addClassNames(Margin.Bottom.NONE, Margin.Top.XLARGE, FontSize.XXXLARGE);
-        headerContainer.add(header);
 
-        HorizontalLayout container = new HorizontalLayout();
-        container.addClassNames(AlignItems.CENTER, JustifyContent.BETWEEN);
-        
+        container.addClassNames("header-container");
+        headerContainer.add(header);
         container.add(headerContainer);
         tab.add(container);
-
         return tab;
     }
 }

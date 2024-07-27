@@ -19,6 +19,7 @@ import se.michaelthelin.spotify.model_objects.specification.Track;
 public class PlaylistManager {
 
     static Map<Integer, List<Track>> decadeMap;
+    static Map<String, List<Track>> genreMap;
 
     // ------------------------------------------- Sort -------------------------------------------
 
@@ -109,10 +110,28 @@ public class PlaylistManager {
     public static void filterPlaylist(String playlistId, String filterBy, Integer option) {
         List<Track> filteredTracks = new ArrayList<>();
         System.out.println(filterBy);
+        filteredTracks = getFilteredTracks(playlistId, option);
 
-        if ("Release decade".equals(filterBy)) {
-            filteredTracks = filterByReleaseDecade(playlistId, option);
-        }
+        if (filteredTracks != null) {
+            addToNewPlaylist(tracksToUriStr(filteredTracks)); 
+            System.out.println("\nFiltered by " + filterBy.toLowerCase() +
+                    (filterBy.equals("Release decade") ? " (" + option + "s) - " : " - ")
+                    + filteredTracks.size() + " song(s) found:");
+            for (Track track : filteredTracks) { System.out.println(track.getName()); }
+        } else { System.out.println("No songs found"); }
+    }
+
+    /**
+     * Filters the tracks in a playlist based on the specified criterion.
+     * 
+     * @param playlistId The ID of the playlist to be filtered.
+     * @param filterBy   The filtering criterion (e.g., "Release Decade").
+     * @param option     The specific option for the filter criterion.
+     */
+    public static void filterPlaylist(String playlistId, String filterBy, String option) {
+        List<Track> filteredTracks = new ArrayList<>();
+        System.out.println(filterBy);
+        filteredTracks = getFilteredTracks(playlistId, option);
 
         if (filteredTracks != null) {
             addToNewPlaylist(tracksToUriStr(filteredTracks)); 
@@ -127,13 +146,27 @@ public class PlaylistManager {
      * Filters the tracks in a playlist by their release decade.
      * 
      * @param playlistId The ID of the playlist to be filtered.
-     * @param option     The specific decade to filter by.
+     * @param option The specific decade to filter by.
      * @return A list of filtered {@code Track} objects.
      */
-    public static List<Track> filterByReleaseDecade(String playlistId, Integer option) {
+    public static List<Track> getFilteredTracks(String playlistId, Integer option) {
         if (decadeMap != null && option != null) return decadeMap.get(option);
         else if (decadeMap == null) System.out.println("Decade map not found");
         else if (option == null)    System.out.println("No decade selected");
+        return null;
+    }
+
+    /**
+     * Filters the tracks in a playlist by their genre.
+     * 
+     * @param playlistId The ID of the playlist to be filtered.
+     * @param option The specific genre to filter by.
+     * @return A list of filtered {@code Track} objects.
+     */
+    public static List<Track> getFilteredTracks(String playlistId, String option) {
+        if (genreMap != null && option != null) return genreMap.get(option);
+        else if (genreMap == null) System.out.println("Genre map not found");
+        else if (option == null)   System.out.println("No genre selected");
         return null;
     }
 
@@ -143,10 +176,22 @@ public class PlaylistManager {
      * @param playlistId The ID of the playlist to be filtered.
      * @return A set of integers representing the available decades.
      */
-    public static Set<Integer> filterGetKeys(String playlistId) {
+    public static Set<Integer> getDecadeKeys(String playlistId) {
         List<Track> tracks = getPlaylistTracks(playlistId);
         decadeMap = createDecadeMap(tracks);
         return decadeMap.keySet();
+    }
+
+    /**
+     * Creates a map of tracks grouped by their genre.
+     * 
+     * @param playlistId The ID of the playlist to be filtered.
+     * @return A set of integers representing the available genres.
+     */
+    public static Set<String> getGenreKeys(String playlistId) {
+        List<Track> tracks = getPlaylistTracks(playlistId);
+        genreMap = createGenreMap(tracks);
+        return genreMap.keySet();
     }
 
     /**
@@ -162,15 +207,32 @@ public class PlaylistManager {
 
         for (Track track : tracks) {
             Integer releaseYear = getReleaseDate(track);
-
             if (releaseYear < earliest) { earliest = releaseYear; }
             if (releaseYear > latest)   { latest = releaseYear; }
-
             Integer decade = releaseYear / 10 * 10;
             decadeMap.computeIfAbsent(decade, k -> new ArrayList<>()).add(track);
         }
 
         return decadeMap;
+    }
+
+    /**
+     * Creates a map of tracks from each genre.
+     * 
+     * @param tracks The list of tracks to be grouped by genre.
+     * @return A map with genres as keys and lists of tracks as values.
+     */
+    public static Map<String, List<Track>> createGenreMap(List<Track> tracks) {
+        Map<String, List<Track>> genreMap = new HashMap<>();
+        for (Track track : tracks) {
+            String[] genres = getGenres(track);
+            for (String genre : genres) { genreMap.computeIfAbsent(genre, k -> new ArrayList<>()).add(track); }
+        }
+        genreMap.forEach((key, value) -> {
+            System.out.println(key + ":");
+            value.forEach(track -> System.out.println("    " + track.getName()));
+        });        
+        return genreMap;
     }
 
     // ------------------------------------------ Merge -------------------------------------------
@@ -236,6 +298,17 @@ public class PlaylistManager {
      */
     public static Integer getReleaseDate(Track track) {
         return Integer.valueOf(track.getAlbum().getReleaseDate().substring(0, 4));
+    }
+
+    /**
+     * Retrieves the genre of a track.
+     * * Gets track genres from artist instead of album as most Spotify albums have no genre data.
+     * 
+     * @param track The {@code Track} object.
+     * @return The genre of the track.
+     */
+    public static String[] getGenres(Track track) {
+        return SpotifyService.getArtistById(track.getArtists()[0].getId()).getGenres();
     }
 
     /**

@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import com.bebopt.app.api.PlaylistManager;
 import com.bebopt.app.api.SpotifyService;
-import com.bebopt.app.objects.PlaylistsViewCard;
+import com.bebopt.app.objects.PlaylistCard;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -63,6 +63,7 @@ public class PlaylistsView extends Main {
     private static RadioButtonGroup<String> radioGroupSort;
     private static RadioButtonGroup<String> radioGroupFilter;
     private static RadioButtonGroup<String> radioGroupFilterDecades;
+    private static RadioButtonGroup<String> radioGroupFilterGenres;
     private static ListBox<PlaylistSimplified> listBoxMerge;
 
     private static String selectedSort;
@@ -70,12 +71,15 @@ public class PlaylistsView extends Main {
     private static Div decadesContainer;
     private static List<String> decadeKeysStr;
     private static Integer selectedDecade;
+    private static Div genresContainer;
+    private static List<String> genreKeysStr;
+    private static String selectedGenre;
 
     public static Dialog optionsDialog;
 
     private static List<String> sortItems = Arrays.asList("Release date", "Duration", "Popularity", "Acousticness",
                 "Danceability", "Energy", "Instrumentalness", "Loudness", "Speechiness", "Tempo", "Valence");
-    private static List<String> filterItems = Arrays.asList("Release decade");
+    private static List<String> filterItems = Arrays.asList("Release decade", "Genre");
 
     /**
      * Constructor for the {@code PlaylistsView} class.
@@ -118,7 +122,7 @@ public class PlaylistsView extends Main {
     private void loadPlaylists() throws Exception {
         PlaylistSimplified[] playlists = SpotifyService.getPlaylists();
         for (PlaylistSimplified playlist : playlists) {
-            playlistsContainer.add(new PlaylistsViewCard(playlist));
+            playlistsContainer.add(new PlaylistCard(playlist));
         }
     }
     
@@ -163,8 +167,9 @@ public class PlaylistsView extends Main {
      * 
      * @param selectedPlaylist The playlist selected by the user.
      */
-    public static void onPlaylistSelect(PlaylistSimplified selectedPlaylist) {
+    public static void onPlaylistSelect(PlaylistSimplified playlist) {
         resetMergePlaylistSelection();
+        selectedPlaylist = playlist;
         selectedPlaylistID = selectedPlaylist.getId();
         optionsDialog.setHeaderTitle(selectedPlaylist.getName());
         optionsDialog.open();
@@ -204,16 +209,29 @@ public class PlaylistsView extends Main {
     private static void createFilterTab() {
         filterTab = new VerticalLayout();
         radioGroupFilter = createRadioGroup("Filter by: ", null, filterItems);
+
         radioGroupFilterDecades = createRadioGroup(null, "indented-radio-group", null);
         radioGroupFilterDecades.addValueChangeListener(event -> {
             selectedDecade = Integer.valueOf(event.getValue().substring(0, 4));
+            selectedGenre = null;
         });
         decadesContainer = new Div();
         decadesContainer.setVisible(false);
         decadesContainer.addClassName("indented-radio-group-container");
         decadesContainer.add(radioGroupFilterDecades);
+
+        radioGroupFilterGenres = createRadioGroup(null, "indented-radio-group", null);
+        radioGroupFilterGenres.addValueChangeListener(event -> {
+            selectedGenre = event.getValue();
+            selectedDecade = null;
+        });
+        genresContainer = new Div();
+        genresContainer.setVisible(false);
+        genresContainer.addClassName("indented-radio-group-container");
+        genresContainer.add(radioGroupFilterGenres);
+
         addFilterValueChangeListener();
-        filterTab.add(radioGroupFilter, decadesContainer);
+        filterTab.add(radioGroupFilter, decadesContainer, genresContainer);
     }
     
     /**
@@ -254,17 +272,25 @@ public class PlaylistsView extends Main {
         return radioGroupFilter.addValueChangeListener(e -> {
             selectedFilter = e.getValue();
             if (selectedFilter.equals("Release decade")) {
+                genresContainer.setVisible(false);
                 if (radioGroupFilterDecades.isEmpty()) {
                     List<String> decadeKeysStr = getDecadeKeys();
                     Collections.sort(decadeKeysStr);
-                    
-                    /* Add decade options to the dialog view. */
                     radioGroupFilterDecades.setItems(decadeKeysStr);
                     decadesContainer.add(radioGroupFilterDecades);
-                    decadesContainer.setVisible(true);
-                } 
-                else { decadesContainer.setVisible(true); }
-            } else { decadesContainer.setVisible(false); }
+                }   decadesContainer.setVisible(true);
+            } else if (selectedFilter.equals("Genre")) {
+                decadesContainer.setVisible(false);
+                if (radioGroupFilterGenres.isEmpty()) {
+                    List<String> genresKeysStr = getGenreKeys();
+                    Collections.sort(genresKeysStr);
+                    radioGroupFilterGenres.setItems(genresKeysStr);
+                    genresContainer.add(radioGroupFilterGenres);
+                }   genresContainer.setVisible(true);
+            } else { 
+                decadesContainer.setVisible(false); 
+                genresContainer.setVisible(false);
+            }
         });
     }
 
@@ -274,9 +300,20 @@ public class PlaylistsView extends Main {
      * @return Keys of map corresponding to music decades.
      */
     public static List<String> getDecadeKeys() {
-        Set<Integer> decadeMapKeys = PlaylistManager.filterGetKeys(selectedPlaylistID);
+        Set<Integer> decadeMapKeys = PlaylistManager.getDecadeKeys(selectedPlaylistID);
         decadeKeysStr = decadeMapKeys.stream().map(key -> key + "s").collect(Collectors.toList());
         return decadeKeysStr;
+    }
+
+    /**
+     * Display and return list of genres present in a playlist.
+     * 
+     * @return Keys of map corresponding to music genres.
+     */
+    public static List<String> getGenreKeys() {
+        Set<String> genreMapKeys = PlaylistManager.getGenreKeys(selectedPlaylistID);
+        genreKeysStr = genreMapKeys.stream().collect(Collectors.toList());
+        return genreKeysStr;
     }
 
     /**
@@ -322,11 +359,11 @@ public class PlaylistsView extends Main {
         confirmDialog.setHeader("Confirm");
 
         if ("Merge".equals(action)) {
-            confirmDialog.setText("Do you want to merge the following playlists:\n"
-                + selectedPlaylist.getName() + " and " + selectedMergePlaylist.getName() + "?");
+            confirmDialog.setText("Do you want to merge the playlists\n"
+                + "\"" + selectedPlaylist.getName() + "\" and \"" + selectedMergePlaylist.getName() + "\"?");
         } else if ("Sort".equals(action) || "Filter".equals(action)) {
-            confirmDialog.setText("Do you want to " + action.toLowerCase() + " the following playlist: " 
-                + selectedPlaylist.getName() + " by " + selectedAction.toLowerCase() + "?");
+            confirmDialog.setText("Do you want to " + action.toLowerCase() + " the playlist \"" 
+                + selectedPlaylist.getName() + "\" by " + selectedAction.toLowerCase() + "?");
         } else { errorDialog(); return; }
 
         confirmDialog.setCancelable(true);
@@ -334,7 +371,10 @@ public class PlaylistsView extends Main {
         confirmDialog.addConfirmListener(e -> {
             switch (action) {
                 case "Sort": PlaylistManager.sortPlaylist(selectedPlaylistID, selectedSort); break;
-                case "Filter": PlaylistManager.filterPlaylist(selectedPlaylistID, selectedFilter, selectedDecade); break;
+                case "Filter": 
+                    if (selectedDecade != null) PlaylistManager.filterPlaylist(selectedPlaylistID, selectedFilter, selectedDecade); 
+                    else if (selectedGenre != null) PlaylistManager.filterPlaylist(selectedPlaylistID, selectedFilter, selectedGenre);
+                    break;
                 case "Merge": PlaylistManager.mergePlaylists(selectedPlaylistID, selectedMergePlaylistID); break;
             }
         });

@@ -139,6 +139,16 @@ public class SpotifyService {
 // ------------------------------------------- Artists --------------------------------------------
 
     /**
+     * Retrieves an artist by its ID.
+     * 
+     * @param id The Spotify ID number of the artist.
+     * @return The {@code Artist} object corresponding to the given ID.
+     */
+    public static Artist getArtistById(String id) {
+        return SpotifyApiClient.getArtistById(id);
+    }
+
+    /**
      * Retrieves the ID of the top artist of the authenticated user for the short term.
      * 
      * @return The ID of the top artist.

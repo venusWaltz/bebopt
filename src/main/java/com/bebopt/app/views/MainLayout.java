@@ -102,7 +102,7 @@ public class MainLayout extends AppLayout {
         Div layout = new Div();
         layout.addClassNames(Display.FLEX, AlignItems.CENTER, Padding.Horizontal.LARGE);
 
-        H1 appName = new H1("Spotify App");
+        H1 appName = new H1("Bebopt");
         appName.addClassNames(Margin.Vertical.MEDIUM, Margin.End.AUTO, FontSize.LARGE);
         layout.add(appName);
 
@@ -159,7 +159,6 @@ public class MainLayout extends AppLayout {
     private MenuItemInfo[] createPublicMenuItems() {
         return new MenuItemInfo[] {
                 new MenuItemInfo("Home", LineAwesomeIcon.HOME_SOLID.create(), HomeView.class),
-                new MenuItemInfo("About", LineAwesomeIcon.INFO_CIRCLE_SOLID.create(), AboutView.class),
         };
     }
 
@@ -170,7 +169,7 @@ public class MainLayout extends AppLayout {
      */
     private MenuItemInfo[] createMenuItems() {
         return new MenuItemInfo[] {
-                new MenuItemInfo("Stats", LineAwesomeIcon.CHART_BAR_SOLID.create(), StatsView.class),
+                new MenuItemInfo("Statistics", LineAwesomeIcon.CHART_BAR_SOLID.create(), StatisticsView.class),
                 new MenuItemInfo("Playlists", LineAwesomeIcon.LIST_OL_SOLID.create(), PlaylistsView.class),
                 new MenuItemInfo("Recommendations", LineAwesomeIcon.MUSIC_SOLID.create(), RecommendationsView.class),
         };

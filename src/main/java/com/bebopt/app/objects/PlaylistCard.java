@@ -11,7 +11,7 @@ import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified;
  * The {@code PlaylistsViewCard} class represents a UI component for displaying a single playlist.
  * It includes a playlist image, playlist name, and a context menu for additional options.
  */
-public class PlaylistsViewCard extends ListItem {
+public class PlaylistCard extends ListItem {
 
     private PlaylistSimplified playlist;
 
@@ -20,7 +20,7 @@ public class PlaylistsViewCard extends ListItem {
      * 
      * @param playlist A {@code PlaylistSimplified} object representing a Spotify playlist.
      */
-    public PlaylistsViewCard(PlaylistSimplified playlist) {
+    public PlaylistCard(PlaylistSimplified playlist) {
         this.playlist = playlist;
         initializeCard();
     }

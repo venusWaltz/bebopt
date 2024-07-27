@@ -27,9 +27,9 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
  * It displays the user's top tracks and artists over different time frames.
  */
 @AnonymousAllowed
-@PageTitle("Stats")
-@Route(value = "stats", layout = MainLayout.class)
-public class StatsView extends Div {
+@PageTitle("Statistics")
+@Route(value = "statistics", layout = MainLayout.class)
+public class StatisticsView extends Div {
 
     private TabSheet tabsheet;
     private Div trackTab;
@@ -53,7 +53,7 @@ public class StatsView extends Div {
      * Constructor for the {@code StatsView} class.
      * Initializes the view components and loads user data from Spotify.
      */
-    public StatsView() {
+    public StatisticsView() {
         loadStats();
         constructUI();
         add(tabsheet);

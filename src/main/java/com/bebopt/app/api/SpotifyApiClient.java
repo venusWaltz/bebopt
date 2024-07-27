@@ -53,6 +53,7 @@ import se.michaelthelin.spotify.requests.data.tracks.GetAudioFeaturesForSeveralT
 import se.michaelthelin.spotify.requests.data.tracks.GetTrackRequest;
 import se.michaelthelin.spotify.requests.data.users_profile.GetCurrentUsersProfileRequest;
 import se.michaelthelin.spotify.requests.data.tracks.GetSeveralTracksRequest;
+import se.michaelthelin.spotify.requests.data.artists.GetArtistRequest;
 import se.michaelthelin.spotify.requests.data.artists.GetArtistsRelatedArtistsRequest;
 
 /**
@@ -106,7 +107,6 @@ public class SpotifyApiClient {
     @GetMapping("callback")
     public String getUserCode(@RequestParam("code") String code, HttpServletResponse response) throws IOException{
         this.code = code;
-        /* Use code retrieved to send a request for an access token to the Spotify API. */ 
         AuthorizationCodeRequest authorizationCodeRequest = spotifyApi.authorizationCode(this.code).build();
         try {
             final AuthorizationCodeCredentials authorizationCodeCredentials = authorizationCodeRequest.execute();
@@ -117,7 +117,7 @@ public class SpotifyApiClient {
         }
         user = getUserProfile();
         AuthenticatedUser.login(); 
-        response.sendRedirect("http://localhost:8080/home");   /* Redirect after retrieving the access token. */ 
+        response.sendRedirect("http://localhost:8080/home");
         return spotifyApi.getAccessToken();
     }
 
@@ -352,6 +352,26 @@ public class SpotifyApiClient {
     }
     
 // ------------------------------------------- Artists --------------------------------------------
+
+    /**
+     * Retrieves a specified artist from the Spotify API by its ID.
+     * 
+     * @param id The artist ID.
+     * @return The {@code Artist} object representing the requested artist.
+     */
+    @GetMapping("get-artist-by-id/{id}")
+    public static Artist getArtistById(String id) {
+        final GetArtistRequest getArtistRequest = spotifyApi
+            .getArtist(id)
+            .build();
+        try {
+            final Artist artist = getArtistRequest.execute();
+            return artist;
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        return null;
+    }
 
     /**
      * Retrieves the top artists of the current authenticated Spotify user.

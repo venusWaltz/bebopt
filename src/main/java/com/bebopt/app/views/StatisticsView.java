@@ -2,6 +2,7 @@ package com.bebopt.app.views;
 
 import com.bebopt.app.api.SpotifyService;
 import com.bebopt.app.objects.ArtistCard;
+import com.bebopt.app.objects.TimeRange;
 import com.bebopt.app.objects.TrackCard;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
@@ -34,13 +35,7 @@ public class StatisticsView extends Div {
     private TabSheet tabsheet;
     private Div trackTab;
     private Div artistTab;
-
-    private OrderedList genreContainer;
     Select<String> sortBy;
-
-    private String shortTerm = "short_term";
-    private String mediumTerm = "medium_term";
-    private String longTerm = "long_term";
 
     OrderedList trackContainerShortTerm;
     OrderedList trackContainerMediumTerm;
@@ -63,12 +58,12 @@ public class StatisticsView extends Div {
      * Load statistics data.
      */
     private void loadStats() {
-        trackContainerShortTerm = getTopTracks(shortTerm);
-        trackContainerMediumTerm = getTopTracks(mediumTerm);
-        trackContainerLongTerm = getTopTracks(longTerm);
-        artistContainerShortTerm = getTopArtists(shortTerm);
-        artistContainerMediumTerm = getTopArtists(mediumTerm);
-        artistContainerLongTerm = getTopArtists(longTerm);
+        trackContainerShortTerm = getTopTracks(TimeRange.SHORT_TERM);
+        trackContainerMediumTerm = getTopTracks(TimeRange.MEDIUM_TERM);
+        trackContainerLongTerm = getTopTracks(TimeRange.LONG_TERM);
+        artistContainerShortTerm = getTopArtists(TimeRange.SHORT_TERM);
+        artistContainerMediumTerm = getTopArtists(TimeRange.MEDIUM_TERM);
+        artistContainerLongTerm = getTopArtists(TimeRange.LONG_TERM);
     }
     
     /**
@@ -87,13 +82,13 @@ public class StatisticsView extends Div {
 // ------------------------------------------- Get data -------------------------------------------
 
     /**
-     * Loads top tracks into an ordered list based on the specified term.
+     * Loads top tracks into an ordered list based on the specified time range.
      * 
-     * @param term The time range for top tracks (short, medium, long).
+     * @param timeRange The time range for top tracks (short, medium, long).
      * @return The OrderedList of top tracks.
      */
-    private OrderedList getTopTracks(String term) {
-        Track[] userTracks = SpotifyService.getTopTracks(term);
+    private OrderedList getTopTracks(TimeRange timeRange) {
+        Track[] userTracks = SpotifyService.getTopTracks(timeRange);
         int i = 0;
         OrderedList trackContainer = new OrderedList();
         for(Track track : userTracks) { trackContainer.add(new TrackCard(track, i++)); }
@@ -101,13 +96,13 @@ public class StatisticsView extends Div {
     }
 
     /**
-     * Loads top artists into an ordered list based on the specified term.
+     * Loads top artists into an ordered list based on the specified time range.
      * 
-     * @param term The time range for top artists (short, medium, long).
+     * @param timeRange The time range for top artists (short, medium, long).
      * @return The OrderedList of top artists.
      */
-    private OrderedList getTopArtists(String term) {
-        Artist[] userArtists = SpotifyService.getTopArtists(term);
+    private OrderedList getTopArtists(TimeRange timeRange) {
+        Artist[] userArtists = SpotifyService.getTopArtists(timeRange);
         OrderedList artistContainer = new OrderedList();
         for(Artist artist : userArtists) { artistContainer.add(new ArtistCard(artist)); }
         return artistContainer;
@@ -169,26 +164,6 @@ public class StatisticsView extends Div {
         div.add(container, artistDiv);
 
         setChangeListener(sortBy, artistDiv, artistContainerShortTerm, artistContainerMediumTerm, artistContainerLongTerm);
-        return div;
-    }
-
-    /**
-     * Creates the "Top Genres" tab.
-     * 
-     * @return The Div containing the "Top Genres" tab content.
-     */
-    private Div createTopGenres() {
-        Div div = new Div();
-        addClassNames("genre-view");
-        addClassNames(MaxWidth.SCREEN_LARGE, Margin.Horizontal.AUTO, Padding.Bottom.LARGE, Padding.Horizontal.LARGE);
-        
-        VerticalLayout headerContainer = new VerticalLayout();
-        H2 header = new H2("Your Top Genres");
-        header.addClassNames(Margin.Bottom.NONE, Margin.Top.XLARGE, FontSize.XXXLARGE);
-        headerContainer.add(header);
-        
-        genreContainer = new OrderedList();
-        div.add(headerContainer, genreContainer);
         return div;
     }
 

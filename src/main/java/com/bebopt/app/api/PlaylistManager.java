@@ -6,7 +6,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.bebopt.app.objects.PlaylistCard;
 
 import se.michaelthelin.spotify.model_objects.specification.AudioFeatures;
 import se.michaelthelin.spotify.model_objects.specification.Playlist;
@@ -99,22 +101,49 @@ public class PlaylistManager {
     }
 
     // ------------------------------------------ Filter ------------------------------------------
+    
+    /**
+     * Filters the tracks in a playlist by release decade.
+     * 
+     * @param playlistCard The {@code PlaylistCard} for the playlist to be filtered.
+     * @param option The specific option for the filter criterion.
+     */
+    public static void filterPlaylist(PlaylistCard playlistCard, Integer option) {
+        if (option == null) { System.out.println("No decade selected"); }
+        else if (playlistCard.isDecadeMapNull() == true) { System.out.println("Decade map not found"); }
+        else {
+            List<Track> filteredTracks = playlistCard.getDecadeMap().get(option);
+            printFilteredTracks(filteredTracks, "release decade", String.valueOf(option));
+            addToNewPlaylist(tracksToUriStr(filteredTracks)); 
+        }
+    }
 
     /**
-     * Filters the tracks in a playlist based on the specified criterion.
+     * Filters the tracks in a playlist by genre.
      * 
-     * @param playlistId The ID of the playlist to be filtered.
-     * @param filterBy   The filtering criterion (e.g., "Release Decade").
-     * @param option     The specific option for the filter criterion.
+     * @param playlistCard The {@code PlaylistCard} for the playlist to be filtered.
+     * @param option The specific option for the filter criterion.
      */
-    public static void filterPlaylist(String playlistId, String filterBy, Integer option) {
-        List<Track> filteredTracks = new ArrayList<>();
-        System.out.println(filterBy);
-        filteredTracks = getFilteredTracks(playlistId, option);
-
-        if (filteredTracks != null) {
+    public static void filterPlaylist(PlaylistCard playlistCard, String option) {
+        if (option == null)   { System.out.println("No genre selected"); }
+        else if (playlistCard.isGenreMapNull() == true) { System.out.println("Genre map not found"); }
+        else {
+            List<Track> filteredTracks = playlistCard.getGenreMap().get(option);
+            printFilteredTracks(filteredTracks, "genre", option);
             addToNewPlaylist(tracksToUriStr(filteredTracks)); 
-            System.out.println("\nFiltered by " + filterBy.toLowerCase() +
+        }
+    }
+
+    /**
+     * Prints out the filtered tracks.
+     * 
+     * @param filteredTracks The filtered tracks to be printed.
+     * @param filterBy The filtering criterion (e.g., "Release Decade", "Genre").
+     * @param option The specific option for the filter criterion.
+     */
+    private static void printFilteredTracks(List<Track> filteredTracks, String filterBy, String option) {
+        if (filteredTracks != null) {
+            System.out.println("\nFiltered by " + filterBy +
                     (filterBy.equals("Release decade") ? " (" + option + "s) - " : " - ")
                     + filteredTracks.size() + " song(s) found:");
             for (Track track : filteredTracks) { System.out.println(track.getName()); }
@@ -122,78 +151,31 @@ public class PlaylistManager {
     }
 
     /**
-     * Filters the tracks in a playlist based on the specified criterion.
+     * Creates a map of playlist tracks grouped by release decade.
      * 
-     * @param playlistId The ID of the playlist to be filtered.
-     * @param filterBy   The filtering criterion (e.g., "Release Decade").
-     * @param option     The specific option for the filter criterion.
+     * @param playlistCard The {@code PlaylistCard} object for the playlist to be filtered.
      */
-    public static void filterPlaylist(String playlistId, String filterBy, String option) {
-        List<Track> filteredTracks = new ArrayList<>();
-        System.out.println(filterBy);
-        filteredTracks = getFilteredTracks(playlistId, option);
-
-        if (filteredTracks != null) {
-            addToNewPlaylist(tracksToUriStr(filteredTracks)); 
-            System.out.println("\nFiltered by " + filterBy.toLowerCase() +
-                    (filterBy.equals("Release decade") ? " (" + option + "s) - " : " - ")
-                    + filteredTracks.size() + " song(s) found:");
-            for (Track track : filteredTracks) { System.out.println(track.getName()); }
-        } else { System.out.println("No songs found"); }
+    public static void createDecadeMap(PlaylistCard playlistCard) {
+        List<Track> tracks = getPlaylistTracks(playlistCard.getSpotifyId());
+        Map<Integer, List<Track>> map = createDecadeMap(tracks);
+        List<String> keysList = map.keySet().stream().map(key -> key + "s").collect(Collectors.toList());
+        playlistCard.setDecadeMap(map);
+        playlistCard.setDecades(keysList);
     }
 
     /**
-     * Filters the tracks in a playlist by their release decade.
+     * Creates a map of playlist tracks grouped by genre.
      * 
-     * @param playlistId The ID of the playlist to be filtered.
-     * @param option The specific decade to filter by.
-     * @return A list of filtered {@code Track} objects.
+     * @param playlistCard The {@code PlaylistCard} object for the playlist to be filtered.
      */
-    public static List<Track> getFilteredTracks(String playlistId, Integer option) {
-        if (decadeMap != null && option != null) return decadeMap.get(option);
-        else if (decadeMap == null) System.out.println("Decade map not found");
-        else if (option == null)    System.out.println("No decade selected");
-        return null;
+    public static void createGenreMap(PlaylistCard playlistCard) {
+        List<Track> tracks = getPlaylistTracks(playlistCard.getSpotifyId());
+        Map<String, List<Track>> map = createGenreMap(tracks);
+        List<String> keysList = map.keySet().stream().collect(Collectors.toList());
+        playlistCard.setGenreMap(map);
+        playlistCard.setGenres(keysList);
     }
-
-    /**
-     * Filters the tracks in a playlist by their genre.
-     * 
-     * @param playlistId The ID of the playlist to be filtered.
-     * @param option The specific genre to filter by.
-     * @return A list of filtered {@code Track} objects.
-     */
-    public static List<Track> getFilteredTracks(String playlistId, String option) {
-        if (genreMap != null && option != null) return genreMap.get(option);
-        else if (genreMap == null) System.out.println("Genre map not found");
-        else if (option == null)   System.out.println("No genre selected");
-        return null;
-    }
-
-    /**
-     * Creates a map of tracks grouped by their release decade.
-     * 
-     * @param playlistId The ID of the playlist to be filtered.
-     * @return A set of integers representing the available decades.
-     */
-    public static Set<Integer> getDecadeKeys(String playlistId) {
-        List<Track> tracks = getPlaylistTracks(playlistId);
-        decadeMap = createDecadeMap(tracks);
-        return decadeMap.keySet();
-    }
-
-    /**
-     * Creates a map of tracks grouped by their genre.
-     * 
-     * @param playlistId The ID of the playlist to be filtered.
-     * @return A set of integers representing the available genres.
-     */
-    public static Set<String> getGenreKeys(String playlistId) {
-        List<Track> tracks = getPlaylistTracks(playlistId);
-        genreMap = createGenreMap(tracks);
-        return genreMap.keySet();
-    }
-
+    
     /**
      * Creates a map of tracks from each decade.
      * 
@@ -212,7 +194,7 @@ public class PlaylistManager {
             Integer decade = releaseYear / 10 * 10;
             decadeMap.computeIfAbsent(decade, k -> new ArrayList<>()).add(track);
         }
-
+        printMap(decadeMap);
         return decadeMap;
     }
 
@@ -228,11 +210,20 @@ public class PlaylistManager {
             String[] genres = getGenres(track);
             for (String genre : genres) { genreMap.computeIfAbsent(genre, k -> new ArrayList<>()).add(track); }
         }
-        genreMap.forEach((key, value) -> {
+        printMap(genreMap);     
+        return genreMap;
+    }
+
+    /**
+     * Print key-value pairs in a map.
+     * 
+     * @param map The map to print.
+     */
+    private static void printMap(Map<?, List<Track>> map) {
+        map.forEach((key, value) -> {
             System.out.println(key + ":");
             value.forEach(track -> System.out.println("    " + track.getName()));
-        });        
-        return genreMap;
+        });   
     }
 
     // ------------------------------------------ Merge -------------------------------------------

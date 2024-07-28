@@ -2,6 +2,8 @@ package com.bebopt.app.api;
 
 import org.springframework.stereotype.Service;
 
+import com.bebopt.app.objects.TimeRange;
+
 import se.michaelthelin.spotify.model_objects.miscellaneous.CurrentlyPlaying;
 import se.michaelthelin.spotify.model_objects.special.SnapshotResult;
 import se.michaelthelin.spotify.model_objects.specification.Album;
@@ -60,7 +62,7 @@ public class SpotifyService {
      * @param timeRange The time range for which to fetch top tracks for (short, medium, long).
      * @return The array of top tracks.
      */
-    public static Track[] getTopTracks(String timeRange) {
+    public static Track[] getTopTracks(TimeRange timeRange) {
         return SpotifyApiClient.getTopTracks(timeRange);
     }
 
@@ -118,7 +120,7 @@ public class SpotifyService {
      * @return Comma-separated string of top 5 track IDs.
      */
     public static String getTopNTrackIds(int n) {
-        Track[] top = SpotifyApiClient.getTopTracks("short_term");
+        Track[] top = SpotifyApiClient.getTopTracks(TimeRange.SHORT_TERM);
         String id[] = new String[n];
         for(int i = 0; i < id.length; i++) { id[i] = top[i].getId(); }
         return String.join(",", id);
@@ -154,7 +156,7 @@ public class SpotifyService {
      * @return The ID of the top artist.
      */
     public static String getTopArtistId() {
-        return SpotifyApiClient.getTopArtists("short_term")[0].getId();
+        return SpotifyApiClient.getTopArtists(TimeRange.SHORT_TERM)[0].getId();
     }
 
     /**
@@ -163,7 +165,7 @@ public class SpotifyService {
      * @param timeRange The time range for which to fetch top artists (short, medium, long).
      * @return The array of top artists.
      */
-    public static Artist[] getTopArtists(String timeRange) {
+    public static Artist[] getTopArtists(TimeRange timeRange) {
         return SpotifyApiClient.getTopArtists(timeRange);
     }
 

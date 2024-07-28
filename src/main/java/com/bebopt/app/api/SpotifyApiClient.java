@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bebopt.app.objects.TimeRange;
 import com.bebopt.app.routing.Router;
 import com.bebopt.app.security.AuthenticatedUser;
 import com.bebopt.app.security.Client;
@@ -194,10 +195,10 @@ public class SpotifyApiClient {
      * @return The array of {@code Track} objects representing the top tracks.
      */
     @GetMapping("user-top-tracks/{timeRange}")
-    public static Track[] getTopTracks(String timeRange) {
+    public static Track[] getTopTracks(TimeRange timeRange) {
         final GetUsersTopTracksRequest getUsersTopTracksRequest = spotifyApi
             .getUsersTopTracks()
-            .time_range(timeRange) //.limit(10)
+            .time_range(timeRange.getTimeRange())
             .build();
         try {
             final Paging<Track> trackPaging = getUsersTopTracksRequest.execute();
@@ -380,10 +381,10 @@ public class SpotifyApiClient {
      * @return The array of {@code Artist} objects representing the top artists.
      */
     @GetMapping("user-top-artists/{timeRange}")
-    public static Artist[] getTopArtists(@PathVariable String timeRange) {
+    public static Artist[] getTopArtists(@PathVariable TimeRange timeRange) {
         final GetUsersTopArtistsRequest getUsersTopArtistsRequest = spotifyApi
             .getUsersTopArtists()
-            .time_range(timeRange) // .limit(10)
+            .time_range(timeRange.getTimeRange())
             .build();
         try {
             final Paging<Artist> artistPaging = getUsersTopArtistsRequest.execute();

@@ -5,7 +5,7 @@
 @import url('./views/page-view.css');
 @import url('./views/recommendations-view.css');
 @import url('./views/header-container.css');
-@import url('./views/card-view.css');
+@import url('./views/card.css');
 @import url('@fontsource/dm-sans/index.css');    
 html {
   --lumo-size-xl: 4rem;

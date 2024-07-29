@@ -1,0 +1,19 @@
+.header-container {
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-container vaadin-vertical-layout {
+    margin-bottom: 0;
+    margin-top: var(--lumo-space-xl);
+}
+
+.header-container h2 {
+    font-size: var(--lumo-font-size-xxxl);
+}
+
+.header-container p {
+    margin-bottom: var(--lumo-space-xl);
+    margin-top: 0;
+    color: var(--materials-secondary-color);
+}

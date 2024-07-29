@@ -1,6 +1,7 @@
-# Bebopt
+<h1 style="text-align: center">Bebopt</h1>
+
 <p align="center">
-    <img src="src\main\resources\META-INF\resources\images\readme-imgs\Spotify_Logo_CMYK_Green.png" width="200" />
+    <img src="src\main\resources\META-INF\resources\images\readme-imgs\Spotify_Logo_CMYK_Green.png" width="170" />
 </p>
 
 <div align="center">
@@ -15,7 +16,7 @@
 </div>
 
 ## Overview
-Bebopt is a web application that allows users to view their Spotify statistics and manage their playlists from a centralized location.
+Bebopt is a web application that allows users to view their Spotify statistics and manage their playlists.
 
 ## Features
 + Authenticate with your personal Spotify account using OAuth2.0.
@@ -25,7 +26,6 @@ Bebopt is a web application that allows users to view their Spotify statistics a
 
 ## Getting Started
 ### Prerequisites
-Before you begin, ensure you have the following:
 + Java Runtime Environment (JRE)
 + [Maven](https://maven.apache.org/)
 + Web browser
@@ -36,9 +36,9 @@ Before you begin, ensure you have the following:
 
 2. Follow [this guide](https://developer.spotify.com/documentation/web-api/concepts/apps) to create a new application.
 
-3. When setting up your application, set the redirect URI to http://localhost:8080/callback (When you run the project later, this is where the program will be redirected after you authenticate with your Spotify account).
+3. When setting up your application, set the redirect URI to http://localhost:8080/callback (This is where the app will be redirected after you sign into your Spotify account).
 
-4. Make note of the Client ID and Client Secret from the new app you have created. Add these to the Client class (`src/main/java/com/bebopt/app/data/spotify/Client.java`) in your project.
+4. Find the Client ID and Client Secret from the new app you created. Add these to the Client class (`src/main/java/com/bebopt/app/data/spotify/Client.java`) in your project.
 
 > The Client ID is the unique identifier of your new app, and the Client Secret is the key that will be used to authorize your Web API calls. If your Client Secret is exposed, you may request a new one.
 

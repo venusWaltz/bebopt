@@ -1,4 +1,4 @@
-package com.bebopt.app.views.stats;
+package com.bebopt.app.objects;
 
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -7,8 +7,19 @@ import com.vaadin.flow.theme.lumo.LumoUtility.FontSize;
 import com.vaadin.flow.theme.lumo.LumoUtility.FontWeight;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 
+/**
+ * The {@code GenreCard} class represents a UI component to display genre information.
+ */
 public class GenreCard extends HorizontalLayout{
     
+    /**
+     * Constructor for the {@code GenreCard} class.
+     * Initializes the UI component for a genre card.
+     * 
+     * @param name The name of the genre.
+     * @param percent The percentage of total listening this genre makes up.
+     * @param index The index of the genre in the full list of genres.
+     */
     public GenreCard(String name, int percent, int index) {
         HorizontalLayout layout = new HorizontalLayout();
         addClassNames(AlignItems.CENTER, Margin.Bottom.MEDIUM);

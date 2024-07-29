@@ -1,6 +1,6 @@
 package com.bebopt.app.views;
 
-import com.bebopt.app.api.SpotifyApiClient;
+import com.bebopt.app.api.SpotifyService;
 import com.bebopt.app.objects.TimeRange;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
@@ -50,12 +50,12 @@ public class StatisticsView extends Div {
      * Loads statistics data.
      */
     private void loadStats() {
-        trackContainerShortTerm = SpotifyApiClient.getTopTracks(TimeRange.SHORT_TERM);
-        artistContainerShortTerm = SpotifyApiClient.getTopArtists(TimeRange.SHORT_TERM);
-        trackContainerMediumTerm = SpotifyApiClient.getTopTracks(TimeRange.MEDIUM_TERM);
-        artistContainerMediumTerm = SpotifyApiClient.getTopArtists(TimeRange.MEDIUM_TERM);
-        trackContainerLongTerm = SpotifyApiClient.getTopTracks(TimeRange.LONG_TERM);
-        artistContainerLongTerm = SpotifyApiClient.getTopArtists(TimeRange.LONG_TERM);
+        trackContainerShortTerm = SpotifyService.getTopTracks(TimeRange.SHORT_TERM);
+        artistContainerShortTerm = SpotifyService.getTopArtists(TimeRange.SHORT_TERM);
+        trackContainerMediumTerm = SpotifyService.getTopTracks(TimeRange.MEDIUM_TERM);
+        artistContainerMediumTerm = SpotifyService.getTopArtists(TimeRange.MEDIUM_TERM);
+        trackContainerLongTerm = SpotifyService.getTopTracks(TimeRange.LONG_TERM);
+        artistContainerLongTerm = SpotifyService.getTopArtists(TimeRange.LONG_TERM);
     }
     
     /**

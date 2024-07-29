@@ -2,10 +2,6 @@ package com.bebopt.app.api;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,14 +11,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bebopt.app.objects.ArtistCard;
 import com.bebopt.app.objects.TimeRange;
-import com.bebopt.app.objects.TrackCard;
 import com.bebopt.app.routing.Router;
 import com.bebopt.app.security.AuthenticatedUser;
 import com.bebopt.app.security.Client;
-import com.vaadin.flow.component.html.OrderedList;
-
 import jakarta.servlet.http.HttpServletResponse;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.SpotifyHttpManager;
@@ -40,7 +32,6 @@ import se.michaelthelin.spotify.model_objects.specification.Playlist;
 import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified;
 import se.michaelthelin.spotify.model_objects.specification.Recommendations;
 import se.michaelthelin.spotify.model_objects.specification.Track;
-import se.michaelthelin.spotify.model_objects.specification.TrackSimplified;
 import se.michaelthelin.spotify.model_objects.specification.User;
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeRefreshRequest;
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeRequest;
@@ -78,7 +69,7 @@ public class SpotifyApiClient {
     public static final int MAX_LIMIT = 50;
     public static final int DEFAULT_LIMIT = 20;
     public static final int INCREMENT = 5;
-    private static final int NUM_TRACKS = 5;
+    public static final int NUM_TRACKS = 5;
 
 
     /* create SpotifyApi object to use when sending requests to Spotify API */
@@ -202,16 +193,16 @@ public class SpotifyApiClient {
      * Retrieves the top tracks of the current authenticated Spotify user.
      * 
      * @param timeRange The time range for which to retrieve top tracks.
-     * @param num The number of tracks to retrieve.
+     * @param limit The number of tracks to retrieve.
      * @param offset The index of the first entry to return.
      * @return The array of {@code Track} objects representing the top tracks.
      */
     @GetMapping("user-top-tracks/{timeRange}")
-    public static Track[] getTopTracks(TimeRange timeRange, Integer num, Integer offset) {
+    public static Track[] getTopTracks(TimeRange timeRange, Integer limit, Integer offset) {
         final GetUsersTopTracksRequest getUsersTopTracksRequest = spotifyApi
             .getUsersTopTracks()
             .time_range(timeRange.getTimeRange())
-            .limit(num != null ? num : MAX_LIMIT)
+            .limit(limit != null ? limit : MAX_LIMIT)
             .offset(offset != null ? offset : 0)
             .build();
         try {
@@ -219,35 +210,6 @@ public class SpotifyApiClient {
             return trackPaging.getItems();
         } catch (Exception e) { System.out.println("Error: " + e.getMessage()); }
         return new Track[0];
-    }
-
-        /**
-     * Loads top tracks into an ordered list based on the specified time range.
-     * 
-     * @param timeRange The time range for top tracks (short, medium, long).
-     * @return The OrderedList of top tracks.
-     */
-    public static OrderedList getTopTracks(TimeRange timeRange) {
-        List<Track> userTracks = new ArrayList<>();
-        Integer offset = 0;
-
-        try {
-            userTracks = Arrays.asList(getTopTracks(timeRange, MAX_LIMIT, 0));
-        } catch (Exception e) {
-            System.out.println("Insufficient data; too few top tracks. " + e.getMessage());
-            while (offset <= MAX_LIMIT - INCREMENT) {
-                try {
-                    userTracks.addAll(Arrays.asList(getTopTracks(timeRange, INCREMENT, offset)));
-                    offset += INCREMENT;
-                } catch (Exception f) {
-                    System.out.println(f.getMessage());
-                }
-            }
-        }
-
-        OrderedList trackContainer = new OrderedList();
-        for (int i = 0; i < userTracks.size(); i++) { trackContainer.add(new TrackCard(userTracks.get(i), i)); }
-        return trackContainer;
     }
 
     /**
@@ -318,7 +280,7 @@ public class SpotifyApiClient {
      * @return The {@code Recommendations} object containing recommended tracks.
      */
     @GetMapping("recommendations")
-    public static Recommendations getRecommendations(String seed) {
+    public static Recommendations getRecommendedTracks(String seed) {
         final GetRecommendationsRequest getRecommendationsRequest = spotifyApi
             .getRecommendations()
             .limit(10)
@@ -329,34 +291,6 @@ public class SpotifyApiClient {
             return recommendations;
         } catch (Exception e) { System.out.println("Error: " + e.getMessage()); }
         return null;
-    }
-
-    /**
-     * Loads recommended tracks into an ordered list.
-     * 
-     * @return The OrderedList containing recommended tracks.
-     */
-    public static OrderedList getRecommendedTracks(Recommendations recommended) {
-        OrderedList container = new OrderedList();
-        List<String> ids = new ArrayList<>();
-        int i = 0;
-
-        for(TrackSimplified track : recommended.getTracks()) ids.add(track.getId());
-        for (Track track : SpotifyApiClient.getSeveralTracks(String.join(",", ids)))
-            container.add(new TrackCard(track, i++));
-        return container;
-    }
-
-    /**
-     * Returns track seeds to use when getting recommendations.
-     * 
-     * @return A comma-separated list of track IDs.
-     */
-    public static String getTrackSeeds() {
-        Track[] tracks = SpotifyApiClient.getTopTracks(TimeRange.SHORT_TERM, NUM_TRACKS, null);
-        List<String> ids = new ArrayList<>();
-        for(Track track : tracks) ids.add(track.getId());
-        return String.join(",", ids);
     }
 
     /**
@@ -447,16 +381,16 @@ public class SpotifyApiClient {
      * Retrieves the top artists of the current authenticated Spotify user.
      * 
      * @param timeRange The time range for which to retrieve top artists.
-     * @param num The number of tracks to retrieve.
+     * @param limit The number of tracks to retrieve.
      * @param offset The index of the first entry to return.
      * @return The array of {@code Artist} objects representing the top artists.
      */
     @GetMapping("user-top-artists/{timeRange}")
-    public static Artist[] getTopArtists(TimeRange timeRange, Integer num, Integer offset) {
+    public static Artist[] getTopArtists(TimeRange timeRange, Integer limit, Integer offset) {
         final GetUsersTopArtistsRequest getUsersTopArtistsRequest = spotifyApi
             .getUsersTopArtists()
             .time_range(timeRange.getTimeRange())
-            .limit(num != null ? num : MAX_LIMIT)
+            .limit(limit != null ? limit : MAX_LIMIT)
             .offset(offset != null ? offset : 0)
             .build();
         try {
@@ -464,35 +398,6 @@ public class SpotifyApiClient {
             return artistPaging.getItems();
         } catch (Exception e) { System.out.println("Error: " + e.getMessage()); }
         return new Artist[0];
-    }
-
-    /**
-     * Loads top artists into an ordered list based on the specified time range.
-     * 
-     * @param timeRange The time range for top artists (short, medium, long).
-     * @return The OrderedList of top artists.
-     */
-    public static OrderedList getTopArtists(TimeRange timeRange) {
-        List<Artist> userArtists = new ArrayList<>();
-        Integer offset = 0;
-
-        try {
-            userArtists = Arrays.asList(getTopArtists(timeRange, MAX_LIMIT, 0));
-        } catch (Exception e) {
-            System.out.println("Insufficient data; too few top artists. " + e.getMessage());
-            while (offset <= MAX_LIMIT - INCREMENT) {
-                try {
-                    userArtists.addAll(Arrays.asList(getTopArtists(timeRange, INCREMENT, offset)));
-                    offset += INCREMENT;
-                } catch (Exception f) {
-                    System.out.println(f.getMessage());
-                }
-            }
-        }
-
-        OrderedList trackContainer = new OrderedList();
-        for (int i = 0; i < userArtists.size(); i++) { trackContainer.add(new ArtistCard(userArtists.get(i))); }
-        return trackContainer;
     }
 
     /**
@@ -560,7 +465,6 @@ public class SpotifyApiClient {
 
     /**
      * Creates a new playlist for the current authenticated Spotify user.
-     * todo: add @param fields for the playlist name, description, isPublic.
      * 
      * @param name The name of the new playlist.
      * @return The {@code Playlist} object representing the newly created playlist.

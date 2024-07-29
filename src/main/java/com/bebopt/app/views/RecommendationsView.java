@@ -1,20 +1,15 @@
 package com.bebopt.app.views;
 
-import com.bebopt.app.api.SpotifyApiClient;
-import com.bebopt.app.objects.ArtistCard;
-import com.bebopt.app.objects.TimeRange;
+import com.bebopt.app.api.SpotifyService;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.component.html.OrderedList;
-import se.michaelthelin.spotify.model_objects.specification.Recommendations;
-
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
-import se.michaelthelin.spotify.model_objects.specification.Artist;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 /**
@@ -29,12 +24,8 @@ public class RecommendationsView extends Div {
     private Div recommendedArtistsTab;
     private TabSheet tabsheet;
     
-    private String trackSeed;
-    private String artistSeed;
-    private Recommendations recommended;
     private OrderedList tracksContainer;
     private OrderedList artistsContainer;
-    private Artist[] relatedArtist;
     
     /**
      * Constructor for the {@code RecommendationsView} class.
@@ -49,23 +40,8 @@ public class RecommendationsView extends Div {
      * Loads recommendation data.
      */
     private void loadRecommendations() {
-        trackSeed = SpotifyApiClient.getTrackSeeds();
-        artistSeed = SpotifyApiClient.getTopArtists(TimeRange.SHORT_TERM, 1, 0)[0].getId();
-        recommended = SpotifyApiClient.getRecommendations(trackSeed);
-        tracksContainer = SpotifyApiClient.getRecommendedTracks(recommended);
-        relatedArtist = SpotifyApiClient.getRelatedArtists(artistSeed);
-        artistsContainer = getRelatedArtists();
-    }
-
-    /**
-     * Retrieves recommended related artists.
-     * 
-     * @return The OrderedList containing recommended related artists.
-     */
-    private OrderedList getRelatedArtists() {
-        OrderedList container = new OrderedList();
-        for (Artist artist : relatedArtist) { container.add(new ArtistCard(artist)); }
-        return container;
+        tracksContainer = SpotifyService.getRecommendedTracks();
+        artistsContainer = SpotifyService.getRelatedArtists();
     }
 
     /**
@@ -114,14 +90,14 @@ public class RecommendationsView extends Div {
      */
     private Div createTab(String headerText) {
         Div tab = new Div();
-        HorizontalLayout container = new HorizontalLayout();
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
         VerticalLayout headerContainer = new VerticalLayout();
         H2 header = new H2(headerText);
 
-        container.addClassNames("header-container");
+        horizontalLayout.addClassNames("header-container");
         headerContainer.add(header);
-        container.add(headerContainer);
-        tab.add(container);
+        horizontalLayout.add(headerContainer);
+        tab.add(horizontalLayout);
         return tab;
     }
 }

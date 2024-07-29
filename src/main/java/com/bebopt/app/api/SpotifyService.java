@@ -205,8 +205,8 @@ public class SpotifyService {
      * 
      * @return The created playlist object.
      */
-    public static Playlist createPlaylist() {
-        return SpotifyApiClient.createPlaylist();
+    public static Playlist createPlaylist(String name) {
+        return SpotifyApiClient.createPlaylist(name);
     }
 
     /**

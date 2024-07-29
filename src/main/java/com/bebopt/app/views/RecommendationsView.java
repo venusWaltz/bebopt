@@ -48,7 +48,7 @@ public class RecommendationsView extends Div {
     }
     
     /**
-     * Load recommendation data.
+     * Loads recommendation data.
      */
     private void loadRecommendations() {
         trackSeed = SpotifyService.getTopNTrackIds(TOP_TRACK_COUNT);

@@ -463,9 +463,9 @@ public class SpotifyApiClient {
      * @return The {@code Playlist} object representing the newly created playlist.
      */
     @PostMapping("create-playlist") 
-    public static Playlist createPlaylist() {
+    public static Playlist createPlaylist(String name) {
         final CreatePlaylistRequest createPlaylistRequest = spotifyApi
-            .createPlaylist(user.getId(), "New Playlist")
+            .createPlaylist(user.getId(), name)
             .build();
         try {
             final Playlist newPlaylist = createPlaylistRequest.execute();

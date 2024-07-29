@@ -20,9 +20,6 @@ import se.michaelthelin.spotify.model_objects.specification.Track;
  */
 public class PlaylistManager {
 
-    static Map<Integer, List<Track>> decadeMap;
-    static Map<String, List<Track>> genreMap;
-
     // ------------------------------------------- Sort -------------------------------------------
 
     /**
@@ -31,18 +28,18 @@ public class PlaylistManager {
      * @param playlistId The ID of the playlist to be sorted.
      * @param option     The sorting criterion (e.g., "Release Date" or "Popularity").
      */
-    public static void sortPlaylist(String playlistId, String option) {
+    public static void sortPlaylist(PlaylistCard playlistCard, String option) {
         List<Track> sortedTracks = new ArrayList<>();
 
         if (option.equals("Release date") || option.equals("Popularity")) {
-            sortedTracks = getPlaylistTracks(playlistId);
+            sortedTracks = getPlaylistTracks(playlistCard.getSpotifyId());
             Comparator<Track> comparator = "Release date".equals(option) ?
                 Comparator.comparingInt(track -> getReleaseDate(track)) :
                 Comparator.comparingInt(Track::getPopularity).reversed();
             sortedTracks.sort(comparator);
-        } else { sortedTracks = sortAudioFeatures(getAudioFeatures(playlistId), option); }
+        } else { sortedTracks = sortAudioFeatures(getAudioFeatures(playlistCard.getSpotifyId()), option); }
 
-        addToNewPlaylist(tracksToUriStr(sortedTracks));
+        addToNewPlaylist(tracksToUriStr(sortedTracks), playlistCard.getName() + " - " + option);
         System.out.println("\nSorted by " + option);
         for (Track track : sortedTracks) { System.out.println(track.getName()); }
     }
@@ -54,7 +51,7 @@ public class PlaylistManager {
      * @param selectedSort  The sorting criterion.
      * @return A list of sorted {@code Track} objects.
      */
-    public static List<Track> sortAudioFeatures(AudioFeatures[] audioFeatures, String selectedSort) {
+    private static List<Track> sortAudioFeatures(AudioFeatures[] audioFeatures, String selectedSort) {
         SortBy sortByFunction = getFunction(selectedSort);
         Arrays.sort(audioFeatures, Comparator.comparing(sortByFunction::getValue));
         return getTracksFromAudioFeatures(audioFeatures);
@@ -85,7 +82,7 @@ public class PlaylistManager {
      * @param option The sorting criterion.
      * @return A {@code SortBy} function.
      */
-    public static SortBy getFunction(String option) {
+    private static SortBy getFunction(String option) {
         switch (option) {
             case "Duration": return feature -> (float) feature.getDurationMs();
             case "Acousticness": return AudioFeatures::getAcousticness;
@@ -113,8 +110,8 @@ public class PlaylistManager {
         else if (playlistCard.isDecadeMapNull() == true) { System.out.println("Decade map not found"); }
         else {
             List<Track> filteredTracks = playlistCard.getDecadeMap().get(option);
+            addToNewPlaylist(tracksToUriStr(filteredTracks), playlistCard.getName() + " - " + option + "s"); 
             printFilteredTracks(filteredTracks, "release decade", String.valueOf(option));
-            addToNewPlaylist(tracksToUriStr(filteredTracks)); 
         }
     }
 
@@ -129,25 +126,9 @@ public class PlaylistManager {
         else if (playlistCard.isGenreMapNull() == true) { System.out.println("Genre map not found"); }
         else {
             List<Track> filteredTracks = playlistCard.getGenreMap().get(option);
+            addToNewPlaylist(tracksToUriStr(filteredTracks), playlistCard.getName() + " - " + option); 
             printFilteredTracks(filteredTracks, "genre", option);
-            addToNewPlaylist(tracksToUriStr(filteredTracks)); 
         }
-    }
-
-    /**
-     * Prints out the filtered tracks.
-     * 
-     * @param filteredTracks The filtered tracks to be printed.
-     * @param filterBy The filtering criterion (e.g., "Release Decade", "Genre").
-     * @param option The specific option for the filter criterion.
-     */
-    private static void printFilteredTracks(List<Track> filteredTracks, String filterBy, String option) {
-        if (filteredTracks != null) {
-            System.out.println("\nFiltered by " + filterBy +
-                    (filterBy.equals("Release decade") ? " (" + option + "s) - " : " - ")
-                    + filteredTracks.size() + " song(s) found:");
-            for (Track track : filteredTracks) { System.out.println(track.getName()); }
-        } else { System.out.println("No songs found"); }
     }
 
     /**
@@ -182,7 +163,7 @@ public class PlaylistManager {
      * @param tracks The list of tracks to be grouped by decade.
      * @return A map with decades as keys and lists of tracks as values.
      */
-    public static Map<Integer, List<Track>> createDecadeMap(List<Track> tracks) {
+    private static Map<Integer, List<Track>> createDecadeMap(List<Track> tracks) {
         Integer earliest = Integer.MAX_VALUE;
         Integer latest = Integer.MIN_VALUE;
         Map<Integer, List<Track>> decadeMap = new HashMap<>();
@@ -204,7 +185,7 @@ public class PlaylistManager {
      * @param tracks The list of tracks to be grouped by genre.
      * @return A map with genres as keys and lists of tracks as values.
      */
-    public static Map<String, List<Track>> createGenreMap(List<Track> tracks) {
+    private static Map<String, List<Track>> createGenreMap(List<Track> tracks) {
         Map<String, List<Track>> genreMap = new HashMap<>();
         for (Track track : tracks) {
             String[] genres = getGenres(track);
@@ -226,6 +207,22 @@ public class PlaylistManager {
         });   
     }
 
+    /**
+     * Prints out the filtered tracks.
+     * 
+     * @param filteredTracks The filtered tracks to be printed.
+     * @param filterBy The filtering criterion (e.g., "Release Decade", "Genre").
+     * @param option The specific option for the filter criterion.
+     */
+    private static void printFilteredTracks(List<Track> filteredTracks, String filterBy, String option) {
+        if (filteredTracks != null) {
+            System.out.println("\nFiltered by " + filterBy +
+                    (filterBy.equals("Release decade") ? " (" + option + "s) - " : " - ")
+                    + filteredTracks.size() + " song(s) found:");
+            for (Track track : filteredTracks) { System.out.println(track.getName()); }
+        } else { System.out.println("No songs found"); }
+    }
+
     // ------------------------------------------ Merge -------------------------------------------
 
     /**
@@ -234,17 +231,20 @@ public class PlaylistManager {
      * @param firstPlaylistId  The ID of the first playlist.
      * @param secondPlaylistId The ID of the second playlist.
      */
-    public static void mergePlaylists(String firstPlaylistId, String secondPlaylistId) { 
-        List<Track> playlistTracks1 = getPlaylistTracks(firstPlaylistId);
+    public static void mergePlaylists(PlaylistCard firstPlaylistCard, String secondPlaylistId) { 
+        List<Track> playlistTracks1 = getPlaylistTracks(firstPlaylistCard.getSpotifyId());
         List<Track> playlistTracks2 = getPlaylistTracks(secondPlaylistId);
         String[] uris = new String[playlistTracks1.size() + playlistTracks2.size()];
         int i = 0;
+
         for (Track track : playlistTracks1) { uris[i++] = track.getUri(); }
         for (Track track : playlistTracks2) { uris[i++] = track.getUri(); }
 
-        addToNewPlaylist(uris);
-        System.out.println("\nMerging " + SpotifyService.getPlaylistById(firstPlaylistId).getName()
-                + " and " + SpotifyService.getPlaylistById(secondPlaylistId).getName());
+        String playlistName1 = firstPlaylistCard.getName();
+        String playlistName2 = SpotifyService.getPlaylistById(secondPlaylistId).getName();
+
+        addToNewPlaylist(uris, playlistName1 + " + " + playlistName2);
+        System.out.println("\nMerging " + playlistName1 + " and " + playlistName2);
     }
 
     // ------------------------------------- Helper Functions -------------------------------------
@@ -255,12 +255,14 @@ public class PlaylistManager {
      * @param playlistId The ID of the playlist.
      * @return An array of {@code AudioFeatures} objects.
      */
-    public static AudioFeatures[] getAudioFeatures(String playlistId) {
+    private static AudioFeatures[] getAudioFeatures(String playlistId) {
         Playlist playlist = SpotifyService.getPlaylistById(playlistId);
         PlaylistTrack[] tracks = playlist.getTracks().getItems();
         String trackIds = "";
+
         for (PlaylistTrack track : tracks)
             trackIds += (trackIds.isEmpty() ? "" : ",") + track.getTrack().getId();
+
         return SpotifyService.getAudioFeatures(trackIds);
     }
 
@@ -270,7 +272,7 @@ public class PlaylistManager {
      * @param playlistId The ID of the playlist.
      * @return A list of {@code Track} objects.
      */
-    public static List<Track> getPlaylistTracks(String playlistId) {
+    private static List<Track> getPlaylistTracks(String playlistId) {
         Playlist playlist = SpotifyService.getPlaylistById(playlistId);
         PlaylistTrack[] playlistTracks = playlist.getTracks().getItems();
         List<Track> tracks = new ArrayList<Track>();
@@ -287,7 +289,7 @@ public class PlaylistManager {
      * @param track The {@code Track} object.
      * @return The release year of the track.
      */
-    public static Integer getReleaseDate(Track track) {
+    private static Integer getReleaseDate(Track track) {
         return Integer.valueOf(track.getAlbum().getReleaseDate().substring(0, 4));
     }
 
@@ -298,18 +300,8 @@ public class PlaylistManager {
      * @param track The {@code Track} object.
      * @return The genre of the track.
      */
-    public static String[] getGenres(Track track) {
+    private static String[] getGenres(Track track) {
         return SpotifyService.getArtistById(track.getArtists()[0].getId()).getGenres();
-    }
-
-    /**
-     * Retrieves the track associated with an audio feature.
-     *
-     * @param audioFeature The {@code AudioFeatures} object.
-     * @return The {@code Track} object.
-     */
-    public static Track getTrack(AudioFeatures audioFeature) {
-        return SpotifyService.getTrackById(audioFeature.getId());
     }
 
     /**
@@ -317,9 +309,10 @@ public class PlaylistManager {
      *
      * @param uris The array of track URIs to be added.
      */
-    public static void addToNewPlaylist(String[] uris) {
-        String id = SpotifyService.createPlaylist().getId(); /* Retrieve ID of the new playlist. */
-        SpotifyService.addToPlaylist(id, uris);
+    private static void addToNewPlaylist(String[] uris, String name) {
+        System.out.println("\nNew playlist name: " + name);
+        // String id = SpotifyService.createPlaylist(name).getId();
+        // SpotifyService.addToPlaylist(id, uris);
     }
 
     /**
@@ -328,11 +321,10 @@ public class PlaylistManager {
      * @param tracks The list of {@code Track} objects.
      * @return An array of track URIs.
      */
-    public static String[] tracksToUriStr(List<Track> tracks) {
+    private static String[] tracksToUriStr(List<Track> tracks) {
         String[] uris = new String[tracks.size()];
         int i = 0;
-        for (Track track : tracks)
-            uris[i++] = track.getUri();
+        for (Track track : tracks) uris[i++] = track.getUri();
         return uris;
     }
 }

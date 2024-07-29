@@ -14,10 +14,6 @@ import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.lumo.LumoUtility.FontSize;
-import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
-import com.vaadin.flow.theme.lumo.LumoUtility.MaxWidth;
-import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
 import se.michaelthelin.spotify.model_objects.specification.Artist;
 import se.michaelthelin.spotify.model_objects.specification.Track;
 
@@ -55,7 +51,7 @@ public class StatisticsView extends Div {
     }
     
     /**
-     * Load statistics data.
+     * Loads statistics data.
      */
     private void loadStats() {
         trackContainerShortTerm = getTopTracks(TimeRange.SHORT_TERM);
@@ -67,7 +63,7 @@ public class StatisticsView extends Div {
     }
     
     /**
-     * Create the TabSheet and tabs.
+     * Creates the TabSheet and tabs.
      */
     private void constructUI() {
         addClassNames("page-view", "stats-view");

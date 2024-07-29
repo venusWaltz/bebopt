@@ -31,7 +31,11 @@
   margin-top: var(--lumo-space-m);
 }
 
-.playlists-view .row {
+.full-width {
+  width: 100%;
+}
+
+.align-center {
   align-items: center;
 }
 

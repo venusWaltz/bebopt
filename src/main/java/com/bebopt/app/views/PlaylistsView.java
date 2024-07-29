@@ -71,7 +71,7 @@ public class PlaylistsView extends Main {
      * Constructor for the {@code PlaylistsView} class.
      * Initializes the UI and loads Spotify playlists.
      * 
-     * @throws Exception if an error occurs during Spotify API interaction.
+     * @throws Exception If an error occurs during Spotify API interaction.
      */
     public PlaylistsView() throws Exception {
         constructUI();
@@ -114,7 +114,7 @@ public class PlaylistsView extends Main {
 // -------------------------------------- Options dialog --------------------------------------
 
     /**
-     * Create dialog window displaying playlist options.
+     * Creates a dialog window displaying the playlist options.
      * 
      * @return The playlist options dialog window.
      */
@@ -138,17 +138,17 @@ public class PlaylistsView extends Main {
     }
 
     /**
-     * Display dialog prompting user to confirm their selected action.
+     * Displays a dialog prompting the user to confirm their selected action.
      */
     public static void dialogChooseActionEvent() {
         Tab t = tabsheet.getSelectedTab();
-        if (t == tabsheet.getTabAt(0))      { confirmDialog("Sort", selectedSort); } 
-        else if (t == tabsheet.getTabAt(1)) { confirmDialog("Filter", selectedFilter); } 
-        else if (t == tabsheet.getTabAt(2)) { confirmDialog("Merge", selectedMergePlaylistId); }
+        if (t == tabsheet.getTabAt(0))      { displayConfirmDialog("Sort", selectedSort); } 
+        else if (t == tabsheet.getTabAt(1)) { displayConfirmDialog("Filter", selectedFilter); } 
+        else if (t == tabsheet.getTabAt(2)) { displayConfirmDialog("Merge", selectedMergePlaylistId); }
     }
     
     /**
-     * Save the selected playlist and display a dialog for other options.
+     * Saves the selected playlist and displays a dialog for other options.
      * 
      * @param playlist The {@code PlaylistCard} object of the playlist selected by the user.
      */
@@ -167,7 +167,7 @@ public class PlaylistsView extends Main {
     private static TabSheet createTabsheet() {
         tabsheet = new TabSheet();
         VerticalLayout sortTab = createSortTab(); 
-        VerticalLayout filterTab = createFilterTab(); 
+        HorizontalLayout filterTab = createFilterTab(); 
         VerticalLayout mergeTab = createMergeTab();
 
         tabsheet.add("Sort", sortTab);
@@ -181,7 +181,7 @@ public class PlaylistsView extends Main {
     /**
      * Creates the tab for sorting playlists.
      * 
-     * @return the "Sort" tab.
+     * @return The "Sort" tab.
      */
     private static VerticalLayout createSortTab() {
         VerticalLayout tab = new VerticalLayout();
@@ -195,41 +195,46 @@ public class PlaylistsView extends Main {
     /**
      * Creates the tab for filtering playlists.
      * 
-     * @return the "Filter" tab.
+     * @return The "Filter" tab.
      */
-    private static VerticalLayout createFilterTab() {
-        VerticalLayout tab = new VerticalLayout();
-        filterGroup = createRadioGroup("Filter by: ", null, filterItems);
+    private static HorizontalLayout createFilterTab() {
+        HorizontalLayout tab = new HorizontalLayout();
+        VerticalLayout left = new VerticalLayout();
+        VerticalLayout right = new VerticalLayout();
+        
+        filterGroup = createRadioGroup("Filter by:", null, filterItems);
 
-        decadesGroup = createRadioGroup(null, "indented-radio-group", null);
+        decadesGroup = createRadioGroup("Decades:", null, null);
         decadesGroup.addValueChangeListener(event -> {
             selectedDecade = Integer.valueOf(event.getValue().substring(0, 4));
             selectedGenre = null;
         });
-        decadesContainer = new Div();
-        decadesContainer.setVisible(false);
-        decadesContainer.addClassName("indented-radio-group-container");
-        decadesContainer.add(decadesGroup);
-
-        genresGroup = createRadioGroup(null, "indented-radio-group", null);
+        
+        genresGroup = createRadioGroup("Genres:", null, null);
         genresGroup.addValueChangeListener(event -> {
             selectedGenre = event.getValue();
             selectedDecade = null;
         });
+
+        decadesContainer = new Div();
+        decadesContainer.setVisible(false);
+        decadesContainer.add(decadesGroup);
+
         genresContainer = new Div();
         genresContainer.setVisible(false);
-        genresContainer.addClassName("indented-radio-group-container");
         genresContainer.add(genresGroup);
 
         addFilterValueChangeListener(filterGroup);
-        tab.add(filterGroup, decadesContainer, genresContainer);
+        left.add(filterGroup);
+        right.add(decadesContainer, genresContainer);
+        tab.add(left, right);
         return tab;
     }
     
     /**
      * Creates the tab for merging playlists.
      * 
-     * @return the "Merge" tab.
+     * @return The "Merge" tab.
      */
     private static VerticalLayout createMergeTab() {
         VerticalLayout tab = new VerticalLayout();
@@ -298,63 +303,101 @@ public class PlaylistsView extends Main {
      * change listener to update the selected playlist ID when a new playlist is selected.
      * 
      * @param items A list of {@code PlaylistSimplified} objects representing the user's playlists.
-     * @return the ListBox of playlists.
+     * @return The ListBox of playlists.
      */
     private static ListBox<PlaylistSimplified> createMergeListBox(List<PlaylistSimplified> items) {
         ListBox<PlaylistSimplified> listBox = new ListBox<>();
+        listBox.addClassName("full-width");
         listBox.setItems(items);
+
         listBox.setRenderer(new ComponentRenderer<>(item -> {
             HorizontalLayout row = new HorizontalLayout();
-            row.addClassNames("row");
-            Avatar a = new Avatar();
-            if (item.getImages().length != 0) { a.setImage(item.getImages()[0].getUrl()); } 
-            else { a.setImage("images/empty-plant.png"); }
+            Avatar avatar = new Avatar();
+            avatar.setImage(item.getImages().length != 0 ? item.getImages()[0].getUrl() : "images/empty-plant.png");
             Span name = new Span(item.getName());
-            row.add(a, name);
-            row.getStyle().set("line-height", "var(--lumo-line-height-m)");
+            row.addClassName("align-center");
+            row.add(avatar, name);
             return row;
         }));
+
         listBox.addValueChangeListener(e -> {
-            selectedMergePlaylistId = listBox.getValue().getId();
-            selectedMergePlaylistName = listBox.getValue().getName();
+            PlaylistSimplified listBoxPlaylist = listBox.getValue();
+            if (listBoxPlaylist != null) {
+                selectedMergePlaylistId = listBox.getValue().getId();
+                selectedMergePlaylistName = listBox.getValue().getName();
+            }
         });
+
         return listBox;
     }
 
     // -------------------------------------- Confirm dialog --------------------------------------
 
     /**
-     * Create a confirmation dialog and handle the selected action.
+     * Creates a confirmation dialog.
      * 
      * @param action The primary action chosen ("Sort", "Filter", or "Merge").
      * @param selectedAction The secondary action chosen based on the primary action.
      */
-    private static void confirmDialog(String action, String selectedAction) {
+    private static void displayConfirmDialog(String action, String selectedAction) {
         ConfirmDialog confirmDialog = new ConfirmDialog();
-        confirmDialog.addClassNames("confirm-dialog");
+        confirmDialog.addClassName("confirm-dialog");
         confirmDialog.setHeader("Confirm");
-
-        if ("Merge".equals(action)) {
-            confirmDialog.setText("Do you want to merge the playlists\n"
-                + "\"" + playlistCard.getName() + "\" and \"" + selectedMergePlaylistName + "\"?");
-        } else if ("Sort".equals(action) || "Filter".equals(action)) {
-            confirmDialog.setText("Do you want to " + action.toLowerCase() + " the playlist \"" 
-                + playlistCard.getName() + "\" by " + selectedAction.toLowerCase() + "?");
-        } else { errorDialog(); return; }
-
         confirmDialog.setCancelable(true);
         confirmDialog.setConfirmText(action);
-        confirmDialog.addConfirmListener(e -> {
-            switch (action) {
-                case "Sort": PlaylistManager.sortPlaylist(playlistCard.getSpotifyId(), selectedSort); break;
-                case "Filter": 
-                    if (selectedDecade != null) PlaylistManager.filterPlaylist(playlistCard, selectedDecade); 
-                    else if (selectedGenre != null) PlaylistManager.filterPlaylist(playlistCard, selectedGenre);
-                    break;
-                case "Merge": PlaylistManager.mergePlaylists(playlistCard.getSpotifyId(), selectedMergePlaylistId); break;
-            }
-        });
-        confirmDialog.open();
+        confirmDialog.addConfirmListener(e -> onConfirm(action, selectedAction));
+
+        String dialogText = getDialogText(action, selectedAction);
+        if (dialogText != null) {
+            confirmDialog.setText(getDialogText(action, selectedAction));
+            confirmDialog.open();
+        } else { displayErrorDialog(); }
+    }
+
+    /**
+     * Handles the specified action.
+     * 
+     * @param action The primary action chosen ("Sort", "Filter", or "Merge").
+     * @param selectedAction The secondary action chosen based on the primary action.
+     */
+    private static void onConfirm(String action, String selectedAction) {
+        switch (action) {
+            case "Sort": 
+                PlaylistManager.sortPlaylist(playlistCard, selectedSort); 
+                break;
+            case "Filter": 
+                if ("Release decade".equals(selectedFilter) && selectedDecade != null) 
+                    PlaylistManager.filterPlaylist(playlistCard, selectedDecade); 
+                else if ("Genre".equals(selectedFilter) && selectedGenre != null) 
+                    PlaylistManager.filterPlaylist(playlistCard, selectedGenre);
+                break;
+            case "Merge": 
+                PlaylistManager.mergePlaylists(playlistCard, selectedMergePlaylistId); 
+                break;
+        }
+    }
+
+    /**
+     * Constructs the text to be displayed in the confirmation dialog.
+     * 
+     * @param action The primary action chosen ("Sort", "Filter", or "Merge").
+     * @param selectedAction The secondary action chosen based on the primary action.
+     * @return The dialog text to be displayed, or {@code null} if no valid text could be constructed.
+     */
+    private static String getDialogText(String action, String selectedAction) {
+        if ("Sort".equals(action) && selectedAction != null) {
+            return "Sort playlist \"" + playlistCard.getName() + "\" by " + selectedAction.toLowerCase() + "?";
+        } 
+        if ("Filter".equals(action) && "Release decade".equals(selectedFilter) && selectedDecade != null) {
+            return "Filter playlist \"" + playlistCard.getName() + "\" by release decade (" + selectedDecade + ")?";
+        }
+        if ("Filter".equals(action) && "Genre".equals(selectedFilter) && selectedGenre != null) {
+            return "Filter playlist \"" + playlistCard.getName() + "\" by genre (" + selectedGenre + ")?";
+        } 
+        if ("Merge".equals(action) && selectedMergePlaylistId != null) {
+            return "Merge playlists\n\"" + playlistCard.getName() + "\" and \"" + selectedMergePlaylistName + "\"?";
+        }
+        return null; 
     }
 
     /**
@@ -369,7 +412,8 @@ public class PlaylistsView extends Main {
         genresContainer.setVisible(false);
         decadesGroup.clear();
         selectedDecade = null;
-        selectedSort = selectedFilter = selectedMergePlaylistId = null;
+        selectedSort = selectedFilter = null;
+        selectedMergePlaylistId = selectedMergePlaylistName = null;
     }
 
     // --------------------------------------- Error dialog ---------------------------------------
@@ -377,7 +421,7 @@ public class PlaylistsView extends Main {
     /**
      * Display an error dialog when the user needs to select a second playlist.
      */
-    private static void errorDialog() {
+    private static void displayErrorDialog() {
         ConfirmDialog errorDialog = new ConfirmDialog();
         errorDialog.setWidth("550px");
         errorDialog.setHeader("Error");

@@ -153,7 +153,6 @@ public class SpotifyService {
     
     /**
      * Loads Spotify playlists.
-     * Updates the playlist container with the fetched playlists.
      *
      * @throws Exception If an error occurs during Spotify API interaction.
      */
@@ -164,6 +163,11 @@ public class SpotifyService {
         return list;
     }
 
+    /**
+     * Returns the current user's Spotify playlists.
+     * 
+     * @return A list containing the user's playlists.
+     */
     public static List<PlaylistSimplified> getPlaylistsAsList() {
         return Arrays.asList(SpotifyApiClient.getPlaylists());
     }

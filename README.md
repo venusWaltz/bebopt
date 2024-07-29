@@ -1,4 +1,4 @@
-<h1 style="text-align: center">Bebopt</h1>
+<h1 align=center>Bebopt</h1>
 
 <p align="center">
     <img src="src\main\resources\META-INF\resources\images\readme-imgs\Spotify_Logo_CMYK_Green.png" width="170" />

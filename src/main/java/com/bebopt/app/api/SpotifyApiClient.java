@@ -98,7 +98,6 @@ public class SpotifyApiClient {
 
     /**
      * Handles user authorization callback from Spotify by requesting a temporary access token.
-     * todo: Add error handling.
      * 
      * @param userCode
      * @param response
@@ -233,7 +232,7 @@ public class SpotifyApiClient {
      * @param ids A comma-separated list of IDs.
      * @return The array of {@code Track} objects representing the requested tracks.
      */
-    @GetMapping("get-several-track")
+    @GetMapping("get-several-tracks")
     public static Track[] getSeveralTracksRequest(String ids) {
         final GetSeveralTracksRequest getSeveralTracksRequest = spotifyApi
             .getSeveralTracks(ids)

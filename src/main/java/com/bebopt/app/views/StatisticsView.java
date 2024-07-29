@@ -31,14 +31,15 @@ public class StatisticsView extends Div {
     private TabSheet tabsheet;
     private Div trackTab;
     private Div artistTab;
-    Select<String> sortBy;
 
-    OrderedList trackContainerShortTerm;
-    OrderedList trackContainerMediumTerm;
-    OrderedList trackContainerLongTerm;
-    OrderedList artistContainerShortTerm;
-    OrderedList artistContainerMediumTerm;
-    OrderedList artistContainerLongTerm;
+    private OrderedList trackContainerShortTerm;
+    private OrderedList trackContainerMediumTerm;
+    private OrderedList trackContainerLongTerm;
+    private OrderedList artistContainerShortTerm;
+    private OrderedList artistContainerMediumTerm;
+    private OrderedList artistContainerLongTerm;
+    
+    private final String[] timePeriods = {"Last four weeks", "Last six months", "All time"};
 
     /**
      * Constructor for the {@code StatsView} class.
@@ -55,10 +56,10 @@ public class StatisticsView extends Div {
      */
     private void loadStats() {
         trackContainerShortTerm = getTopTracks(TimeRange.SHORT_TERM);
-        trackContainerMediumTerm = getTopTracks(TimeRange.MEDIUM_TERM);
-        trackContainerLongTerm = getTopTracks(TimeRange.LONG_TERM);
         artistContainerShortTerm = getTopArtists(TimeRange.SHORT_TERM);
+        trackContainerMediumTerm = getTopTracks(TimeRange.MEDIUM_TERM);
         artistContainerMediumTerm = getTopArtists(TimeRange.MEDIUM_TERM);
+        trackContainerLongTerm = getTopTracks(TimeRange.LONG_TERM);
         artistContainerLongTerm = getTopArtists(TimeRange.LONG_TERM);
     }
     
@@ -122,8 +123,8 @@ public class StatisticsView extends Div {
         headerContainer.add(header);
 
         Select<String> sortBy = new Select<>();
-        sortBy.setItems("Last four weeks", "Last six months", "All data");
-        sortBy.setValue("Last four weeks");
+        sortBy.setItems(timePeriods);
+        sortBy.setValue(timePeriods[0]);
 
         Div trackDiv = new Div();
         trackDiv.add(trackContainerShortTerm);
@@ -151,8 +152,8 @@ public class StatisticsView extends Div {
         headerContainer.add(header);
 
         Select<String> sortBy = new Select<>();
-        sortBy.setItems("Last four weeks", "Last six months", "All data");
-        sortBy.setValue("Last four weeks");
+        sortBy.setItems(timePeriods);
+        sortBy.setValue(timePeriods[0]);
 
         Div artistDiv = new Div();
         artistDiv.add(artistContainerShortTerm);
@@ -177,11 +178,10 @@ public class StatisticsView extends Div {
                                    OrderedList mediumTerm, OrderedList longTerm) {
         sortBy.addValueChangeListener(e -> {
             contentDiv.removeAll();
-            switch (sortBy.getValue()) {
-                case "Last four weeks": contentDiv.add(shortTerm); break;
-                case "Last six months": contentDiv.add(mediumTerm); break;
-                case "All data": contentDiv.add(longTerm); break;
-            }
+            String value = sortBy.getValue();
+            if (value == timePeriods[0]) contentDiv.add(shortTerm);
+            else if (value == timePeriods[1]) contentDiv.add(mediumTerm);
+            else if (value == timePeriods[2]) contentDiv.add(longTerm);
         });
     }
 }

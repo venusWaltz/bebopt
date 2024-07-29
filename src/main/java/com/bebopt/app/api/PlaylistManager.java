@@ -25,8 +25,8 @@ public class PlaylistManager {
     /**
      * Sorts the tracks in a playlist based on the specified option.
      * 
-     * @param playlistId The ID of the playlist to be sorted.
-     * @param option     The sorting criterion (e.g., "Release Date" or "Popularity").
+     * @param playlistCard The {@code PlaylistCard} of the playlist to be sorted.
+     * @param option The sorting criterion (e.g., "Release Date" or "Popularity").
      */
     public static void sortPlaylist(PlaylistCard playlistCard, String option) {
         List<Track> sortedTracks = new ArrayList<>();
@@ -40,8 +40,8 @@ public class PlaylistManager {
         } else { sortedTracks = sortAudioFeatures(getAudioFeatures(playlistCard.getSpotifyId()), option); }
 
         addToNewPlaylist(tracksToUriStr(sortedTracks), playlistCard.getName() + " - " + option);
-        System.out.println("\nSorted by " + option);
-        for (Track track : sortedTracks) { System.out.println(track.getName()); }
+        System.out.println("Sorted by " + option + ":");
+        for (Track track : sortedTracks) { System.out.println("   " + track.getName()); }
     }
 
     /**
@@ -64,11 +64,9 @@ public class PlaylistManager {
      * @return A list of {@code Track} objects.
      */
     private static List<Track> getTracksFromAudioFeatures(AudioFeatures[] sortedFeatures) {
-        List<Track> tracks = new ArrayList<>();
-        for (AudioFeatures feature : sortedFeatures) {
-            tracks.add(SpotifyService.getTrackById(feature.getId()));
-        }
-        return tracks;
+        List<String> ids = new ArrayList<>();
+        for (AudioFeatures feat : sortedFeatures) ids.add(feat.getId());
+        return Arrays.asList(SpotifyService.getSeveralTracks(String.join(",", ids)));
     }
 
     /**
@@ -106,9 +104,11 @@ public class PlaylistManager {
      * @param option The specific option for the filter criterion.
      */
     public static void filterPlaylist(PlaylistCard playlistCard, Integer option) {
-        if (option == null) { System.out.println("No decade selected"); }
-        else if (playlistCard.isDecadeMapNull() == true) { System.out.println("Decade map not found"); }
-        else {
+        if (option == null) { 
+            System.out.println("No decade selected"); 
+        } else if (playlistCard.isDecadeMapNull() == true) { 
+            System.out.println("Decade map not found"); 
+        } else {
             List<Track> filteredTracks = playlistCard.getDecadeMap().get(option);
             addToNewPlaylist(tracksToUriStr(filteredTracks), playlistCard.getName() + " - " + option + "s"); 
             printFilteredTracks(filteredTracks, "release decade", String.valueOf(option));
@@ -122,9 +122,11 @@ public class PlaylistManager {
      * @param option The specific option for the filter criterion.
      */
     public static void filterPlaylist(PlaylistCard playlistCard, String option) {
-        if (option == null)   { System.out.println("No genre selected"); }
-        else if (playlistCard.isGenreMapNull() == true) { System.out.println("Genre map not found"); }
-        else {
+        if (option == null) { 
+            System.out.println("No genre selected"); 
+        } else if (playlistCard.isGenreMapNull() == true) { 
+            System.out.println("Genre map not found"); 
+        } else {
             List<Track> filteredTracks = playlistCard.getGenreMap().get(option);
             addToNewPlaylist(tracksToUriStr(filteredTracks), playlistCard.getName() + " - " + option); 
             printFilteredTracks(filteredTracks, "genre", option);
@@ -201,9 +203,10 @@ public class PlaylistManager {
      * @param map The map to print.
      */
     private static void printMap(Map<?, List<Track>> map) {
+        System.out.println();
         map.forEach((key, value) -> {
             System.out.println(key + ":");
-            value.forEach(track -> System.out.println("    " + track.getName()));
+            value.forEach(track -> System.out.println("   " + track.getName()));
         });   
     }
 
@@ -216,10 +219,10 @@ public class PlaylistManager {
      */
     private static void printFilteredTracks(List<Track> filteredTracks, String filterBy, String option) {
         if (filteredTracks != null) {
-            System.out.println("\nFiltered by " + filterBy +
+            System.out.println("Filtered by " + filterBy +
                     (filterBy.equals("Release decade") ? " (" + option + "s) - " : " - ")
                     + filteredTracks.size() + " song(s) found:");
-            for (Track track : filteredTracks) { System.out.println(track.getName()); }
+            for (Track track : filteredTracks) { System.out.println("   " + track.getName()); }
         } else { System.out.println("No songs found"); }
     }
 
@@ -228,23 +231,23 @@ public class PlaylistManager {
     /**
      * Merges two playlists into a new playlist.
      * 
-     * @param firstPlaylistId  The ID of the first playlist.
-     * @param secondPlaylistId The ID of the second playlist.
+     * @param playlistCard1 The ID of the first playlist.
+     * @param playlistCard2 The ID of the second playlist.
      */
-    public static void mergePlaylists(PlaylistCard firstPlaylistCard, String secondPlaylistId) { 
-        List<Track> playlistTracks1 = getPlaylistTracks(firstPlaylistCard.getSpotifyId());
-        List<Track> playlistTracks2 = getPlaylistTracks(secondPlaylistId);
+    public static void mergePlaylists(PlaylistCard playlistCard1, String playlistCard2) { 
+        List<Track> playlistTracks1 = getPlaylistTracks(playlistCard1.getSpotifyId());
+        List<Track> playlistTracks2 = getPlaylistTracks(playlistCard2);
         String[] uris = new String[playlistTracks1.size() + playlistTracks2.size()];
         int i = 0;
 
         for (Track track : playlistTracks1) { uris[i++] = track.getUri(); }
         for (Track track : playlistTracks2) { uris[i++] = track.getUri(); }
 
-        String playlistName1 = firstPlaylistCard.getName();
-        String playlistName2 = SpotifyService.getPlaylistById(secondPlaylistId).getName();
+        String playlistName1 = playlistCard1.getName();
+        String playlistName2 = SpotifyService.getPlaylistById(playlistCard2).getName();
 
         addToNewPlaylist(uris, playlistName1 + " + " + playlistName2);
-        System.out.println("\nMerging " + playlistName1 + " and " + playlistName2);
+        System.out.println("Merging " + playlistName1 + " and " + playlistName2);
     }
 
     // ------------------------------------- Helper Functions -------------------------------------
@@ -273,14 +276,10 @@ public class PlaylistManager {
      * @return A list of {@code Track} objects.
      */
     private static List<Track> getPlaylistTracks(String playlistId) {
-        Playlist playlist = SpotifyService.getPlaylistById(playlistId);
-        PlaylistTrack[] playlistTracks = playlist.getTracks().getItems();
-        List<Track> tracks = new ArrayList<Track>();
-
-        for (PlaylistTrack playlistTrack : playlistTracks)
-            tracks.add(SpotifyService.getTrackById(playlistTrack.getTrack().getId()));
-
-        return tracks;
+        PlaylistTrack[] playlistTracks = SpotifyService.getPlaylistById(playlistId).getTracks().getItems();
+        List<String> ids = new ArrayList<>();
+        for (PlaylistTrack playlistTrack : playlistTracks) ids.add(playlistTrack.getTrack().getId());
+        return Arrays.asList(SpotifyService.getSeveralTracks(String.join(",", ids)));
     }
 
     /**
@@ -295,7 +294,7 @@ public class PlaylistManager {
 
     /**
      * Retrieves the genre of a track.
-     * * Gets track genres from artist instead of album as most Spotify albums have no genre data.
+     * Gets genres from artist instead of album as most Spotify albums have no genre data.
      * 
      * @param track The {@code Track} object.
      * @return The genre of the track.
@@ -310,9 +309,9 @@ public class PlaylistManager {
      * @param uris The array of track URIs to be added.
      */
     private static void addToNewPlaylist(String[] uris, String name) {
-        System.out.println("\nNew playlist name: " + name);
-        // String id = SpotifyService.createPlaylist(name).getId();
-        // SpotifyService.addToPlaylist(id, uris);
+        System.out.println("\nNew playlist: " + name);
+        String id = SpotifyService.createPlaylist(name).getId();
+        SpotifyService.addToPlaylist(id, uris);
     }
 
     /**

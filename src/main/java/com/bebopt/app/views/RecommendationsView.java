@@ -1,5 +1,8 @@
 package com.bebopt.app.views;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.bebopt.app.api.SpotifyService;
 import com.bebopt.app.objects.ArtistCard;
 import com.bebopt.app.objects.TrackCard;
@@ -16,6 +19,8 @@ import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
 import se.michaelthelin.spotify.model_objects.specification.Artist;
 import se.michaelthelin.spotify.model_objects.specification.Track;
+import se.michaelthelin.spotify.model_objects.specification.TrackSimplified;
+
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 /**
@@ -66,15 +71,12 @@ public class RecommendationsView extends Div {
      */
     private OrderedList getRecommendedTracks() {
         OrderedList container = new OrderedList();
+        List<String> ids = new ArrayList<>();
+        int i = 0;
 
-        String id[] = new String[recommended.getTracks().length];
-        for(int i = 0; i < recommended.getTracks().length; i++){
-            id[i] = recommended.getTracks()[i].getId();
-        }
-        Track[] tracks = SpotifyService.getSeveralTracks(String.join(",", id));
-        for(int i = 0; i < recommended.getTracks().length; i++){
-            container.add(new TrackCard(tracks[i], i));
-        }
+        for(TrackSimplified track : recommended.getTracks()) ids.add(track.getId());
+        for (Track track : SpotifyService.getSeveralTracks(String.join(",", ids)))
+            container.add(new TrackCard(track, i++));
 
         return container;
     }

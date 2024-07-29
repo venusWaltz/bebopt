@@ -1,7 +1,7 @@
 package com.bebopt.app.objects;
 
 /**
- * Represents different time ranges; used in requests sent to the Spotify API.
+ * Represents different time ranges for retrieving user data.
  */
 public enum TimeRange {
     SHORT_TERM("short_term"),

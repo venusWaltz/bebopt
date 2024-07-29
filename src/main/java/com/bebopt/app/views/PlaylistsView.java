@@ -3,7 +3,7 @@ package com.bebopt.app.views;
 import java.util.Arrays;
 import java.util.List;
 import com.bebopt.app.api.PlaylistManager;
-import com.bebopt.app.api.SpotifyService;
+import com.bebopt.app.api.SpotifyApiClient;
 import com.bebopt.app.objects.PlaylistCard;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
@@ -101,11 +101,11 @@ public class PlaylistsView extends Main {
     /**
      * Loads Spotify playlists.
      * Updates the playlist container with the fetched playlists.
-     * 
+     *
      * @throws Exception If an error occurs during Spotify API interaction.
      */
     private void loadPlaylists() throws Exception {
-        PlaylistSimplified[] playlists = SpotifyService.getPlaylists();
+        PlaylistSimplified[] playlists = SpotifyApiClient.getPlaylists();
         for (PlaylistSimplified playlist : playlists) {
             playlistsContainer.add(new PlaylistCard(playlist));
         }
@@ -239,7 +239,7 @@ public class PlaylistsView extends Main {
     private static VerticalLayout createMergeTab() {
         VerticalLayout tab = new VerticalLayout();
         Label label = new Label("Select a second playlist: ");
-        List<PlaylistSimplified> items = Arrays.asList(SpotifyService.getPlaylists());
+        List<PlaylistSimplified> items = Arrays.asList(SpotifyApiClient.getPlaylists());
         mergeListBox = createMergeListBox(items);
         tab.add(label, mergeListBox);
         return tab;

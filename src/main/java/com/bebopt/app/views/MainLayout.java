@@ -1,7 +1,6 @@
 package com.bebopt.app.views;
 
 import com.bebopt.app.api.SpotifyApiClient;
-import com.bebopt.app.api.SpotifyService;
 import com.bebopt.app.security.AuthenticatedUser;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -130,7 +129,7 @@ public class MainLayout extends AppLayout {
             });
             layout.add(userMenu);
         } else {
-            Anchor loginLink = new Anchor(SpotifyService.getUri(), "Sign in");
+            Anchor loginLink = new Anchor(SpotifyApiClient.getSpotifyLoginUri(), "Sign in");
             loginLink.setId("sign-in");
             layout.add(loginLink);
         }

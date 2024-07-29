@@ -66,7 +66,7 @@ public class PlaylistManager {
     private static List<Track> getTracksFromAudioFeatures(AudioFeatures[] sortedFeatures) {
         List<String> ids = new ArrayList<>();
         for (AudioFeatures feat : sortedFeatures) ids.add(feat.getId());
-        return Arrays.asList(SpotifyService.getSeveralTracks(String.join(",", ids)));
+        return Arrays.asList(SpotifyApiClient.getSeveralTracks(String.join(",", ids)));
     }
 
     /**
@@ -244,7 +244,7 @@ public class PlaylistManager {
         for (Track track : playlistTracks2) { uris[i++] = track.getUri(); }
 
         String playlistName1 = playlistCard1.getName();
-        String playlistName2 = SpotifyService.getPlaylistById(playlistCard2).getName();
+        String playlistName2 = SpotifyApiClient.getPlaylistById(playlistCard2).getName();
 
         addToNewPlaylist(uris, playlistName1 + " + " + playlistName2);
         System.out.println("Merging " + playlistName1 + " and " + playlistName2);
@@ -259,14 +259,14 @@ public class PlaylistManager {
      * @return An array of {@code AudioFeatures} objects.
      */
     private static AudioFeatures[] getAudioFeatures(String playlistId) {
-        Playlist playlist = SpotifyService.getPlaylistById(playlistId);
+        Playlist playlist = SpotifyApiClient.getPlaylistById(playlistId);
         PlaylistTrack[] tracks = playlist.getTracks().getItems();
         String trackIds = "";
 
         for (PlaylistTrack track : tracks)
             trackIds += (trackIds.isEmpty() ? "" : ",") + track.getTrack().getId();
 
-        return SpotifyService.getAudioFeatures(trackIds);
+        return SpotifyApiClient.getAudioFeatures(trackIds);
     }
 
     /**
@@ -276,10 +276,10 @@ public class PlaylistManager {
      * @return A list of {@code Track} objects.
      */
     private static List<Track> getPlaylistTracks(String playlistId) {
-        PlaylistTrack[] playlistTracks = SpotifyService.getPlaylistById(playlistId).getTracks().getItems();
+        PlaylistTrack[] playlistTracks = SpotifyApiClient.getPlaylistById(playlistId).getTracks().getItems();
         List<String> ids = new ArrayList<>();
         for (PlaylistTrack playlistTrack : playlistTracks) ids.add(playlistTrack.getTrack().getId());
-        return Arrays.asList(SpotifyService.getSeveralTracks(String.join(",", ids)));
+        return Arrays.asList(SpotifyApiClient.getSeveralTracks(String.join(",", ids)));
     }
 
     /**
@@ -300,9 +300,8 @@ public class PlaylistManager {
      * @return The genre of the track.
      */
     private static String[] getGenres(Track track) {
-        return SpotifyService.getArtistById(track.getArtists()[0].getId()).getGenres();
+        return SpotifyApiClient.getArtistById(track.getArtists()[0].getId()).getGenres();
     }
-
     /**
      * Adds tracks to a new playlist.
      *
@@ -310,8 +309,8 @@ public class PlaylistManager {
      */
     private static void addToNewPlaylist(String[] uris, String name) {
         System.out.println("\nNew playlist: " + name);
-        String id = SpotifyService.createPlaylist(name).getId();
-        SpotifyService.addToPlaylist(id, uris);
+        String id = SpotifyApiClient.createPlaylist(name).getId();
+        SpotifyApiClient.addToPlaylist(id, uris);
     }
 
     /**

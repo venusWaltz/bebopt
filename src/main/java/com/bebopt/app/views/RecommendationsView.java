@@ -1,11 +1,8 @@
 package com.bebopt.app.views;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.bebopt.app.api.SpotifyService;
+import com.bebopt.app.api.SpotifyApiClient;
 import com.bebopt.app.objects.ArtistCard;
-import com.bebopt.app.objects.TrackCard;
+import com.bebopt.app.objects.TimeRange;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.component.html.OrderedList;
@@ -18,9 +15,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
 import se.michaelthelin.spotify.model_objects.specification.Artist;
-import se.michaelthelin.spotify.model_objects.specification.Track;
-import se.michaelthelin.spotify.model_objects.specification.TrackSimplified;
-
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 /**
@@ -31,7 +25,6 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 @Route(value = "Recommendations", layout = MainLayout.class)
 public class RecommendationsView extends Div {
     
-    private static final int TOP_TRACK_COUNT = 5;
     private Div recommendedTracksTab;
     private Div recommendedArtistsTab;
     private TabSheet tabsheet;
@@ -56,29 +49,12 @@ public class RecommendationsView extends Div {
      * Loads recommendation data.
      */
     private void loadRecommendations() {
-        trackSeed = SpotifyService.getTopNTrackIds(TOP_TRACK_COUNT);
-        artistSeed = SpotifyService.getTopArtistId();
-        recommended = SpotifyService.getRecommendations(trackSeed);
-        tracksContainer = getRecommendedTracks();
-        relatedArtist = SpotifyService.getRelatedArtists(artistSeed);
+        trackSeed = SpotifyApiClient.getTrackSeeds();
+        artistSeed = SpotifyApiClient.getTopArtists(TimeRange.SHORT_TERM, 1, 0)[0].getId();
+        recommended = SpotifyApiClient.getRecommendations(trackSeed);
+        tracksContainer = SpotifyApiClient.getRecommendedTracks(recommended);
+        relatedArtist = SpotifyApiClient.getRelatedArtists(artistSeed);
         artistsContainer = getRelatedArtists();
-    }
-    
-    /**
-     * Retrieves recommended tracks.
-     * 
-     * @return The OrderedList containing recommended tracks.
-     */
-    private OrderedList getRecommendedTracks() {
-        OrderedList container = new OrderedList();
-        List<String> ids = new ArrayList<>();
-        int i = 0;
-
-        for(TrackSimplified track : recommended.getTracks()) ids.add(track.getId());
-        for (Track track : SpotifyService.getSeveralTracks(String.join(",", ids)))
-            container.add(new TrackCard(track, i++));
-
-        return container;
     }
 
     /**

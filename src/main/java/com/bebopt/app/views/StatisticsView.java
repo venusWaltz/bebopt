@@ -1,9 +1,7 @@
 package com.bebopt.app.views;
 
-import com.bebopt.app.api.SpotifyService;
-import com.bebopt.app.objects.ArtistCard;
+import com.bebopt.app.api.SpotifyApiClient;
 import com.bebopt.app.objects.TimeRange;
-import com.bebopt.app.objects.TrackCard;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.OrderedList;
@@ -14,9 +12,6 @@ import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import se.michaelthelin.spotify.model_objects.specification.Artist;
-import se.michaelthelin.spotify.model_objects.specification.Track;
-
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 /**
@@ -55,12 +50,12 @@ public class StatisticsView extends Div {
      * Loads statistics data.
      */
     private void loadStats() {
-        trackContainerShortTerm = getTopTracks(TimeRange.SHORT_TERM);
-        artistContainerShortTerm = getTopArtists(TimeRange.SHORT_TERM);
-        trackContainerMediumTerm = getTopTracks(TimeRange.MEDIUM_TERM);
-        artistContainerMediumTerm = getTopArtists(TimeRange.MEDIUM_TERM);
-        trackContainerLongTerm = getTopTracks(TimeRange.LONG_TERM);
-        artistContainerLongTerm = getTopArtists(TimeRange.LONG_TERM);
+        trackContainerShortTerm = SpotifyApiClient.getTopTracks(TimeRange.SHORT_TERM);
+        artistContainerShortTerm = SpotifyApiClient.getTopArtists(TimeRange.SHORT_TERM);
+        trackContainerMediumTerm = SpotifyApiClient.getTopTracks(TimeRange.MEDIUM_TERM);
+        artistContainerMediumTerm = SpotifyApiClient.getTopArtists(TimeRange.MEDIUM_TERM);
+        trackContainerLongTerm = SpotifyApiClient.getTopTracks(TimeRange.LONG_TERM);
+        artistContainerLongTerm = SpotifyApiClient.getTopArtists(TimeRange.LONG_TERM);
     }
     
     /**
@@ -74,35 +69,6 @@ public class StatisticsView extends Div {
         tabsheet.add("Top Tracks", trackTab);
         tabsheet.add("Top Artists", artistTab);
         tabsheet.addThemeVariants(TabSheetVariant.LUMO_TABS_EQUAL_WIDTH_TABS);
-    }
-
-// ------------------------------------------- Get data -------------------------------------------
-
-    /**
-     * Loads top tracks into an ordered list based on the specified time range.
-     * 
-     * @param timeRange The time range for top tracks (short, medium, long).
-     * @return The OrderedList of top tracks.
-     */
-    private OrderedList getTopTracks(TimeRange timeRange) {
-        Track[] userTracks = SpotifyService.getTopTracks(timeRange);
-        int i = 0;
-        OrderedList trackContainer = new OrderedList();
-        for(Track track : userTracks) { trackContainer.add(new TrackCard(track, i++)); }
-        return trackContainer;
-    }
-
-    /**
-     * Loads top artists into an ordered list based on the specified time range.
-     * 
-     * @param timeRange The time range for top artists (short, medium, long).
-     * @return The OrderedList of top artists.
-     */
-    private OrderedList getTopArtists(TimeRange timeRange) {
-        Artist[] userArtists = SpotifyService.getTopArtists(timeRange);
-        OrderedList artistContainer = new OrderedList();
-        for(Artist artist : userArtists) { artistContainer.add(new ArtistCard(artist)); }
-        return artistContainer;
     }
 
 // ------------------------------------------- Tabsheet -------------------------------------------
